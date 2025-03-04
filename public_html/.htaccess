@@ -1,0 +1,2 @@
+ErrorDocument 404 http://localhost/Atory/error-404.html
+ErrorDocument 500 http://localhost/Atory/error-500.html
