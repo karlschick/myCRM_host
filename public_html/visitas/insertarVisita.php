@@ -1,6 +1,6 @@
 <?php
 ob_start(); // Inicia el buffer de salida
-include_once "conexion.php";
+require_once __DIR__ . '/../../config/db.php';
 
 $idCliente = $_POST['idCliente'];
 $tipoVisita = $_POST['tipoVisita'];

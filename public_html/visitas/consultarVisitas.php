@@ -1,18 +1,20 @@
-<?php
-//seguridad de sesiones paginacion (prueba 1)
+    <!-- actualizado -->
+
+    <?php
+// Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
+
+// Verifica si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
-if ($varsesion == null || $varsesion = '') {
-    header("location:../index.html");
-    die();
-    exit;
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
 }
 
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
-
 <body>
 <?php include '../../includes/menu.php'; ?>
     <!-- Parcial -->
@@ -54,13 +56,7 @@ include '../../includes/header.php';
     </div>
     <!-- page-body-wrapper fin -->
     </div>
-    <!-- container-scroller -->
-    <!-- Scripts -->
-    <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-    <script src="../assets/js/off-canvas.js"></script>
-    <script src="../assets/js/hoverable-collapse.js"></script>
-    <script src="../assets/js/misc.js"></script>
-    <!-- Fin de los scripts -->
+
 </body>
 
 </html>

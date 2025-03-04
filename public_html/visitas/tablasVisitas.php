@@ -1,17 +1,21 @@
-<?php
-//seguridad de sesiones paginacion (prueba 1)
+    <!-- actualizado -->
+
+    <?php
+// Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
+
+// Verifica si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
-if ($varsesion == null || $varsesion = '') {
-    header("location:../index.html");
-    die();
-    exit;
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
 }
 
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
+
 <body>
 
     <!-- Incluye el menú de navegación -->
