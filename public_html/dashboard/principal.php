@@ -1,17 +1,18 @@
 <?php
+//seguridad de sesiones paginacion (prueba 1)
 session_start();
 error_reporting(0);
-
-// Verifica si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
-if ($varsesion == null || $varsesion == '') {
-    header("location:index.html");
+if ($varsesion == null || $varsesion = '') {
+    header("location:../index.html");
     die();
+    exit;
 }
 
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
+
 
 <body>
 
@@ -48,8 +49,6 @@ include '../../includes/header.php';
         </div> <!-- Fin de content-wrapper -->
     </div> <!-- Fin de main-panel -->
 
-    <!-- Pie de página -->
-    <?php include '../../includes/footer.php'; ?>
 
 </body>
 </html>

@@ -1,41 +1,22 @@
 <?php
-//seguridad de sesiones paginacion (prueba 1)
 session_start();
 error_reporting(0);
+
+// Verifica si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
-if ($varsesion == null || $varsesion = '') {
-    header("location:../../index.html");
+if ($varsesion == null || $varsesion == '') {
+    header("location:index.html");
     die();
-    exit;
 }
 
+// Incluye el encabezado de la página
+include '../../includes/header.php';
 ?>
 
-<!-- CODIGO HTML -->
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>ATORY - Admin</title>
-    <!-- Estilos de los plugins -->
-    <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-    <!-- Fin de los estilos de los plugins -->
-    <!-- Estilos del archivo actual -->
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <!-- Fin de los estilos del archivo actual -->
-    <link rel="shortcut icon" href="../assets/images/favicon.png">
-</head>
-
 <body>
-    <?php
-    include '../menu/menuint.php';
-    ?>
 
-    <!-- partial -->
-
+    <!-- Incluye el menú de navegación -->
+    <?php include '../../includes/menu.php'; ?>
 
     <div class="main-panel">
 
@@ -53,7 +34,7 @@ if ($varsesion == null || $varsesion = '') {
                     <a href="../excel/excelVisitas.php" class="btn btn-success btn-lg">Exportar tabla a Excel</a>
 
                     <?php
-                    include("../conexion.php");
+                    require_once __DIR__ . '/../../config/db.php';
 
                     $sql = "select * from usuario
                     inner join user_visita

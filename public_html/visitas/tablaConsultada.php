@@ -47,7 +47,7 @@ if ($varsesion == null || $varsesion = '') {
                 <div class="card-body">
 
                     <?php
-                    include("../conexion.php");
+                    require_once __DIR__ . '/../../config/db.php';
 
                     $id = $_POST["docCliente"];
                     $sql = "select * from usuario

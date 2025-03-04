@@ -1,13 +1,23 @@
 <?php
+// Evitar el cacheo de la página
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 session_start();
 error_reporting(0);
+
+// Verificar si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
 if ($varsesion == null || $varsesion == '') {
-    header("location:index.html");
-    die();
+    // Redirigir al login si no hay sesión
+    header("location: index.html");
+    exit(); // Asegura que no se ejecute más código
 }
+
+// Aquí puedes incluir tu encabezado o lo que necesites
 include '../../includes/header.php';
 ?>
+
 <body>
     <div class="container-scroller">
         <!-- Todo el slider -->
@@ -102,6 +112,7 @@ include '../../includes/header.php';
                         <span class="menu-title">Gestión Visitas</span>
                     </a>
                 </li>
+
             </ul>
         </nav>
         <!-- Página parcial -->
@@ -118,11 +129,11 @@ include '../../includes/header.php';
                         <span class="mdi mdi-menu"></span>
                     </button>
                     <ul class="navbar-nav navbar-nav-right">
-                        <a href="../public_html/planes/solicitudes.php" class="btn btn-info " role="button" aria-pressed="true">Nuevos Clientes</a>
+                        <a href="../planes/solicitudes.php" class="btn btn-info " role="button" aria-pressed="true">Nuevos Clientes</a>
                         <li class="nav-item dropdown">
                             <a class="nav-link collapsed" id="profileDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
                                 <div class="navbar-profile">
-                                    <img class="img-xs rounded-circle" src="../../assets/images/faces-clipart/pic-8.png" alt="">
+                                    <img class="img-xs rounded-circle" src="../assets/images/faces-clipart/pic-8.png" alt="">
                                     <p class="mb-0 d-none d-sm-block navbar-profile-name">ADMINISTRATIVO</p>
                                     <i class="mdi mdi-menu-down d-none d-sm-block"></i>
                                 </div>
@@ -132,14 +143,13 @@ include '../../includes/header.php';
                                 <div class="dropdown-divider"></div>
                                 <a class="nav-link" href="../login/login.php">
 
-                                <div class="dropdown-item preview-item">
+                        <div class="dropdown-item preview-item">
                             <a href="../empresa/verempresa.php">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
                                         <i class="mdi mdi-logout text-danger"></i>
                                     </div>
                                 </div>
-                                <br>
                             </a>
                             <a href="../empresa/verempresa.php">
                                 <div class="preview-item-content">
@@ -149,14 +159,14 @@ include '../../includes/header.php';
                         </div>
 
                         <div class="dropdown-item preview-item">
-                            <a href="../cerrarSesion.php">
+                            <a href="../login/cerrarSesion.php">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
                                         <i class="mdi mdi-logout text-danger"></i>
                                     </div>
                                 </div>
                             </a>
-                            <a href="cerrarSesion.php">
+                            <a href="../login/cerrarSesion.php">
                                 <div class="preview-item-content">
                                     <p class="preview-subject mb-1">Cerrar sesión</p>
                                 </div>
@@ -171,6 +181,53 @@ include '../../includes/header.php';
                 </div>
             </nav>
 
+                <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="../assets/vendors/chart.js/Chart.min.js"></script>
+    <script src="../assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <script src="../assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
+    <script src="../assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="../assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../assets/js/off-canvas.js"></script>
+    <script src="../assets/js/hoverable-collapse.js"></script>
+    <script src="../assets/js/misc.js"></script>
+    <script src="../assets/js/settings.js"></script>
+    <script src="../assets/js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="../assets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+
+    <div class="jvectormap-tip"></div>
+    <!-- Estas ultimas lineas son para la alerta DE BORRAR, INSERTA SWEET ALERT Y LUEGO ESTA EL SCRIPT PARA BORRAR-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $('.borrar').on('click', function(e) {
+            e.preventDefault();
+            var self = $(this);
+            console.log(self.data('title'));
+            Swal.fire({
+                title: 'Esta seguro que desea continuar?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Confirmar',
+                cancelButtonText: 'No',
+                background: '#34495E'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    location.href = self.attr('href');
+                }
+            })
+        })
+    </script>
 </body>
 
 </html>

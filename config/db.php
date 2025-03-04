@@ -1,4 +1,7 @@
 <?php
+
+ob_start(); // Inicia el buffer de salida
+
 $config = include __DIR__ . '/config.php'; // Cargar configuración desde config.php
 
 $host = $config['DB_HOST'];

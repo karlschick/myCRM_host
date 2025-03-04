@@ -109,7 +109,7 @@
   <!-- Footer -->
   <footer class="footer bg-black small text-center text-white-50">
     <div class="container px-4 px-lg-5">
-      Copyright &copy; Atory Solution 2024
+      Copyright &copy; Atory Solution 2025
     </div>
   </footer>
 

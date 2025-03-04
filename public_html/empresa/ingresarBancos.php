@@ -1,16 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+//seguridad de sesiones paginacion (prueba 1)
+session_start();
+error_reporting(0);
+$varsesion = $_SESSION['usuario'];
+if ($varsesion == null || $varsesion = '') {
+    header("location:../index.html");
+    die();
+    exit;
+}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Atory - Admin</title>
-    <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="shortcut icon" href="../assets/images/favicon.png">
-</head>
-
+// Incluye el encabezado de la página
+include '../../includes/header.php';
+?>
 <body>
 
     <div class="main-panel">

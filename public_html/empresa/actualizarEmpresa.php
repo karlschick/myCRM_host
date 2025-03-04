@@ -20,7 +20,7 @@
 
 <body>
     <?php
-    include("conexion.php");
+    require_once __DIR__ . '/../../config/db.php';
 
     $sql = "SELECT * FROM empresa WHERE id='1';";
     $query = mysqli_query($con, $sql);

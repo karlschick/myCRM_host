@@ -1,6 +1,6 @@
 <?php
 
-include("conexion.php");
+require_once __DIR__ . '/../../config/db.php';
 
 $idVisita = $_POST['idVisita'];
 $tipoVisita = $_POST['tipoVisita'];

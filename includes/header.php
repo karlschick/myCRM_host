@@ -13,4 +13,6 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <!-- Fin de los estilos del archivo actual -->
     <link rel="shortcut icon" href="../assets/images/favicon.png">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>

@@ -4,50 +4,24 @@ session_start();
 error_reporting(0);
 $varsesion = $_SESSION['usuario'];
 if ($varsesion == null || $varsesion = '') {
-  header("location:../index.html");
-  die();
-  exit;
+    header("location:../index.html");
+    die();
+    exit;
 }
 
+// Incluye el encabezado de la página
+include '../../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html>
-
-<head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Atory Solutions</title>
-
-  <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-
-  <link rel="stylesheet" href="../assets/vendors/jvectormap/jquery-jvectormap.css">
-  <link rel="stylesheet" href="../assets/vendors/flag-icon-css/css/flag-icon.min.css">
-  <link rel="stylesheet" href="../assets/vendors/owl-carousel-2/owl.carousel.min.css">
-  <link rel="stylesheet" href="../assets/vendors/owl-carousel-2/owl.theme.default.min.css">
-
-  <link rel="stylesheet" href="../assets/css/style.css">
-
-  <link rel="shortcut icon" href="../assets/images/favicon.png">
-
-</head>
-
 <body>
-  <?php
-  include '../menu/menuint.php';
-  ?>
-
-
-
+  
+    <?php include '../../includes/menu.php'; ?>
   <div class="main-panel">
     <div class="content-wrapper"> 
     <div class="card">
       <div class="card-body">
         <a href="solicitudes.php" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Volver a Solicitudes</a>
         <?php
-
-        require_once __DIR__ . '/../config/db.php';
+          require_once __DIR__ . '/../../config/db.php';
 
         $sql = "SELECT * FROM solicitudes WHERE estadoSolicitud='Atendido';";
 
