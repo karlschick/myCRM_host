@@ -20,7 +20,7 @@
 <body>
   <div class="container-scroller">
     <?php
-    require_once __DIR__ . '/../config/db.php';
+            require_once __DIR__ . '/../../config/db.php';
 
     // Consulta para obtener datos del plan con códigoPlan='1'
     $sql = "SELECT * FROM plan WHERE codigoPlan='1';";
@@ -62,7 +62,7 @@
             </div>
           </div>
           <?php
-          require_once __DIR__ . '/../config/db.php';
+            require_once __DIR__ . '/../../config/db.php';
 
           // Consulta para obtener datos del plan con códigoPlan='2'
           $sql = "SELECT * FROM plan WHERE codigoPlan='2';";
@@ -101,7 +101,7 @@
             </div>
           </div>
           <?php
-          include_once "conexion.php";
+            require_once __DIR__ . '/../../config/db.php';
 
           // Consulta para obtener datos del plan con códigoPlan='3'
           $sql = "SELECT * FROM plan WHERE codigoPlan='3';";
@@ -141,7 +141,7 @@
               </div>
             </div>
             <?php
-            include_once "conexion.php";
+            require_once __DIR__ . '/../../config/db.php';
 
             // Consulta para obtener datos del plan con códigoPlan='4'
             $sql = "SELECT * FROM plan WHERE codigoPlan='4';";
@@ -180,7 +180,7 @@
               </div>
             </div>
             <?php
-            include_once "conexion.php";
+            require_once __DIR__ . '/../../config/db.php';
 
             // Consulta para obtener datos del plan con códigoPlan='5'
             $sql = "SELECT * FROM plan WHERE codigoPlan='5';";
@@ -220,7 +220,7 @@
                 </div>
               </div>
               <?php
-              include_once "conexion.php";
+            require_once __DIR__ . '/../../config/db.php';
 
               // Consulta para obtener datos del plan con códigoPlan='6'
               $sql = "SELECT * FROM plan WHERE codigoPlan='6';";
@@ -259,7 +259,7 @@
                 </div>
               </div>
               <?php
-              include_once "conexion.php";
+            require_once __DIR__ . '/../../config/db.php';
 
               $sql = "SELECT * FROM plan WHERE codigoPlan='7';";
               if ($rta = $con->query($sql)) {

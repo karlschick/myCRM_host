@@ -19,9 +19,7 @@
     <link rel="shortcut icon" href="../assets/images/favicon.png" />
   </head>
   <body>
-        <?php
-        include '../menu/menuint.php';
-        ?>
+
             <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
                 <!-- Logo de Atory -->
                 <a class="sidebar-brand brand-logo" href="index.html">

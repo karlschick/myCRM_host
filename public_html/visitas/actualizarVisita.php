@@ -4,24 +4,22 @@ session_start();
 error_reporting(0);
 $varsesion = $_SESSION['usuario'];
 if ($varsesion == null || $varsesion = '') {
-  header("location:../index.html");
-  die();
-  exit;
+    header("location:../index.html");
+    die();
+    exit;
 }
 
-
+// Incluye el encabezado de la página
+include '../../includes/header.php';
 ?>
 
-<!-- CODIGO HTML -->
-<!DOCTYPE html>
-<html lang="en">
+<body>
 
-<head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Incluye el menú de navegación -->
+    <?php include '../../includes/menu.php'; ?>
+  
   <?php
-  include("../conexion.php");
+    require_once __DIR__ . '/../../config/db.php';
   $id = $_GET['id'];
   $sql = "SELECT * FROM usuario
   INNER JOIN user_visita

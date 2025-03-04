@@ -1,20 +1,22 @@
 <?php
-// Evitar el cacheo de la página
+// Evitar el cacheo de la página para asegurar que siempre se cargue la versión más reciente
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
+
+// Iniciar la sesión y deshabilitar reportes de errores
 session_start();
 error_reporting(0);
 
 // Verificar si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
 if ($varsesion == null || $varsesion == '') {
-    // Redirigir al login si no hay sesión
+    // Redirigir al login si no hay sesión activa
     header("location: index.html");
     exit(); // Asegura que no se ejecute más código
 }
 
-// Aquí puedes incluir tu encabezado o lo que necesites
+// Incluir encabezado
 include '../../includes/header.php';
 ?>
 
@@ -24,13 +26,13 @@ include '../../includes/header.php';
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
             <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
                 <!-- Logo de Atory -->
-                <a class="sidebar-brand brand-logo">
+                <a class="sidebar-brand brand-logo" href="../dashboard/principal.php">
                     <img src="../assets/images/atori.png" alt="logo">
                 </a>
-                <!-- Volver a inicio -->
-                <a class="sidebar-brand brand-logo-mini">
+                <a class="sidebar-brand brand-logo-mini" href="../dashboard/principal.php">
                     <img src="../assets/images/logo-mini.png" alt="logo">
                 </a>
+
             </div>
             <ul class="nav">
                 <li class="nav-item profile">
@@ -120,7 +122,7 @@ include '../../includes/header.php';
             <!-- Menú navbar.html -->
             <nav class="navbar p-0 fixed-top d-flex flex-row">
                 <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-                    <a class="navbar-brand brand-logo-mini">
+                    <a class="navbar-brand brand-logo-mini" href="../dashboard/principal.php">
                         <img src="../assets/images/logo-mini.png" alt="logo">
                     </a>
                 </div>
@@ -143,30 +145,24 @@ include '../../includes/header.php';
                                 <div class="dropdown-divider"></div>
                                 <a class="nav-link" href="../login/login.php">
 
-                        <div class="dropdown-item preview-item">
-                            <a href="../empresa/verempresa.php">
+                                <a class="dropdown-item preview-item" href="../empresa/verempresa.php">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
-                                        <i class="mdi mdi-logout text-danger"></i>
+                                        <i class="mdi mdi-office-building text-primary"></i>
                                     </div>
                                 </div>
-                            </a>
-                            <a href="../empresa/verempresa.php">
                                 <div class="preview-item-content">
-                                    <p class="preview-subject mb-1">Ver Empresa</p>
+                                    <p class="preview-subject mb-1">informacion de la Empresa</p>
                                 </div>
                             </a>
-                        </div>
 
-                        <div class="dropdown-item preview-item">
-                            <a href="../login/cerrarSesion.php">
+                            <!-- Opción Cerrar sesión -->
+                            <a class="dropdown-item preview-item" href="../login/cerrarSesion.php">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
                                         <i class="mdi mdi-logout text-danger"></i>
                                     </div>
                                 </div>
-                            </a>
-                            <a href="../login/cerrarSesion.php">
                                 <div class="preview-item-content">
                                     <p class="preview-subject mb-1">Cerrar sesión</p>
                                 </div>
@@ -180,50 +176,58 @@ include '../../includes/header.php';
                     </button>
                 </div>
             </nav>
-
-                <!-- container-scroller -->
-    <!-- plugins:js -->
+    <!-- Carga de los plugins JavaScript principales -->
     <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <script src="../assets/vendors/chart.js/Chart.min.js"></script>
-    <script src="../assets/vendors/progressbar.js/progressbar.min.js"></script>
-    <script src="../assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
-    <script src="../assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="../assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="../assets/js/off-canvas.js"></script>
-    <script src="../assets/js/hoverable-collapse.js"></script>
-    <script src="../assets/js/misc.js"></script>
-    <script src="../assets/js/settings.js"></script>
-    <script src="../assets/js/todolist.js"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <script src="../assets/js/dashboard.js"></script>
-    <!-- End custom js for this page -->
+    <!-- Fin de la inyección de plugins -->
 
+    <!-- Plugins específicos para esta página -->
+    <script src="../assets/vendors/chart.js/Chart.min.js"></script> <!-- Plugin para gráficos -->
+    <script src="../assets/vendors/progressbar.js/progressbar.min.js"></script> <!-- Plugin para barras de progreso -->
+    <script src="../assets/vendors/jvectormap/jquery-jvectormap.min.js"></script> <!-- Plugin de mapas interactivos -->
+    <script src="../assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script> <!-- Datos del mapa mundial -->
+    <script src="../assets/vendors/owl-carousel-2/owl.carousel.min.js"></script> <!-- Plugin para carruseles de imágenes -->
+    <!-- Fin de la carga de plugins específicos -->
+
+    <!-- Inyección de scripts principales del sistema -->
+    <script src="../assets/js/off-canvas.js"></script> <!-- Manejo de menú lateral -->
+    <script src="../assets/js/hoverable-collapse.js"></script> <!-- Animaciones de colapso -->
+    <script src="../assets/js/misc.js"></script> <!-- Scripts misceláneos -->
+    <script src="../assets/js/settings.js"></script> <!-- Configuraciones generales -->
+    <script src="../assets/js/todolist.js"></script> <!-- Manejo de lista de tareas -->
+    <!-- Fin de la inyección de scripts -->
+
+    <!-- Script personalizado para esta página -->
+    <script src="../assets/js/dashboard.js"></script> <!-- Lógica específica del panel de control -->
+    <!-- Fin del script personalizado -->
+
+    <!-- Elemento de tooltip para el mapa interactivo -->
     <div class="jvectormap-tip"></div>
-    <!-- Estas ultimas lineas son para la alerta DE BORRAR, INSERTA SWEET ALERT Y LUEGO ESTA EL SCRIPT PARA BORRAR-->
+
+    <!-- Importación de SweetAlert para mostrar alertas visuales -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Script para manejar la funcionalidad de eliminación con SweetAlert -->
     <script>
         $('.borrar').on('click', function(e) {
-            e.preventDefault();
-            var self = $(this);
-            console.log(self.data('title'));
-            Swal.fire({
-                title: 'Esta seguro que desea continuar?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Confirmar',
-                cancelButtonText: 'No',
-                background: '#34495E'
-            }).then((result) => {
-                if (result.isConfirmed) {
+            e.preventDefault(); // Previene la acción por defecto del enlace
 
-                    location.href = self.attr('href');
+            var self = $(this); // Guarda la referencia del elemento clickeado
+
+            console.log(self.data('title')); // Muestra en consola el título del elemento (si tiene)
+
+            // Muestra una alerta de confirmación antes de proceder con la acción
+            Swal.fire({
+                title: '¿Está seguro que desea continuar?', // Mensaje de la alerta
+                icon: 'warning', // Icono de advertencia
+                showCancelButton: true, // Muestra el botón de cancelar
+                confirmButtonColor: '#3085d6', // Color del botón de confirmar
+                cancelButtonColor: '#d33', // Color del botón de cancelar
+                confirmButtonText: 'Confirmar', // Texto del botón de confirmación
+                cancelButtonText: 'No', // Texto del botón de cancelación
+                background: '#34495E' // Color de fondo de la alerta
+            }).then((result) => {
+                if (result.isConfirmed) { // Si el usuario confirma
+                    location.href = self.attr('href'); // Redirige a la URL del enlace
                 }
             })
         })
