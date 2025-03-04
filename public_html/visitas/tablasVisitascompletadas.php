@@ -17,7 +17,6 @@ include '../../includes/header.php';
 ?>
 
 <body>
-
     <!-- Incluye el menú de navegación -->
     <?php include '../../includes/menu.php'; ?>
 
