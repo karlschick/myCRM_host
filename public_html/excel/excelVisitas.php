@@ -1,70 +1,65 @@
 <?php
-header("Content-Disposition: attatchment; filename= Visitas.xls");
-header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+// Configurar encabezados para exportar a Excel
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header("Content-Disposition: attachment; filename=Visitas.xls");
+header("Pragma: no-cache");
+header("Expires: 0");
 
-?>
-<?php
-include("../conexion.php");
+// Agregar firma UTF-8 para evitar caracteres extraños en Excel
+echo "\xEF\xBB\xBF";
 
+// Incluir conexión a la base de datos
+require_once __DIR__ . "/../../config/db.php";
+
+// Consulta SQL
 $sql = "SELECT * FROM visitas";
+$rta = $con->query($sql);
 
-echo '<div class="table-responsive">
-            <table class="table table-hover">
-            <thead>
-        <tr>
-        <th> id Visita</th>
-        <th> Documento Cliente</th>
-        <th> Nombre Cliente</th>
-        <th> Telefono Cliente</th>
-        <th> Correo Cliente</th>
-        <th> Direccion Cliente</th>
-        <th> Documento Tecnico </th>
-        <th> Nombre Tecnico </th>
-        <th> Telefono Tecnico </th>
-        <th> Correo Tecnico </th>
-        <th> Motivo de visita </th>
-        <th> Dia de la visita </th>
-        <th> Estado de la visita </th>
-        </tr>
-            </thead>
-    ';
+// Iniciar tabla HTML (compatible con Excel)
+echo '<table border="1">
+        <thead>
+            <tr>
+                <th>ID Visita</th>
+                <th>Documento Cliente</th>
+                <th>Nombre Cliente</th>
+                <th>Teléfono Cliente</th>
+                <th>Correo Cliente</th>
+                <th>Dirección Cliente</th>
+                <th>Documento Técnico</th>
+                <th>Nombre Técnico</th>
+                <th>Teléfono Técnico</th>
+                <th>Correo Técnico</th>
+                <th>Motivo de Visita</th>
+                <th>Día de la Visita</th>
+                <th>Estado de la Visita</th>
+            </tr>
+        </thead>
+        <tbody>';
 
-if ($rta = $con->query($sql)) {
+// Generar filas con datos de la base de datos
+if ($rta) {
     while ($row = $rta->fetch_assoc()) {
-        $id = $row['idVisita'];
-        $docCliente = $row['documentoCliente'];
-        $nomCliente = $row['nombreCliente'];
-        $telCliente = $row['telefonoCliente'];
-        $emailCliente = $row['emailCliente'];
-        $dirCliente = $row['direccionCliente'];
-        $docTecnico = $row['documentoTecnico'];
-        $nomTec = $row['nombreTecnico'];
-        $telTec = $row['telefonoTecnico'];
-        $emailTec = $row['emailTecnico'];
-        $motivo = $row['motivoVisita'];
-        $diaVisita = $row['diaVisita'];
-        $eVisita = $row['estadoVisita'];
-?>
-        <tr>
-            <td> <?php echo "$id" ?></td>
-            <td> <?php echo "$docCliente" ?></td>
-            <td> <?php echo "$nomCliente" ?></td>
-            <td> <?php echo "$telCliente" ?></td>
-            <td> <?php echo "$emailCliente" ?></td>
-            <td> <?php echo "$dirCliente" ?></td>
-            <td> <?php echo "$docTecnico" ?></td>
-            <td> <?php echo "$nomTec" ?></td>
-            <td> <?php echo "$telTec" ?></td>
-            <td> <?php echo "$emailTec" ?></td>
-            <td> <?php echo "$motivo" ?></td>
-            <td> <?php echo "$diaVisita" ?></td>
-            <td> <?php echo "$eVisita" ?></td>
-
-            
-            </th>
-        </tr>
-<?php
+        echo '<tr>
+                <td>' . htmlspecialchars($row['idVisita']) . '</td>
+                <td>' . htmlspecialchars($row['documentoCliente']) . '</td>
+                <td>' . htmlspecialchars($row['nombreCliente']) . '</td>
+                <td>' . htmlspecialchars($row['telefonoCliente']) . '</td>
+                <td>' . htmlspecialchars($row['emailCliente']) . '</td>
+                <td>' . htmlspecialchars($row['direccionCliente']) . '</td>
+                <td>' . htmlspecialchars($row['documentoTecnico']) . '</td>
+                <td>' . htmlspecialchars($row['nombreTecnico']) . '</td>
+                <td>' . htmlspecialchars($row['telefonoTecnico']) . '</td>
+                <td>' . htmlspecialchars($row['emailTecnico']) . '</td>
+                <td>' . htmlspecialchars($row['motivoVisita']) . '</td>
+                <td>' . htmlspecialchars($row['diaVisita']) . '</td>
+                <td>' . htmlspecialchars($row['estadoVisita']) . '</td>
+            </tr>';
     }
 }
 
+// Cerrar la tabla
+echo '</tbody></table>';
+
+// Finalizar script
+exit;
 ?>

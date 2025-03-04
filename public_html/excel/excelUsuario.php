@@ -1,60 +1,59 @@
 <?php
-header("Content-Disposition: attatchment; filename= Usuarios.xls");
-header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+// Configurar encabezados para exportar a Excel
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header("Content-Disposition: attachment; filename=Usuarios.xls");
+header("Pragma: no-cache");
+header("Expires: 0");
 
+// Agregar firma UTF-8 para evitar caracteres extraños en Excel
+echo "\xEF\xBB\xBF";
+
+// Incluir conexión a la base de datos
+require_once __DIR__ . "/../../config/db.php";
+
+// Consulta SQL
+$sql = "SELECT * FROM usuario WHERE estadoUsuario='Activo';";
+$rta = $con->query($sql);
+
+// Iniciar tabla HTML (compatible con Excel)
+echo '<table border="1">
+        <thead>
+            <tr>
+                <th>Tipo de identificación</th>
+                <th>Número de documento</th>
+                <th>Nombres</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Clave</th>
+                <th>Estado</th>
+                <th>Fecha de creación</th>
+                <th>Última actualización</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+// Generar filas con datos de la base de datos
+if ($rta) {
+    while ($row = $rta->fetch_assoc()) {
+        echo '<tr>
+                <td>' . htmlspecialchars($row['tipoDocumento']) . '</td>
+                <td>' . htmlspecialchars($row['documentoUsuario']) . '</td>
+                <td>' . htmlspecialchars($row['nombresUsuario']) . '</td>
+                <td>' . htmlspecialchars($row['telefonoUsuario']) . '</td>
+                <td>' . htmlspecialchars($row['correoUsuario']) . '</td>
+                <td>' . htmlspecialchars($row['claveUsuario']) . '</td>
+                <td>' . htmlspecialchars($row['estadoUsuario']) . '</td>
+                <td>' . htmlspecialchars($row['creado']) . '</td>
+                <td>' . htmlspecialchars($row['ultimaActualizacion']) . '</td>
+                <td>' . htmlspecialchars($row['rol']) . '</td>
+            </tr>';
+    }
+}
+
+// Cerrar la tabla
+echo '</tbody></table>';
+
+// Finalizar script
+exit;
 ?>
-<?php
-            include("../conexion.php");
-
-            $sql = "SELECT * FROM usuario WHERE estadoUsuario='Activo';";
-
-            echo '<div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Tipo ide</th>
-                            <th>Núm doc</th>
-                            <th>Nombres</th>
-                            <th>Teléfono</th>
-                            <th>Email</th>
-                            <th>Clave</th>
-                            <th>Estado</th>
-                            <th>Fecha creación</th>
-                            <th>Última Actual</th>
-                            <th>Rol</th>
-                            
-                        </tr>
-                    </thead>';
-
-            if ($rta = $con->query($sql)) {
-                while ($row = $rta->fetch_assoc()) {
-                    $td = $row['tipoDocumento'];
-                    $id = $row['documentoUsuario'];
-                    $nombres = $row['nombresUsuario'];
-                    $telefono = $row['telefonoUsuario'];
-                    $email = $row['correoUsuario'];
-                    $clave = $row['claveUsuario'];
-                    $estado = $row['estadoUsuario'];
-                    $creacion = $row['creado'];
-                    $act = $row['ultimaActualizacion'];
-                    $rol = $row['rol'];
-                    ?>
-                    <tr>
-
-                        <td> <?php echo $td ?></td>
-                        <td> <?php echo $id ?></td>
-                        <td> <?php echo $nombres ?></td>
-                        <td> <?php echo $telefono ?></td>
-                        <td> <?php echo $email ?></td>
-                        <td> <?php echo $clave ?></td>
-                        <td> <?php echo $estado ?></td>
-                        <td> <?php echo $creacion ?></td>
-                        <td> <?php echo $act ?></td>
-                        <td> <?php echo $rol ?></td>
-                        
-                    </tr>
-
-                    <?php
-                }
-            }
-            ?>

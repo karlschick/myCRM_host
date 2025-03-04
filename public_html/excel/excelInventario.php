@@ -1,48 +1,51 @@
-<?php
-header("Content-Disposition: attatchment; filename= Inventario.xls");
-header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+<?php 
+// Configurar encabezados para exportar a Excel
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header('Content-Disposition: attachment; filename="Inventario.xls"');
+header("Pragma: no-cache");
+header("Expires: 0");
 
-?>
-<?php
-            include("../conexion.php");
+// Agregar firma UTF-8 para evitar caracteres extraños
+echo "\xEF\xBB\xBF";
 
-            $sql = "SELECT * FROM producto WHERE estadoProducto='Activo';";
+// Incluir conexión a la base de datos
+require_once __DIR__ . "/../../config/db.php";
 
-        echo '<div class="table-responsive">
-            <table class="table table-hover">
-            <thead>
-        <tr>
-        <th> Id Producto </th>
-        <th> Nombre Producto</th>
-        <th> Serial del producto</th>
-        <th> Descripcion del producto</th>
-        <th> Cantidad en bodega </th>
-        <th> Estado </th>
-    </tr>
-    </thead>
-    ';
+// Consulta SQL
+$sql = "SELECT * FROM producto WHERE estadoProducto='Activo';";
+$rta = $con->query($sql);
 
-        if ($rta = $con->query($sql)) {
-          while ($row = $rta->fetch_assoc()) {
-            $id = $row['idProducto'];
-            $nombrep = $row['nombreProducto'];
-            $serial = $row['serialProducto'];
-            $desp = $row['descripcionProducto'];
-            $cantidad = $row['cantidad'];
-            $estado=$row['estadoProducto'];
-        ?>
+// Iniciar tabla HTML (compatible con Excel)
+echo '<table border="1">
+        <thead>
             <tr>
-              <td> <?php echo "$id" ?></td>
-              <td> <?php echo "$nombrep" ?></td>
-              <td> <?php echo "$serial" ?></td>
-              <td> <?php echo "$desp" ?></td>
-              <td> <?php echo "$cantidad" ?></td>
-              <td> <?php echo "$estado" ?></td>
-              <th>
-               
+                <th>Id Producto</th>
+                <th>Nombre Producto</th>
+                <th>Serial del producto</th>
+                <th>Descripción del producto</th>
+                <th>Cantidad en bodega</th>
+                <th>Estado</th>
             </tr>
-        <?php
-          }
-        }
+        </thead>
+        <tbody>';
 
-        ?>
+// Generar filas con datos de la base de datos
+if ($rta) {
+    while ($row = $rta->fetch_assoc()) {
+        echo '<tr>
+                <td>' . mb_convert_encoding($row['idProducto'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['nombreProducto'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['serialProducto'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['descripcionProducto'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['cantidad'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['estadoProducto'], 'UTF-16LE', 'UTF-8') . '</td>
+            </tr>';
+    }
+}
+
+// Cerrar la tabla
+echo '</tbody></table>';
+
+// Finalizar script
+exit;
+?>

@@ -1,54 +1,57 @@
 <?php
-header("Content-Disposition: attatchment; filename= PQR.xls");
-header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+// Configurar encabezados para exportar a Excel
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header("Content-Disposition: attachment; filename=PQR.xls");
+header("Pragma: no-cache");
+header("Expires: 0");
 
-?>
-<?php
+// Agregar firma UTF-8 para evitar caracteres extraños en Excel
+echo "\xEF\xBB\xBF";
 
-include("../conexion.php");
+// Incluir conexión a la base de datos
+require_once __DIR__ . "/../../config/db.php";
 
+// Consulta SQL
 $sql = "SELECT * FROM pqr2 WHERE estadoPqr='Activo';";
+$rta = $con->query($sql);
 
-echo '<div class="table-responsive">
-    <table class="table table-hover">
-    <thead>
-<tr>
-<th> Id PQR </th>
-<th> Tipo de documento</th>
-<th> Numero de documento</th>
-<th> Nombres de cliente</th>
-<th> Telefono cliente</th>
-<th> Correo cliente</th>
-<th> Tipo de PQR </th>
-<th> Descripcion</th>
-<th> Estado</th>
-</tr>
-</thead>
-';
+// Iniciar tabla HTML (compatible con Excel)
+echo '<table border="1">
+        <thead>
+            <tr>
+                <th>Id PQR</th>
+                <th>Tipo de documento</th>
+                <th>Número de documento</th>
+                <th>Nombres de cliente</th>
+                <th>Teléfono cliente</th>
+                <th>Correo cliente</th>
+                <th>Tipo de PQR</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>';
 
-if ($rta = $con->query($sql)) {
+// Generar filas con datos de la base de datos
+if ($rta) {
     while ($row = $rta->fetch_assoc()) {
-        $i = $row['idPqr'];
-        $td = $row['tipoDocumento'];
-        $id = $row['nDocumento'];
-        $nombres = $row['nombresCliente'];
-        $tel = $row['telefonoCliente'];
-        $email = $row['emailCliente'];
-        $soli = $row['tPqr'];
-        $dp = $row['desPqr'];
-        $epqr = $row['estadoPqr'];
-?>
-        <tr>
-            <td> <?php echo "$i" ?></td>
-            <td> <?php echo "$td" ?></td>
-            <td> <?php echo "$id" ?></td>
-            <td> <?php echo "$nombres" ?></td>
-            <td> <?php echo "$tel" ?></td>
-            <td> <?php echo "$email" ?></td>
-            <td> <?php echo "$soli" ?></td>
-            <td> <?php echo "$dp" ?></td>
-            <td> <?php echo "$epqr" ?></td>
-        </tr>
-<?php
+        echo '<tr>
+                <td>' . mb_convert_encoding($row['idPqr'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['tipoDocumento'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['nDocumento'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['nombresCliente'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['telefonoCliente'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['emailCliente'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['tPqr'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['desPqr'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['estadoPqr'], 'UTF-16LE', 'UTF-8') . '</td>
+            </tr>';
     }
 }
+
+// Cerrar la tabla
+echo '</tbody></table>';
+
+// Finalizar script
+exit;
+?>

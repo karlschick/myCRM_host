@@ -1,5 +1,5 @@
+    <!-- actualizado -->
 <?php
-
 require_once __DIR__ . '/../../config/db.php';
 
 $idVisita = $_POST['idVisita'];

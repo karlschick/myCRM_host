@@ -30,7 +30,15 @@ include '../../includes/header.php';
                     <a href="ingresar.php" class="btn btn-primary btn-lg " role="button" aria-pressed="true">Crear nuevo cliente</a>
                     <a href="principal.php" class="btn btn-primary btn-lg " role="button" aria-pressed="true">Consultar cliente</a>
 
-                    <a href="excel/excelCliente.php" class="btn btn-success btn-lg">Exportar a Excel</a>
+                    <a href="../excel/excelCliente.php" class="btn btn-success btn-lg" onclick="return confirmarExportacion();">
+                        Exportar a Excel
+                    </a>
+
+                    <script>
+                    function confirmarExportacion() {
+                        return confirm("¿Está seguro de que desea exportar la lista a Excel?");
+                    }
+                    </script>
                     <?php
                     require_once __DIR__ . '/../../config/db.php';
                     $sql = "SELECT cliente.tipoDocumento,cliente.documentoCliente,cliente.nombreCliente,plan.nombrePlan FROM cliente 

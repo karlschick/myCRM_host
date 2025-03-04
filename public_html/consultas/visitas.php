@@ -24,7 +24,7 @@
                 <div class="card-body">
                     <a href="../index.html" class="btn btn-danger">Volver al inicio</a>
                     <?php
-                    include("../conexion.php");
+                    require_once __DIR__ . '/../../config/db.php';
 
                     $id = $_POST["id"];
                     $sql = "select * from usuario

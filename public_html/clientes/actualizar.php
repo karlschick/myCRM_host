@@ -4,36 +4,23 @@ session_start();
 error_reporting(0);
 $varsesion = $_SESSION['usuario'];
 if ($varsesion == null || $varsesion = '') {
-    header("location:index.html");
+    header("location:../index.php");
     die();
     exit;
 }
 
+// Incluye el encabezado de la página
+include '../../includes/header.php';
 ?>
 
-<!-- CODIGO HTML -->
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>ATORY - Admin</title>
-    <!-- Estilos de los plugins -->
-    <link rel="stylesheet" href="assets/vendors/mdi/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="assets/vendors/css/vendor.bundle.base.css">
-    <!-- Fin de los estilos de los plugins -->
-    <!-- Estilos del archivo actual -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Fin de los estilos del archivo actual -->
-    <link rel="shortcut icon" href="assets/images/favicon.png">
-
-</head>
-
 <body>
+    <!-- Incluye el menú de navegación -->
+    <?php include '../../includes/menu.php'; ?>
+
+
     <?php
     include 'menu/menu.php';
-    require_once __DIR__ . '/../config/db.php';
+    require_once __DIR__ . '/../../config/db.php';
     $id = $_GET['id'];
     $sql = "SELECT * FROM cliente 
     INNER JOIN plan

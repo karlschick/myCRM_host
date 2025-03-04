@@ -1,56 +1,56 @@
 <?php
-header("Content-Disposition: attatchment; filename= Factura.xls");
-header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+// Configurar encabezados para exportar a Excel
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header('Content-Disposition: attachment; filename="Factura.xls"');
+header("Pragma: no-cache");
+header("Expires: 0");
 
+// Agregar firma UTF-8 para evitar caracteres extraños
+echo "\xEF\xBB\xBF";
 
-?>
-<?php
+// Incluir conexión a la base de datos
+require_once __DIR__ . "/../../config/db.php";
 
-include("../conexion.php");
+// Consulta SQL
+$sql = "SELECT cliente.idCliente, factura.cliente_idCliente, cliente.documentoCliente, 
+               cliente.nombreCliente, factura.fechaFactura, factura.valorTotalFactura, 
+               factura.estadoFactura 
+        FROM cliente 
+        INNER JOIN factura ON cliente.idCliente = factura.cliente_idCliente";
 
-$sql = "SELECT cliente.idCliente,factura.cliente_idCliente,cliente.documentoCliente,cliente.nombreCliente,factura.fechaFactura,factura.valorTotalFactura,factura.estadoFactura FROM cliente 
-            INNER JOIN factura
-            ON cliente.idCliente=factura.cliente_idCliente;";
+$rta = $con->query($sql);
 
-echo '<div class="table-responsive">
-    <table class="table table-hover">
-    <thead>
-<tr>
-<th> ID </th>
-<th> Documento Cliente </th>
-<th> Nombre Cliente</th>
-<th> Fecha Factura</th>
-<th> Valor Total</th>
-<th> Estado factura</th>
+// Iniciar tabla HTML (compatible con Excel)
+echo '<table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Documento Cliente</th>
+                <th>Nombre Cliente</th>
+                <th>Fecha Factura</th>
+                <th>Valor Total</th>
+                <th>Estado Factura</th>
+            </tr>
+        </thead>
+        <tbody>';
 
-</tr>
-</thead>
-';
-
-if ($rta = $con->query($sql)) {
-  while ($row = $rta->fetch_assoc()) {
-    $a = $row['idCliente'];
-    $b = $row['cliente_idCliente'];
-    $dc = $row['documentoCliente'];
-    $nomc = $row['nombreCliente'];
-    $ffact = $row['fechaFactura'];
-    $st = $row['valorTotalFactura'];
-    $estf = $row['estadoFactura'];
-
-
-?>
-    <tr>
-      
-      <td> <?php echo "$b" ?></td>
-      <td> <?php echo "$dc" ?></td>
-      <td> <?php echo "$nomc" ?></td>
-      <td> <?php echo "$ffact" ?></td>
-      <td> <?php echo "$st" ?></td>
-      <td> <?php echo "$estf" ?></td>
-      <th>
-      
-    </tr>
-<?php
-  }
+// Generar filas con datos de la base de datos
+if ($rta) {
+    while ($row = $rta->fetch_assoc()) {
+        echo '<tr>
+                <td>' . mb_convert_encoding($row['idCliente'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['documentoCliente'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['nombreCliente'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['fechaFactura'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['valorTotalFactura'], 'UTF-16LE', 'UTF-8') . '</td>
+                <td>' . mb_convert_encoding($row['estadoFactura'], 'UTF-16LE', 'UTF-8') . '</td>
+            </tr>';
+    }
 }
+
+// Cerrar la tabla
+echo '</tbody></table>';
+
+// Finalizar script
+exit;
 ?>
