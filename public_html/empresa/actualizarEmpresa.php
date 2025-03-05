@@ -17,147 +17,81 @@ include '../../includes/header.php';
 ?>
 <body>
 
-    <!-- Incluye el menú de navegación -->
-    <?php include '../../includes/menu.php'; ?>
-  <!-- partial -->
-  <?php
-  require_once __DIR__ . '/../../config/db.php';
+<!-- Incluye el menú de navegación -->
+<?php include '../../includes/menu.php'; ?>
 
-    $sql = "SELECT * FROM empresa WHERE id='1';";
-    $query = mysqli_query($con, $sql);
-    $row = mysqli_fetch_array($query);
+<?php
+require_once __DIR__ . '/../../config/db.php';
 
-    ?>
-    <!-- partial -->
+// Consulta de datos de la empresa
+$sql = "SELECT * FROM empresa WHERE id = 1 LIMIT 1;";
+$query = mysqli_query($con, $sql);
+$empresa = mysqli_fetch_assoc($query);
+?>
 
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="col-md-10 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">ACTUALIZAR EMPRESA</h2>
+                    <p class="card-description">Ingrese los siguientes datos:</p>
 
-    <div class="main-panel">
-        <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
-            <div class="col-md-6 grid-margin stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">ACTUALIZAR EMPRESA</h4>
-                        <p class="card-description"> Ingrese los datos siguientes datos</p>
-                        <form class="forms-sample">
-                            <div class="form-group">
-                                <label for="rz">Razon social de la empresa</label>
-                                <input type="text" class="form-control" name="rz" id="rz" placeholder="Razon social" value="<?php echo $row['rz']?>">
+                    <form class="forms-sample">
+                        <?php
+                        $campos = [
+                            "rz" => "Razón Social de la Empresa",
+                            "nombEmpresa" => "Nombre de la Empresa",
+                            "nit" => "NIT de la Empresa",
+                            "crc" => "Registro CRC",
+                            "nombrepleg" => "Nombre del Representante Legal",
+                            "docurepleg" => "Documento del Representante Legal",
+                            "dirsede" => "Dirección Sede",
+                            "telsede" => "Teléfono",
+                            "telsede2" => "Teléfono 2",
+                            "email" => "Correo Electrónico",
+                            "paginaWeb" => "Página Web",
+                            "fechaConstitucion" => "Fecha de Constitución"
+                        ];
+
+                        foreach ($campos as $campo => $label) {
+                            $type = ($campo === "email") ? "email" : (($campo === "fechaConstitucion") ? "date" : "text");
+                            echo "<div class='form-group'>
+                                    <label for='$campo'>$label</label>
+                                    <input type='$type' class='form-control' name='$campo' id='$campo' placeholder='$label' value='" . htmlspecialchars($empresa[$campo]) . "'>
+                                  </div>";
+                        }
+                        ?>
+
+                        <!-- Información Bancaria -->
+                        <h3 class="mt-4">Información Bancaria</h3>
+
+                        <?php
+                        $sql = "SELECT num_cuenta, nomb_banco, estadoCuenta FROM bancario WHERE estadoCuenta = 'Activo';";
+                        $query = mysqli_query($con, $sql);
+
+                        while ($banco = mysqli_fetch_assoc($query)) :
+                        ?>
+                            <div class="form-group p-3 border rounded mb-3">
+                                <p><strong>Nombre del banco:  </strong> <?php echo htmlspecialchars($banco['nomb_banco']); ?></p>
+                                <p><strong>Número de cuenta:  </strong> <?php echo htmlspecialchars($banco['num_cuenta']); ?></p>
+                                <p><strong>Estado de cuenta:  </strong> <?php echo htmlspecialchars($banco['estadoCuenta']); ?></p>
                             </div>
+                        <?php endwhile; ?>
 
-                            <div class="form-group">
-                                <label for="nombEmpresa">Nombre de la empresa</label>
-                                <input type="text" class="form-control" name="nombEmpresa" id="nombEmpresa" placeholder="Nombre empresa" value="<?php echo $row['nombEmpresa']?>">
-                            </div>
 
-                            <div class="form-group">
-                                <label for="nit">NIT de la empresa</label>
-                                <input type="text" class="form-control" name="nit" id="nit" placeholder="NIT" value="<?php echo $row['nit']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="crc">Registro CRC</label>
-                                <input type="text" class="form-control" name="crc" id="crc" placeholder="Registro CRC" value="<?php echo $row['crc']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="nombrepleg">Nombre del representante legal</label>
-                                <input type="text" class="form-control" name="nombrepleg" id="nombrepleg" placeholder="Representante Legal" value="<?php echo $row['nombrepleg']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="docurepleg">Documento representante legal</label>
-                                <input type="text" class="form-control" name="docurepleg" id="docurepleg" placeholder="docuemnto representante"value="<?php echo $row['docurepleg']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="dirsede">Direccion sede</label>
-                                <input type="text" class="form-control" name="dirsede" id="dirsede" placeholder="direccion"value="<?php echo $row['dirsede']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="telsede">Ingrese telefono</label>
-                                <input type="text" class="form-control" name="telsede" id="telsede" placeholder="telefono"value="<?php echo $row['telsede']?>">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="telsede2">Ingrese telefono dos</label>
-                                <input type="text" class="form-control" name="telsede2" id="telsede2" placeholder="telefono 2"value="<?php echo $row['telsede2']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="email">Ingrese correo electronico</label>
-                                <input type="email" class="form-control" name="email" id="email" placeholder="Correo electronico"value="<?php echo $row['email']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="paginaweb">Pagina Web</label>
-                                <input type="text" class="form-control" name="paginaWeb" id="paginaWeb" placeholder="paginaWeb"value="<?php echo $row['paginaWeb']?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="fechaConstitucion">Fecha de Constitucion empresa</label>
-                                <input type="date" class="form-control" name="fechaConstitucion" id="fechaConstitucion" placeholder="fechaConstitucion"value="<?php echo $row['fechaConstitucion']?>">
-                            </div>
-                            <?php 
-                            $sql="SELECT * FROM bancario;";
-                            $query=mysqli_query($con,$sql);
-                            $row=mysqli_fetch_array($query);
-                            if($rta = $con->query($sql)){
-                                    while ($row = $rta->fetch_assoc()){
-                                        $id_banco=$row['id_bancario'];
-                                        $num_cuenta=$row['num_cuenta'];
-                                        $nomb_banco=$row['nomb_banco'];
-                                        $estadoCuenta=$row['estadoCuenta'];
-                            ?>
-                            <div class="form-group">
-                                <h4 class="form-control"> Numero de cuenta: <?php echo "$num_cuenta"?> </h4>
-                                <h4 class="form-control"> Nombre del banco: <?php echo "$nomb_banco"?> </h4>
-                                <h4 class="form-control"> Estado de cuenta: <?php echo "$estadoCuenta"?> </h4>
-                            </div>
-                            <?php
-
-                                    }
-
-                            }
-                            
-                            ?>
-                            <div>
-                                <br>
-                                <button id="submit" type="submit" formmethod="post" formaction="indatos.php" class="btn btn-primary">Guardar</button>
-                                <button id="submit" type="submit" formmethod="post" formaction="../empresa/verempresa.php" class="btn btn-primary"> Volver al inicio </button>
-                                <button id="submit" type="submit" formmethod="post" formaction="ingresarBancos.php" class="btn btn-primary"> ingresar a bancos </button>
-
-                            </div>
-                        </form>
-                    </div>
+                        <!-- Botones -->
+                        <div class="mt-3">
+                            <button type="submit" formmethod="post" formaction="indatos.php" class="btn btn-primary">Guardar</button>
+                            <button type="submit" formmethod="post" formaction="../empresa/verempresa.php" class="btn btn-secondary">Volver al inicio</button>
+                            <button type="submit" formmethod="post" formaction="ingresarBancos.php" class="btn btn-info">Ingresar a Bancos</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <!-- ESTO ES LO QUE PODEMOS MODIFICAR -->
         </div>
-
     </div>
-    <!-- container-scroller -->
-    <!-- plugins:js -->
-    <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <script src="../assets/vendors/chart.js/Chart.min.js"></script>
-    <script src="../assets/vendors/progressbar.js/progressbar.min.js"></script>
-    <script src="../assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
-    <script src="../assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="../assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="../assets/js/off-canvas.js"></script>
-    <script src="../assets/js/hoverable-collapse.js"></script>
-    <script src="../assets/js/misc.js"></script>
-    <script src="../assets/js/settings.js"></script>
-    <script src="../assets/js/todolist.js"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <script src="../assets/js/dashboard.js"></script>
-    <!-- End custom js for this page -->
-    <div class="jvectormap-tip"></div>
+</div>
 </body>
 
 </html>

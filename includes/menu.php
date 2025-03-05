@@ -65,14 +65,6 @@ include '../../includes/header.php';
 
                 </li>
                 <li class="nav-item menu-items">
-                    <a class="nav-link" href="../usuarios/tablasUser.php">
-                        <span class="menu-icon">
-                            <i class="mdi mdi-table-large"></i>
-                        </span>
-                        <span class="menu-title">Gestión Usuarios</span>
-                    </a>
-                </li>
-                <li class="nav-item menu-items">
                     <a class="nav-link" href="../planes/tablaplanes.php">
                         <span class="menu-icon">
                             <i class="mdi mdi-laptop"></i>
@@ -114,7 +106,14 @@ include '../../includes/header.php';
                         <span class="menu-title">Gestión Visitas</span>
                     </a>
                 </li>
-
+                <li class="nav-item menu-items">
+                    <a class="nav-link" href="../usuarios/tablasUser.php">
+                        <span class="menu-icon">
+                            <i class="mdi mdi-table-large"></i>
+                        </span>
+                        <span class="menu-title">Usuarios empresa</span>
+                    </a>
+                </li>
             </ul>
         </nav>
         <!-- Página parcial -->

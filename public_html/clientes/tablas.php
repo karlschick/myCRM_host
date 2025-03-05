@@ -29,7 +29,7 @@ include '../../includes/header.php';
             <div class="card">
                 <div class="card-body">
                     <a href="ingresar.php" class="btn btn-primary btn-lg " role="button" aria-pressed="true">Crear nuevo cliente</a>
-                    <a href="principal.php" class="btn btn-primary btn-lg " role="button" aria-pressed="true">Consultar cliente</a>
+                    <a href="consuCliente.php" class="btn btn-primary btn-lg " role="button" aria-pressed="true">Consultar cliente</a>
 
                     <a href="../excel/excelCliente.php" class="btn btn-success btn-lg" onclick="return confirmarExportacion();">
                         Exportar a Excel

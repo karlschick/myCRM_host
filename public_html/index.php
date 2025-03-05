@@ -19,7 +19,7 @@
 
 <body id="page-top">
   <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav" style="background-color: rgba(44, 45, 46, 0.7); height: 0px;">
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav" style="background-color: rgba(2, 9, 15, 0.7); height: 0px;">
     <div class="container px-4 px-lg-5">
       <a class="navbar-brand" href="https://www.facebook.com/profile.php?id=61556150756288">Atory Solution</a>
       <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">

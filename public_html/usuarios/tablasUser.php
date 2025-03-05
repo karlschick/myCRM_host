@@ -27,7 +27,7 @@ include '../../includes/header.php';
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="page-header">
-                <h1 style="font-size: 32px;">GESTIÓN USUARIOS</h1>
+                <h1 style="font-size: 32px;">GESTIÓN USUARIOS DE LA EMPRESA</h1>
 
             </div>
             <div class="card">
