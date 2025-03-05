@@ -1,5 +1,5 @@
 <?php 
-include "conexion.php";
+require_once __DIR__ . '/../../config/db.php';
 $cid=$_POST['cid'];
 $fing=$_POST['fing'];
 $impt=$_POST['impt'];

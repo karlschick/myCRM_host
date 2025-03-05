@@ -1,6 +1,6 @@
 <?php
 
-include("conexion.php");
+require_once __DIR__ . '/../../config/db.php';
 
 $i=$_GET['i'];
 

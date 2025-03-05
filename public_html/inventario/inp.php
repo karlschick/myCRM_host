@@ -1,5 +1,6 @@
+    <!-- actualizado -->
 <?php
-include("conexion.php");
+require_once __DIR__ . '/../../config/db.php';
 $nombrep=$_POST['nombrep'];
 $serial=$_POST['serial'];
 $desp=$_POST['desp'];

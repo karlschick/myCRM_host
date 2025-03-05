@@ -1,24 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+    <!-- actualizado -->
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>AtorySolution</title>
-  <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="shortcut icon" href="../assets/images/favicon.png" />
-  <style>
-    .form-group>div {
-      margin-bottom: 1px;
-    }
-  </style>
-</head>
+    <?php
+// Seguridad de sesiones (prueba 1)
+session_start();
+error_reporting(0);
+
+// Verifica si el usuario tiene una sesión activa
+$varsesion = $_SESSION['usuario'];
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
+}
+
+// Incluye el encabezado de la página
+include '../../includes/header.php';
+?>
 
 <body>
   <?php
-  include_once "conexion.php";
+  require_once __DIR__ . '/../../config/db.php';
 
   $id = $_GET['id'];
   $sql = "SELECT * FROM cliente  
@@ -153,7 +153,7 @@
                       <center>
 
 
-                        <a href="../index.html" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver </a>
+                        <a href="../index.php" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver </a>
                         <a href="facturaPDF.php?id=<?php echo $if; ?>" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Imprimir PDF</a>
                       </center>
                     </form>
@@ -163,12 +163,7 @@
           </div>
         </div>
       </div>
-      <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-      <script src="../assets/js/off-canvas.js"></script>
-      <script src="../assets/js/hoverable-collapse.js"></script>
-      <script src="../assets/js/misc.js"></script>
-      <script src="../assets/js/settings.js"></script>
-      <script src="../assets/js/todolist.js"></script>
+
 </body>
 
 </html>

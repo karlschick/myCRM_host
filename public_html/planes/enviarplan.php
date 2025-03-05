@@ -1,19 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+    <!-- actualizado -->
 
-<head>
+    <?php
+// Seguridad de sesiones (prueba 1)
+session_start();
+error_reporting(0);
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Atory Solution</title>
+// Verifica si el usuario tiene una sesión activa
+$varsesion = $_SESSION['usuario'];
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
+}
 
-  <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-  <!-- endinject -->
-  <link rel="stylesheet" href="../assets/css/style.css">
+// Incluye el encabezado de la página
+include '../../includes/header.php';
+?>
 
-  <link rel="shortcut icon" href="../assets/images/favicon.png" />
-</head>
 
 <body>
   <div class="container-scroller">

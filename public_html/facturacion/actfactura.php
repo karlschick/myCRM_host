@@ -1,5 +1,5 @@
 <?php 
-include "conexion.php";
+require_once __DIR__ . '/../../config/db.php';
 $if=$_POST['if'];
 $ffact=$_POST['ffact'];
 $st=$_POST['st'];

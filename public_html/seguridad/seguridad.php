@@ -9,7 +9,7 @@ if ($varsesion == null || $varsesion == '') {
    exit;
 }
 
-include("conexion.php");
+require_once __DIR__ . '/../../config/db.php';
 
 $id_usuario = $_SESSION['documentoUsuario'];
 $consulta = "SELECT * FROM usuario WHERE documentoUsuario = '$id_usuario'";

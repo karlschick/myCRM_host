@@ -31,19 +31,8 @@ $html = '<!DOCTYPE html>
 
 <body>';
 
-$host = "localhost";
-$user = "root";
-$pass = "";
+require_once __DIR__ . '/../../config/db.php';
 
-$bd = "atory";
-
-$con = mysqli_connect($host, $user, $pass, $bd);
-if (!$con) {
-
-  die("No se conecto a la base de datos " . mysqli_connect_error());
-} else {
-  //echo " CONEXIÓN EXITOSA";
-}
 
 $id = $_GET['id'];
 $sql = "SELECT * FROM cliente  

@@ -1,42 +1,24 @@
-<?php
-//seguridad de sesiones paginacion (prueba 1)
+    <!-- actualizado -->
+
+    <?php
+// Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
-$varsesion= $_SESSION['usuario'];
-if ($varsesion == null || $varsesion='' ) {
-    header ("location:../index.html");
-    die();
-    exit;
+
+// Verifica si el usuario tiene una sesión activa
+$varsesion = $_SESSION['usuario'];
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
 }
 
+// Incluye el encabezado de la página
+include '../../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Corona Admin</title>
-  <!-- plugins:css -->
-  <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
-  <!-- End Plugin css for this page -->
-  <!-- inject:css -->
-  <!-- endinject -->
-  <!-- Layout styles -->
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <!-- End layout styles -->
-  <link rel="shortcut icon" href="../assets/images/favicon.png" />
-</head>
 
 <body>
-  <?php
-  include '../menu/menuint.php';
-  ?>
-  <!-- partial -->
+    <!-- Incluye el menú de navegación -->
+    <?php include '../../includes/menu.php'; ?>
   <div class="main-panel">
     <div class="content-wrapper">
       <div class="page-header">
@@ -50,7 +32,7 @@ if ($varsesion == null || $varsesion='' ) {
               <h4 class="card-title">Lista de Planes</h4>
               <form class="forms-sample">
                 <?php
-                require_once __DIR__ . '/../config/db.php';
+               require_once __DIR__ . '/../../config/db.php';
                 $sql = "SELECT * FROM plan WHERE tipoPlan='rural';";
                 echo '<div class="table-responsive">
                       <table class="table table-hover">
@@ -105,29 +87,14 @@ if ($varsesion == null || $varsesion='' ) {
           </div>
         </div>
       </div>
-
-      <!-- content-wrapper ends -->
-
     </div>
-    <!-- partial -->
+
   </div>
-  <!-- main-panel ends -->
+
   </div>
-  <!-- page-body-wrapper ends -->
+
   </div>
-  <!-- container-scroller -->
-  <!-- plugins:js -->
-  <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="../assets/js/off-canvas.js"></script>
-  <script src="../assets/js/hoverable-collapse.js"></script>
-  <script src="../assets/js/misc.js"></script>
-  <script src="../assets/js/settings.js"></script>
-  <script src="../assets/js/todolist.js"></script>
-  <!-- endinject -->
+
 </body>
 
 </html>

@@ -15,13 +15,9 @@ if (empty($varsesion)) {
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
-
-
 <body>
-
     <!-- Incluye el menú de navegación -->
     <?php include '../../includes/menu.php'; ?>
-
     <!-- Contenedor principal -->
     <div class="main-panel">
         <div class="content-wrapper">
@@ -47,9 +43,20 @@ include '../../includes/header.php';
                             </form>
                         </div>
                     </div>
+                    
                 </div>
+
             </div>
-        </div> <!-- Fin de content-wrapper -->
+
+        </div> 
+            <footer class="footer">
+                <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                    <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Derechos de autor © atory.com 2025</span>
+                    <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+                        <a href="derAutor.php" target="_blank">atory.com</a>
+                    </span>
+                </div>
+            </footer>
     </div> <!-- Fin de main-panel -->
 
 

@@ -1,5 +1,6 @@
+    <!-- actualizado -->
 <?php
-include("conexion.php");
+require_once __DIR__ . '/../../config/db.php';
 
 $td = $_POST['td'];
 $id = $_POST['id'];
