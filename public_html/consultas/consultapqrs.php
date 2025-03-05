@@ -1,19 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+    <!-- actualizado -->
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Atory Solution</title>
-    <!-- Estilos de los plugins -->
-    <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-    <!-- Fin de los estilos de los plugins -->
-    <!-- Estilos del archivo actual -->
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <!-- Fin de los estilos del archivo actual -->
-    <link rel="shortcut icon" href="../assets/images/favicon.png">
-</head>
+    <?php
+// Seguridad de sesiones (prueba 1)
+session_start();
+error_reporting(0);
+
+// Verifica si el usuario tiene una sesión activa
+$varsesion = $_SESSION['usuario'];
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
+}
+
+// Incluye el encabezado de la página
+include '../../includes/header.php';
+?>
 
 <body>
     <div class="main-panel">
@@ -45,18 +46,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Extremos del contenedor de contenido -->
-        <!-- Parcial -->
     </div>
-
-    <!-- container-scroller -->
-    <!-- Scripts -->
-    <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-    <script src="../assets/js/off-canvas.js"></script>
-    <script src="../assets/js/hoverable-collapse.js"></script>
-    <script src="../assets/js/misc.js"></script>
-    <!-- Fin de los scripts -->
 </body>
 
 </html>

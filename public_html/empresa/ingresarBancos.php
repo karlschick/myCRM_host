@@ -1,12 +1,15 @@
-<?php
-//seguridad de sesiones paginacion (prueba 1)
+    <!-- actualizado -->
+
+    <?php
+// Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
+
+// Verifica si el usuario tiene una sesión activa
 $varsesion = $_SESSION['usuario'];
-if ($varsesion == null || $varsesion = '') {
-    header("location:../index.html");
-    die();
-    exit;
+if (empty($varsesion)) {
+    header("Location: ../index.php");
+    die(); // No es necesario usar exit después de die()
 }
 
 // Incluye el encabezado de la página
@@ -14,6 +17,8 @@ include '../../includes/header.php';
 ?>
 <body>
 
+    <!-- Incluye el menú de navegación -->
+    <?php include '../../includes/menu.php'; ?>
     <div class="main-panel">
         <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
             <div class="col-md-6 grid-margin stretch-card">
@@ -49,23 +54,8 @@ include '../../includes/header.php';
                     </div>
                 </div>
             </div>
-            <!-- ESTO ES LO QUE PODEMOS MODIFICAR -->
         </div>
-
     </div>
-    <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-    <script src="../assets/vendors/chart.js/Chart.min.js"></script>
-    <script src="../assets/vendors/progressbar.js/progressbar.min.js"></script>
-    <script src="../assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
-    <script src="../assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="../assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
-    <script src="../assets/js/off-canvas.js"></script>
-    <script src="../assets/js/hoverable-collapse.js"></script>
-    <script src="../assets/js/misc.js"></script>
-    <script src="../assets/js/settings.js"></script>
-    <script src="../assets/js/todolist.js"></script>
-    <script src="../assets/js/dashboard.js"></script>
-    <div class="jvectormap-tip"></div>
 </body>
 
 </html>
