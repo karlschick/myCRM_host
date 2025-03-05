@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="utf-8" />
@@ -13,7 +13,7 @@
   <!-- Google fonts -->
   <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
-  <!-- Core theme CSS (includes Bootstrap) -->
+  <!-- todo el tema CSS (incluidos en Bootstrap) -->
   <link href="pages/landingPage/css/styles.css" rel="stylesheet" />
 </head>
 
@@ -21,7 +21,7 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav" style="background-color: rgba(44, 45, 46, 0.7); height: 0px;">
     <div class="container px-4 px-lg-5">
-      <a class="navbar-brand" href="https://drive.google.com/file/d/1OVSl7EoKcE38llYptBCPfn_5t92QKj_X/view?usp=sharing">Atory Solution</a>
+      <a class="navbar-brand" href="https://www.facebook.com/profile.php?id=61556150756288">Atory Solution</a>
       <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         Menu
         <i class="fas fa-bars"></i>
@@ -100,7 +100,7 @@
         </div>
         <div class="social d-flex justify-content-center">
           <a class="mx-2" href="https://www.facebook.com/profile.php?id=61556150756288"><i class="fab fa-facebook-f"></i></a>
-          <a class="mx-2" href="https://github.com/Nicode1203/Atory"><i class="fab fa-github"></i></a>
+          
         </div>
       </div>
     </div>

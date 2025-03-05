@@ -1,9 +1,6 @@
     <!-- actualizado -->
 
     <?php
-// Seguridad de sesiones (prueba 1)
-
-
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
