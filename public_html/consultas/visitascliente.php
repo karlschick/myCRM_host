@@ -1,17 +1,6 @@
     <!-- actualizado -->
 
     <?php
-// Seguridad de sesiones (prueba 1)
-session_start();
-error_reporting(0);
-
-// Verifica si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if (empty($varsesion)) {
-    header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
-}
-
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
@@ -84,7 +73,7 @@ $nombreplan = $row['nombrePlan'];
           <div class="card">
             <div class="card-body">
               <div style="text-align: center;">
-                <img class="logo" src="../empresa/logoEmpresa.png" alt="logo" style="max-width: 20%; height: auto" class="img-responsive" />
+                <img class="logo" src="../assets/images/empresa/logoEmpresa.png" alt="logo" style="max-width: 20%; height: auto" class="img-responsive" />
               </div>
               <br>
               <center>
@@ -138,8 +127,8 @@ $nombreplan = $row['nombrePlan'];
 
                       </div>
 
-                      <center><a href="../index.html" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver </a>
-                        <a href="../index.html" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Imprimir </a>
+                      <center><a href="../index.php" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver </a>
+                      
                       </center>
                     </form>
                   </div>
@@ -148,12 +137,7 @@ $nombreplan = $row['nombrePlan'];
           </div>
         </div>
       </div>
-      <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-      <script src="../assets/js/off-canvas.js"></script>
-      <script src="../assets/js/hoverable-collapse.js"></script>
-      <script src="../assets/js/misc.js"></script>
-      <script src="../assets/js/settings.js"></script>
-      <script src="../assets/js/todolist.js"></script>
+
 </body>
 
 </html>

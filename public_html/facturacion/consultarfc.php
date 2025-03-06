@@ -8,26 +8,26 @@ include '../../includes/header.php';
 <body>
     <div class="main-panel">
         <div class="content-wrapper">
-            <div class="page-header">
-                <h1 style="font-size: 32px;">CONSULTAR FACTURA</h1>
-                <nav aria-label="breadcrumb">
-                </nav>
-            </div>
-            <div class="row">
+        <div class="page-header">
+    <div class="mx-auto text-center" style="width: fit-content;">
+        <h1 style="font-size: 32px;">¡Bienvenido al portal de consulta de facturas!</h1>
+    </div>
+</div>
+            <div class="row justify-content-center">
                 <div class="col-6 grid-margin stretch-card">
                     <div class="card">
-                        <!-- CONTENIDO -->
                         <div class="card-body">
-                            <h4 class="card-title">Facturas</h4>
+                        <p style="font-size: 18px;">Por favor, ingrese su número de identificación para consultar su factura de pago.</p>
                             <form class="forms-sample" action="cfacturaC.php" method="post">
                                 <div class="form-group">
-                                    <label for="id">Ingrese su numero de identificacion</label>
-                                    <input type="text" class="form-control" name="id" id="id" placeholder="Ingrese Número de Identificación">
+                                    <label for="id">Número de Identificación:</label>
+                                    <input type="text" class="form-control" name="id" id="id" placeholder="Ingrese su número de identificación" required>
                                 </div>
-                                <div>
-                                    <br>
+                                <div class="text-center mt-4">
                                     <button id="submit" type="submit" class="btn btn-primary btn-lg">Consultar</button>
-                                    <input type="submit" value="Volver al inicio" class="btn btn-primary btn-lg" formaction="../index.html" />
+                                    <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.href='../index.php'">
+    Volver al inicio
+</button>
                                 </div>
                             </form>
                         </div>
@@ -35,11 +35,7 @@ include '../../includes/header.php';
                 </div>
             </div>
         </div>
-
-        <!-- Extremos del contenedor de contenido -->
-        <!-- Parcial -->
     </div>
-
 </body>
 
 </html>

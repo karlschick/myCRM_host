@@ -1,102 +1,73 @@
     <!-- actualizado -->
 
     <?php
-// Seguridad de sesiones (prueba 1)
-session_start();
-error_reporting(0);
-
-// Verifica si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if (empty($varsesion)) {
-    header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
-}
-
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
-  <body>
-    <div class="container-scroller">
-      <!-- partial:../../partials/_sidebar.html -->
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-                <!-- Logo de Atory -->
-                <a class="sidebar-brand brand-logo" href="index.html">
-                    <img src="../assets/images/atori.png" alt="logo">
-                </a>
-                <!-- Volver a inicio -->
-                <a class="sidebar-brand brand-logo-mini" href="index.html">
-                    <img src="../assets/images/logo-mini.png" alt="logo">
-                </a>
-            </div>
-            <ul class="nav">
-                <li class="nav-item menu-items">
-                    <a class="nav-link" href="../pqr/pqr.html">
-                        <span class="menu-icon">
-                            <i class="mdi mdi-contacts"></i>
-                        </span>
-                        <span class="menu-title">Solicitud enviarda exitosamente. </span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-      <!-- partial -->
-      <div class="container-fluid page-body-wrapper">
-        <!-- partial:../../partials/_navbar.html -->
-        <!-- partial -->
-        <?php 
-        require_once __DIR__ . '/../../config/db.php';
 
-        $td=$_POST["td"];
-        $id=$_POST["id"];
-        $nombre=$_POST["nombre"];
-        $tel=$_POST["tel"];
-        $email=$_POST["email"];
-        $soli=$_POST["soli"];
-        $dc=$_POST["dc"];
-        $sql="INSERT INTO pqr2 (tipoDocumento, nDocumento, nombresCliente, telefonoCliente, emailCliente, tPqr, desPqr)
-        VALUES ('$td','$id','$nombre','$tel','$email','$soli','$dc')";
-        if ($con->query($sql) === TRUE) {
-          } else {
-            echo "Error al guardar los datos: " . $con;
-          }
-          
-          $con->close();
-                        
-             ?>         
-        <div class="main-panel">
-          <div class="content-wrapper">
-          <div class="page-header">
-              <h3 class="page-title">Solicitud enviada satisfactoriamente.</h3>
-            </div>
-         <div class="row">
-              <div class="col-md-12 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Muchas gracias por escribirnos <?php echo "$nombre"?></h4>
-                    <form class="forms-sample">
-                    <div class="form-group">
-                        <label for="cp"> Su solicitud tipo  <?php echo "$soli" ?>, fue enviada satisfactoriamente.</label>
-                      </div>
-                      <div class="form-group">
-                        <label for="vel">Nuestro equipo se contactara con usted a  <?php echo "$tel" ?> o <?php echo "$email" ?>. </label>
-                      </div>
-                      <div class="form-group">
-                        <label for="plan">Tenga un feliz dia.</label>
-                      </div>
-                <div class="form-button mt-5">
-                    <button id="submit" type="submit" formmethod="post" formaction="../index.php" class="btn btn-primary">Volver al inicio.</button>
-                </div>
-
-                    </form>
+<body>
+  <div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+      <div class="row w-100 m-0">
+        <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
+          <div class="card col-lg-10 mx-auto">
+            <div class="card-body px-5 py-5">
+              <div class="content-wrapper">
+                <div class="page-header">
+                  <div class="mx-auto text-center" style="width: fit-content;">
+                    <h1 class="card-title text-left mb-3" style="font-size: 32px;">SOLICITUD ENVIADA CORRECTAMENTE</h1>
                   </div>
                 </div>
-              </div>
-            </div>
 
-</div>
-        </div>
-      </div>
-    </div>
-  </body>
+                <div class="row justify-content-center">
+                  <div class="col-10 grid-margin stretch-card">
+                    <div class="card">
+                      <div class="card-body">
+                        <?php 
+                        require_once __DIR__ . '/../../config/db.php';
+
+                        // Recibir datos del formulario y sanitizarlos
+                        $td = mysqli_real_escape_string($con, $_POST["td"]);
+                        $id = mysqli_real_escape_string($con, $_POST["id"]);
+                        $nombre = mysqli_real_escape_string($con, $_POST["nombre"]);
+                        $tel = mysqli_real_escape_string($con, $_POST["tel"]);
+                        $email = mysqli_real_escape_string($con, $_POST["email"]);
+                        $soli = mysqli_real_escape_string($con, $_POST["soli"]);
+                        $dc = mysqli_real_escape_string($con, $_POST["dc"]);
+
+                        // Consulta SQL
+                        $sql = "INSERT INTO pqr2 (tipoDocumento, nDocumento, nombresCliente, telefonoCliente, emailCliente, tPqr, desPqr)
+                                VALUES ('$td','$id','$nombre','$tel','$email','$soli','$dc')";
+
+                        if ($con->query($sql) === TRUE) {
+                            $mensaje = "Solicitud enviada satisfactoriamente.";
+                        } else {
+                            $mensaje = "Error al guardar los datos: " . $con->error;
+                        }
+
+                        // Cerrar conexión
+                        $con->close();
+                        ?>
+
+                        <h3 class="text-center"><?php echo $mensaje; ?></h3>
+                        <h4 class="mt-4">Muchas gracias por escribirnos, <strong><?php echo htmlspecialchars($nombre); ?></strong>.</h4>
+                        <p class="mt-3">Su solicitud tipo <strong><?php echo htmlspecialchars($soli); ?></strong> fue enviada satisfactoriamente.</p>
+                        <p>Nuestro equipo se contactará con usted a <strong><?php echo htmlspecialchars($tel); ?></strong> o <strong><?php echo htmlspecialchars($email); ?></strong>.</p>
+                        <p>Tenga un feliz día.</p>
+
+                        <div class="form-button text-center mt-5">
+                          <a href="../index.php" class="btn btn-primary btn-lg">Volver al inicio</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div> <!-- Fin row justify-content-center -->
+              </div> <!-- Fin content-wrapper -->
+            </div> <!-- Fin card-body -->
+          </div> <!-- Fin card -->
+        </div> <!-- Fin content-wrapper full-page-wrapper -->
+      </div> <!-- Fin row w-100 -->
+    </div> <!-- Fin container-fluid -->
+  </div> <!-- Fin container-scroller -->
+</body>
 </html>

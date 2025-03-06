@@ -1,6 +1,4 @@
-    <!-- actualizado -->
-
-    <?php
+<?php
 // Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
@@ -9,7 +7,7 @@ error_reporting(0);
 $varsesion = $_SESSION['usuario'];
 if (empty($varsesion)) {
     header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
+    die();
 }
 
 // Incluye el encabezado de la página
@@ -40,12 +38,12 @@ include '../../includes/header.php';
                     <tr>
                     <th> Documento Cliente </th>
                     <th> Nombre Cliente</th>
-                    <th> Fecha Limite de pago</th>
+                    <th> Fecha Límite de Pago</th>
                     <th> Valor Total</th>
-                    <th> Estado factura</th>
+                    <th> Estado Factura</th>
                     <th> Plan</th>
                     <th> Consultas</th>
-                    <th> Volver a pago</th>
+                    <th> Volver a Pago</th>
                     <th> Editar</th>
                 </tr>
                 </thead>
@@ -62,8 +60,6 @@ include '../../includes/header.php';
                             $estf = $row['estadoFactura'];
                             $ffact = $row['fechaVencimiento'];
                             $nplan = $row['nplan'];
-
-
                     ?>
                             <tr>
                                 <td> <?php echo "$dc" ?></td>
@@ -74,14 +70,12 @@ include '../../includes/header.php';
                                 <td> <?php echo "$nplan" ?></td>
 
                                 <th>
-                                    <a href="verfacturaAdmin.php?id=<?php echo  $row['idFactura'] ?>" class="btn btn-info">ver factura</a>
+                                    <a href="verfacturaAdmin.php?id=<?php echo  $row['idFactura'] ?>" class="btn btn-info">Ver Factura</a>
                                 </th>
-                                <th><a href="eliminarf.php?id=<?php echo $row['idFactura']   ?>" class="btn btn-danger">Pago</a></th>
-                                <?php if ($estf == 'Pendiente'){ ?>
-                                <th><a href="editfactura.php?if=<?php echo  $row['idFactura'] ?>" class="btn btn-primary">Editar factura</a>
-                                </th>
-                                <?php }?>
-
+                                <th><a href="eliminarf.php?id=<?php echo $row['idFactura'] ?>" class="btn btn-danger">Pago</a></th>
+                                
+                                <!-- El botón "Editar Factura" ahora siempre estará activo -->
+                                <th><a href="editfactura.php?if=<?php echo  $row['idFactura'] ?>" class="btn btn-primary">Editar Factura</a></th>
 
                             </tr>
                     <?php

@@ -1,16 +1,6 @@
     <!-- actualizado -->
 
     <?php
-// Seguridad de sesiones (prueba 1)
-session_start();
-error_reporting(0);
-
-// Verifica si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if (empty($varsesion)) {
-    header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
-}
 
 // Incluye el encabezado de la página
 include '../../includes/header.php';
@@ -137,7 +127,7 @@ include '../../includes/header.php';
                           <center><label for="plan">Valor total a pagar: <?php echo " $st" ?></label></center>
                         </div>
                       </div>
-                      <center><a href="facturas.php" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver a facturas</a>
+                      <center><a href="consultarfC.php" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver a facturas</a>
                         <a href="facturaPDF.php?id=<?php echo $if; ?>" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Imprimir PDF </a>
                       </center>
                     </form>

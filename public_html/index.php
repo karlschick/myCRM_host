@@ -35,7 +35,7 @@
             <a class="nav-link" href="planes/verplanes.php">Solicitar producto</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="pqr/ingresarpqr.html">Contactenos</a>
+            <a class="nav-link" href="pqr/ingresarpqr.php">Contactenos</a>
           </li>
         </ul>
       </div>

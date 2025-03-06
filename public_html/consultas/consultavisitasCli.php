@@ -18,7 +18,7 @@ include '../../includes/header.php';
                         <!-- CONTENIDO -->
                         <div class="card-body">
                             <h4 class="card-title">Estimado cliente, Seleccione si quiere consultar para cuando esta agendada su visita</h4>
-                            <form class="forms-sample" action="visitas.php" method="post">
+                            <form class="forms-sample" action="visitasCli.php" method="post">
                                 <div class="form-group">
                                     <label for="id">Ingrese su numero de identificacion</label>
                                     <input type="text" class="form-control" name="id" id="id" placeholder="Ingrese Número de Identificación" required>
