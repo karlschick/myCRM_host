@@ -20,10 +20,6 @@ include '../../includes/header.php';
     <!-- Incluye el menú de navegación -->
     <?php include '../../includes/menu.php'; ?>
 
-<head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <?php
   require_once __DIR__ . '/../../config/db.php';
   $id = $_GET['id'];
@@ -53,26 +49,6 @@ include '../../includes/header.php';
   $query = mysqli_query($con, $sql);
   $row = mysqli_fetch_array($query);
   ?>
-  <title>ATORY - Admin</title>
-  <!-- Estilos de los plugins -->
-  <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-  <!-- Fin de los estilos de los plugins -->
-  <!-- Estilos del archivo actual -->
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <!-- Fin de los estilos del archivo actual -->
-  <link rel="shortcut icon" href="../assets/images/favicon.png">
-
-</head>
-
-<body>
-  <?php
-  include '../menu/menuint.php';
-  ?>
-
-  <!-- partial -->
-
-
   <div class="main-panel">
     <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
       <div class="col-md-6 grid-margin stretch-card">
@@ -133,47 +109,13 @@ include '../../includes/header.php';
                     <input type="submit" class="btn btn-primary btn-block" value="Crear Visita" formmethod="post" formaction=../visitas/insertarVisita.php>
                     <input type="submit" class="btn btn-danger btn-block" value="Cancelar" formmethod="post" formaction=../visitas/tablasVisitas.php>
                 </form>
-
-
               </div>
-              <!-- ESTO ES LO QUE PODEMOS MODIFICAR -->
-              <!-- partial:partials/_footer.html -->
-
-              <!-- partial -->
           </div>
         </div>
       </div>
 
-      <!-- main-panel ends -->
     </div>
-    <!-- page-body-wrapper ends -->
-
-
   </div>
-
-  <!-- container-scroller -->
-  <!-- plugins:js -->
-  <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <script src="../assets/vendors/chart.js/Chart.min.js"></script>
-  <script src="../assets/vendors/progressbar.js/progressbar.min.js"></script>
-  <script src="../assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
-  <script src="../assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-  <script src="../assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="../assets/js/off-canvas.js"></script>
-  <script src="../assets/js/hoverable-collapse.js"></script>
-  <script src="../assets/js/misc.js"></script>
-  <script src="../assets/js/settings.js"></script>
-  <script src="../assets/js/todolist.js"></script>
-  <!-- endinject -->
-  <!-- Custom js for this page -->
-  <script src="../assets/js/dashboard.js"></script>
-  <!-- End custom js for this page -->
-
-  <div class="jvectormap-tip"></div>
 </body>
 
 </html>

@@ -30,7 +30,7 @@ include '../../includes/header.php';
         <div class="card-body">
 
 
-          <a href="../principal.php" class="btn btn-primary " role="button" aria-pressed="true">Volver al inicio</a>
+          <a href="../dashboard/principal.php" class="btn btn-primary " role="button" aria-pressed="true">Volver al inicio</a>
 
           <a href="../excel/excelPQR.php" class="btn btn-success">Exportar tabla a Excel</a>
           <?php
