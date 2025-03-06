@@ -27,10 +27,10 @@ include '../../includes/header.php';
                                 <div class="col mb-3">
                                     <a href="../consultas/consultavisitas.php" class="btn btn-lg btn-primary">Consultar Visitas</a>
                                 </div>
-                                <div class="col mb-3">
-                                    <a href="../pqr/consultapqrs.php" class="btn btn-lg btn-primary">Consultar contacto a la empresa</a>
+                                <!-- <div class="col mb-3">
+                                    <a href="../pqr/consultarpqr.php" class="btn btn-lg btn-primary">Consultar contacto a la empresa</a>
                                 </div>
-                                <div class="col">
+                                <div class="col"> -->
                                     <a href="../index.php" class="btn btn-lg btn-danger">Volver al inicio</a>
                                 </div>
                             </div>
