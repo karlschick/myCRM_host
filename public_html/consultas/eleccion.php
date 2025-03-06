@@ -25,13 +25,13 @@ include '../../includes/header.php';
                                     <a href="../facturacion/consultarfc.php" class="btn btn-lg btn-info">Consultar Factura</a>
                                 </div>
                                 <div class="col mb-3">
-                                    <a href="consultavisitas.php" class="btn btn-lg btn-primary">Consultar Visitas</a>
+                                    <a href="../consultas/consultavisitas.php" class="btn btn-lg btn-primary">Consultar Visitas</a>
                                 </div>
                                 <div class="col mb-3">
-                                    <a href="consultapqrs.php" class="btn btn-lg btn-primary">Consultar contacto a la empresa</a>
+                                    <a href="../pqr/consultapqrs.php" class="btn btn-lg btn-primary">Consultar contacto a la empresa</a>
                                 </div>
                                 <div class="col">
-                                    <a href="../index.html" class="btn btn-lg btn-danger">Volver al inicio</a>
+                                    <a href="../index.php" class="btn btn-lg btn-danger">Volver al inicio</a>
                                 </div>
                             </div>
                         </div>
