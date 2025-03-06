@@ -17,9 +17,8 @@ if ($varsesion == null || $varsesion == '') {
 }
 
 // Incluir encabezado
-include '../../../includes/header.php';
+include '../../includes/header.php';
 ?>
-
 
 <body>
     <div class="container-scroller">
@@ -65,7 +64,7 @@ include '../../../includes/header.php';
                 </li>
 
                 <li class="nav-item menu-items">
-                    <a class="nav-link" href="../inventario/tablasinventario.php">
+                    <a class="nav-link" href="../inventario/tablasinventarioT.php">
                         <span class="menu-icon">
                             <i class="mdi mdi-chart-bar"></i>
                         </span>
@@ -101,22 +100,17 @@ include '../../../includes/header.php';
                             <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
                                 <h6 class="p-3 mb-0">PERFIL</h6>
                                 <div class="dropdown-divider"></div>
-                                <a class="nav-link" href="../login/login.php">
-                                    <div class="dropdown-item preview-item">
-                                        <a href="../cerrarSesion.php">
-                                            <div class="preview-thumbnail">
-                                                <div class="preview-icon bg-dark rounded-circle">
-                                                    <i class="mdi mdi-logout text-danger"></i>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        <a href="../cerrarSesion.php">
-                                            <div class="preview-item-content">
-                                                <p class="preview-subject mb-1">Cerrar sesión</p>
-                                            </div>
-                                        </a>
+                            <!-- Opción Cerrar sesión -->
+                            <a class="dropdown-item preview-item" href="../login/cerrarSesion.php">
+                                <div class="preview-thumbnail">
+                                    <div class="preview-icon bg-dark rounded-circle">
+                                        <i class="mdi mdi-logout text-danger"></i>
                                     </div>
-                                </a>
+                                </div>
+                                <div class="preview-item-content">
+                                    <p class="preview-subject mb-1">Cerrar sesión</p>
+                                </div>
+                            </a>
                             </div>
                         </li>
                     </ul>
@@ -125,8 +119,8 @@ include '../../../includes/header.php';
                     </button>
                 </div>
             </nav>
- <!-- Carga de los plugins JavaScript principales -->
- <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- Carga de los plugins JavaScript principales -->
+    <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- Fin de la inyección de plugins -->
 
     <!-- Plugins específicos para esta página -->

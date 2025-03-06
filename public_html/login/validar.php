@@ -48,7 +48,7 @@ if ($filas = $resultado->fetch_assoc()) {
         if ($filas['rol'] == 'Administrador') {
             header("location:../dashboard/principal.php");
         } elseif ($filas['rol'] == 'Tecnico') {
-            header("location:../userTecnico/visitas/tablasVisitas.php");
+            header("location:../visitas/tablasVisitasT.php");
         } else {
             header("location:errorvalid.php");
         }

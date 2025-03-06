@@ -33,9 +33,16 @@ include '../../includes/header.php';
 
     <div class="main-panel">
         <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
-            <div class="col-md-12 grid-margin stretch-card">
+            <div class="col-md-8 grid-margin stretch-card">
                 <div class="card">
                 <div class="card-body">
+                        <!-- Imagen centrada y responsive -->
+                        <div class="text-center my-4">
+                        <img src="../assets/images/empresa/logoEmpresa.png" 
+                        alt="Logo de la Empresa" 
+                        class="img-fluid responsive-logo rounded shadow-lg"
+                        style="max-width: 150px; height: auto;">
+    </div>
     <h4 class="card-title">VER INFORMACIÓN DE LA EMPRESA</h4>
     <form class="forms-sample">
         <?php

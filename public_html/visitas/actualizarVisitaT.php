@@ -19,7 +19,7 @@ include '../../includes/header.php';
 <body>
 
     <!-- Incluye el menú de navegación -->
-    <?php include '../../includes/menu.php'; ?>
+    <?php include '../../includes/menutec.php'; ?>
   
   <?php
     require_once __DIR__ . '/../../config/db.php';
@@ -75,9 +75,11 @@ include '../../includes/header.php';
   $row = mysqli_fetch_array($query);
   ?>
 
+</head>
+
 <body>
   <?php
-  include '../menu/menu.php';
+  include '../menu/menuint.php';
   ?>
 
   <!-- partial -->
@@ -148,8 +150,8 @@ include '../../includes/header.php';
 
 
 
-                <input type="submit" class="btn btn-primary btn-block" value="Actualizar" formmethod="post" formaction=../visitas/updateVisita.php>
-                <input type="submit" class="btn btn-danger btn-block" value="Cancelar" formmethod="post" formaction=../visitas/tablasVisitas.php>
+                <input type="submit" class="btn btn-primary btn-block" value="Actualizar" formmethod="post" formaction=../visitas/updateVisitaT.php>
+                <input type="submit" class="btn btn-danger btn-block" value="Cancelar" formmethod="post" formaction=../visitas/eliminarVisitaT.php>
               </form>
 
 

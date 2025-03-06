@@ -19,24 +19,17 @@ include '../../includes/header.php';
 <body>
 
     <!-- Incluye el menú de navegación -->
-    <?php include '../../includes/menu.php'; ?>
+    <?php include '../../includes/menutec.php'; ?>
 
     <!-- Contenedor principal -->
     <div class="main-panel">
 
         <div class="content-wrapper">
             <div class="page-header">
-                <h1 style="font-size: 32px;">GESTIÓN TABLAS VISITAS E INSTALACIONES</h1>
-
+                <h1 style="font-size: 32px;">Visitas tecnicas e Instalaciones</h1>
             </div>
-
             <div class="card">
                 <div class="card-body">
-                    <a href="ingresarVisita.php" class="btn btn-primary">Ingresar nueva Visita</a>
-                    <a href="../visitas/consultarVisitas.php" class="btn btn-primary">Consultar visitas</a>
-                    <a href="../visitas/tablasVisitascompletadas.php" class="btn btn-primary">Ver visitas completas</a>
-                    <a href="../visitas/tablasVisitasArchivadas.php" class="btn btn-primary">Ver visitas archivadas</a>
-                    <a href="../excel/excelVisitas.php" class="btn btn-success">Exportar tabla a Excel</a>
 
                     <?php
                     require_once __DIR__ . '/../../config/db.php';
@@ -106,11 +99,13 @@ include '../../includes/header.php';
                                 <td> <?php echo "$tipov" ?></td>
                                 <td> <?php echo "$diaVisita" ?></td>
 
-                                <th><a href="consulta.php?id=<?php echo $idv ?>" class="btn btn-info">Ver Visita</a>
-                                </th>
-                                <th><a href="eliminarVisitaDes.php?i=<?php echo $row['idVisita'] ?>" class="borrar btn btn-danger">Visita resuelta</a></th>
-                                </th>
-                            </tr>
+
+                                <th><a href="consultaT.php?id=<?php echo $row['idVisita'] ?>" class="btn btn-primary">Ver informacion de la visita</a></th>
+
+
+                        <th><a href="eliminarVisitaDesT.php?id=<?php echo $row['idVisita'] ?>" class="borrar btn btn-danger">Marcar como Atendida</a></th>
+                        </th>
+                        </tr>
                     <?php
                         }
                     }

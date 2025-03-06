@@ -29,6 +29,8 @@ $query = mysqli_query($con, $sql);
 $empresa = mysqli_fetch_assoc($query);
 ?>
 
+
+
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-md-10 grid-margin stretch-card">
