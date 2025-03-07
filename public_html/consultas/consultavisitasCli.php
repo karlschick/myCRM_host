@@ -26,7 +26,7 @@ include '../../includes/header.php';
                                 <div>
                                     <br>
                                     <button id="submit" type="submit" class="btn btn-primary btn-lg">Consultar</button>
-                                    <input type="submit" value="Volver al inicio" class="btn btn-primary btn-lg" formaction="../index.html" />
+                                    <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.href='../index.php'">Volver al inicio</button>
                                 </div>
                             </form>
                         </div>
