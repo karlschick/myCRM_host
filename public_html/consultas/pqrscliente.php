@@ -49,7 +49,7 @@ include '../../includes/header.php';
           <div class="card">
             <div class="card-body">
               <div style="text-align: center;">
-                <img class="logo" src="../empresa/logoEmpresa.png" alt="logo" style="max-width: 20%; height: auto" class="img-responsive" />
+                <img class="logo" src="../assets/images/empresa/logoEmpresa.png" alt="logo" style="max-width: 20%; height: auto" class="img-responsive" />
               </div>
               <br>
               <center>

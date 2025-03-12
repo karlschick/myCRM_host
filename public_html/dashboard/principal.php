@@ -108,7 +108,7 @@ include '../../includes/header.php';
                 </div>
               </div>
             </div>
-
+<!-- 
             <div class="row">
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
@@ -178,7 +178,7 @@ include '../../includes/header.php';
                 </div>
               </div>
             </div>
-
+ -->
         </div> 
             <footer class="footer">
                 <div class="d-sm-flex justify-content-center justify-content-sm-between">
