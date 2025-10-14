@@ -1,98 +1,109 @@
-    <!-- actualizado -->
-
-    <?php
-// Seguridad de sesiones (prueba 1)
+<?php
+// facturacion/fpagas.php
 session_start();
-error_reporting(0);
+// DEBUG: para desarrollo activa errores momentáneamente
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Verifica si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if (empty($varsesion)) {
+if (empty($_SESSION['usuario'])) {
     header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
+    die();
 }
 
-// Incluye el encabezado de la página
+require_once __DIR__ . '/../../config/db.php';
 include '../../includes/header.php';
 ?>
 
 <body>
-
-    <!-- Incluye el menú de navegación -->
     <?php include '../../includes/menu.php'; ?>
 
-  <div class="main-panel">
-    <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
-      <div class="page-header">
-        <h1 style="font-size: 32px;">GESTIÓN FACTURAS</h1>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <a href="factcliente.php" class="btn btn-danger btn-lg" role="button" aria-pressed="true">Ingresar factura</a>
-          <a href="facturas.php" class="btn btn-primary active btn-lg" role="button" aria-pressed="true">Ver facturas pendientes</a>
-          <a href="consultarf.php" class="btn btn-primary active btn-lg" role="button" aria-pressed="true">Consultar facturas</a>
-          <a href="../excel/excelFactura.php" class="btn btn-success btn-lg">Exportar tabla a Excel</a>
-          <?php
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h1 style="font-size: 32px;">FACTURAS PAGADAS</h1>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <a href="factcliente.php" class="btn btn-danger btn-lg" role="button">Ingresar factura</a>
+                    <a href="facturas.php" class="btn btn-primary btn-lg" role="button">Ver facturas pendientes</a>
+                    <a href="consultarf.php" class="btn btn-primary btn-lg" role="button">Consultar facturas</a>
+                    <a href="../excel/excelFactura.php" class="btn btn-success btn-lg">Exportar tabla a Excel</a>
 
-          require_once __DIR__ . '/../../config/db.php';
+                    <hr>
 
-          $sql = "SELECT cliente.idCliente,factura.cliente_idCliente,cliente.documentoCliente,cliente.nombreCliente,factura.idFactura,factura.valorTotalFactura,factura.estadoFactura,factura.fechaVencimiento,factura.nPlan FROM cliente 
-                    INNER JOIN factura
-                    ON cliente.idCliente=factura.cliente_idCliente
-                    WHERE estadoFactura='Pago'
-                    ORDER BY fechaVencimiento ASC;";
+                    <?php
+                    // Consulta tolerante: busca cualquier estado que contenga 'pag' (pagada, Pago, etc.)
+                    $sql = "
+                        SELECT 
+                            c.idCliente,
+                            f.cliente_idCliente,
+                            c.documentoCliente,
+                            c.nombreCliente,
+                            f.idFactura,
+                            f.valorTotalFactura,
+                            f.estadoFactura,
+                            f.fechaVencimiento,
+                            IFNULL(p.nombrePlan, '-') AS nombrePlan
+                        FROM cliente c
+                        INNER JOIN factura f ON c.idCliente = f.cliente_idCliente
+                        LEFT JOIN plan p ON f.idPlan = p.idPlan
+                        WHERE LOWER(f.estadoFactura) LIKE '%pag%'
+                        ORDER BY f.fechaVencimiento ASC;
+                    ";
 
-          echo '<div class="table-responsive">
-            <table class="table table-hover">
-            <thead>
-        <tr>
-        <th> Documento Cliente </th>
-        <th> Nombre Cliente</th>
-        <th> Fecha límite de pago</th>
-        <th> Valor Total</th>
-        <th> Estado factura</th>
-        <th> Plan </th>
-        <th> Consultas</th>
-        <th> Pago</th>
-    </tr>
-    </thead>
-    ';
+                    // Ejecutar consulta
+                    $rta = $con->query($sql);
 
-          if ($rta = $con->query($sql)) {
-            while ($row = $rta->fetch_assoc()) {
-              $a = $row['idCliente'];
-              $b = $row['cliente_idCliente'];
-              $dc = $row['documentoCliente'];
-              $nomc = $row['nombreCliente'];
-              $idf = $row['idFactura'];
-              $st = $row['valorTotalFactura'];
-              $estf = $row['estadoFactura'];
-              $ffact = $row['fechaVencimiento'];
-              $nplan = $row['nPlan']
+                    // Mostrar tabla
+                    echo '<div class="table-responsive"><table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Documento Cliente</th>
+                                <th>Nombre Cliente</th>
+                                <th>Fecha límite de pago</th>
+                                <th>Valor Total</th>
+                                <th>Estado factura</th>
+                                <th>Plan</th>
+                                <th>Ver</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
 
+                    if ($rta === false) {
+                        // Error SQL
+                        echo '<tr><td colspan="8" class="text-danger">Error en la consulta: ' . htmlspecialchars($con->error) . '</td></tr>';
+                    } elseif ($rta->num_rows === 0) {
+                        echo '<tr><td colspan="8" class="text-center">No se encontraron facturas que coincidan con "pag".</td></tr>';
+                    } else {
+                        while ($row = $rta->fetch_assoc()) {
+                            $dc = htmlspecialchars($row['documentoCliente']);
+                            $nomc = htmlspecialchars($row['nombreCliente']);
+                            $idf = (int)$row['idFactura'];
+                            $st = number_format($row['valorTotalFactura'], 0, ',', '.');
+                            $estf = htmlspecialchars($row['estadoFactura']);
+                            $ffact = htmlspecialchars($row['fechaVencimiento']);
+                            $nplan = htmlspecialchars($row['nombrePlan']);
 
-          ?>
-              <tr>
-                <td> <?php echo "$dc" ?></td>
-                <td> <?php echo "$nomc" ?></td>
-                <td> <?php echo "$ffact" ?></td>
-                <td> <?php echo "$st" ?></td>
-                <td> <?php echo "$estf" ?></td>
-                <td> <?php echo "$nplan" ?></td>
-                <th>
-                  <a href="verfacturaAdmin.php?id=<?php echo  $row['idFactura'] ?>" class="btn btn-info">ver factura</a>
+                            echo "<tr>
+                                    <td>{$dc}</td>
+                                    <td>{$nomc}</td>
+                                    <td>{$ffact}</td>
+                                    <td>\${$st}</td>
+                                    <td>{$estf}</td>
+                                    <td>{$nplan}</td>
+                                    <td><a href='verfacturaAdmin.php?id={$idf}' class='btn btn-info btn-sm'>Ver factura</a></td>
+                                    <td><a href='pend.php?id={$idf}' class='btn btn-warning btn-sm'>Regresar a pendiente</a></td>
+                                  </tr>";
+                        }
+                    }
 
-                <th><a href="pend.php?id=<?php echo $row['idFactura']   ?>" class="borrar btn btn-danger">Regresar a pendiente</a></th>
+                    echo '</tbody></table></div>';
+                    ?>
 
-              </tr>
-          <?php
-            }
-          }
-          ?>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </body>
-
 </html>

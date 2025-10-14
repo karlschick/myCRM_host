@@ -58,7 +58,7 @@ include '../../includes/header.php';
       $estf = $row['estadoFactura'];
       $ffact = $row['fechaVencimiento'];
       $flim = $row['fechaSuspencion'];
-      $nplan = $row['nPlan'];
+      $nplan = $row['p.nombrePlan AS nombrePlan'];
     }
   }
   $sql2 = "SELECT * FROM empresa WHERE id='1';";

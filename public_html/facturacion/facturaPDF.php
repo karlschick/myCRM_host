@@ -4,214 +4,141 @@ require_once '../../vendor/autoload.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-// Crear una instancia de Dompdf con las opciones adecuadas
+// Crear instancia con opciones adecuadas
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', true);
 $dompdf = new Dompdf($options);
 
-// Contenido HTML del PDF
-$html = '<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Factura</title>
-  <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="shortcut icon" href="../assets/images/favicon.png" />
-  <style>
-  .form-group>div {
-    margin-bottom: 1px;
-  }
-</style>
-</head>
-
-<body>';
-
+// Conexión a base de datos
 require_once __DIR__ . '/../../config/db.php';
 
-
+// Obtener datos de la factura
 $id = $_GET['id'];
 $sql = "SELECT * FROM cliente  
-INNER JOIN plan
-on cliente.plan_idPlan=plan.idPlan
-INNER JOIN factura
-ON cliente.idCliente=factura.cliente_idCliente
-WHERE idFactura= '$id';";
+INNER JOIN plan ON cliente.plan_idPlan = plan.idPlan
+INNER JOIN factura ON cliente.idCliente = factura.cliente_idCliente
+WHERE idFactura = '$id';";
 
 if ($rta = $con->query($sql)) {
   while ($row = $rta->fetch_assoc()) {
-    $id = $row['idCliente'];
     $td = $row['tipoDocumento'];
-    $doc = $row['documentoCliente'];
+    $doc = $row['documentoCliente']; // ← Cédula del cliente
     $nomc = $row['nombreCliente'];
     $telc = $row['telefonoCliente'];
     $emailc = $row['correoCliente'];
-    $dc = $row['direccion'];
-    $ec = $row['estadoCliente'];
-    $plancliente = $row['plan_idPlan'];
-    $creado = $row['creado'];
-    $uact = $row['ultimaActualizacion'];
-    $idplan = $row['idPlan'];
-    $codigoplan = $row['codigoPlan'];
-    $tipoplan = $row['tipoPlan'];
-    $vp = $row['velocidad'];
-    $nombreplan = $row['nombrePlan'];
-    $precioplan = $row['precioPlan'];
-    $descripcionplan = $row['desPlan'];
-    $estadoplan = $row['estadoPlan'];
-    $if = $row['idFactura'];
     $fing = $row['fechaFactura'];
-    $impt = $row['impuestoTotal'];
-    $sub = $row['subTotal'];
-    $st = $row['valorTotalFactura'];
-    $cid = $row['cliente_idCliente'];
-    $estf = $row['estadoFactura'];
     $ffact = $row['fechaVencimiento'];
     $flim = $row['fechaSuspencion'];
-    $nplan = $row['nPlan'];
+    $nplan = $row['nombrePlan'];
+    $vp = $row['velocidad'];
+    $estf = $row['estadoFactura'];
+    $sub = $row['subTotal'];
+    $impt = $row['impuestoTotal'];
+    $st = $row['valorTotalFactura'];
   }
 }
+
 $sql2 = "SELECT * FROM empresa WHERE id='1';";
 $query2 = mysqli_query($con, $sql2);
 $rowEmpresa = mysqli_fetch_array($query2);
 
-$html .= '<div class="main-panel">
-  <div class="content-wrapper">
-  <div class="row justify-content-center">
-    <div class="page-header">
-    <center>
-      <h2 class="page-title">FACTURA</h2>
-      </center>
-    </div>
-    </div>
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-12 grid-margin stretch-card mx-auto">
-        <div class="card">
-          <div class="card-body">
-            
-            <br>
-            <center>
-              <h2 class="card-title">' . $rowEmpresa['nombEmpresa'] . '</h2>
-            </center>
+// ✅ Ruta del logo y conversión a Base64
+$logo_path = __DIR__ . '/../assets/images/empresa/logoEmpresa.png';
+if (file_exists($logo_path)) {
+    $logo_base64 = base64_encode(file_get_contents($logo_path));
+    $logo_html = '<img src="data:image/png;base64,' . $logo_base64 . '" style="max-width: 120px;">';
+} else {
+    $logo_html = '<strong>Logo no disponible</strong>';
+}
 
-            <form class="forms-sample">
-              <div class="form-group">
-                <div class="card-body">
-                  <form class="forms-sample">
-                    <center><class="card-title">' . $rowEmpresa['rz'] . '</center>
-                    <center><class="card-title">nit : ' . $rowEmpresa['nit'] . '</center>
-                    <center><class="card-title">tel : ' . $rowEmpresa['telsede'] . '</center>
-                    <center><class="card-title">tel2 : ' . $rowEmpresa['telsede2'] . '</center>
-                    <br>
-                    <center>
-                      <h4 class="card-title">Hola ' . $nomc . '</h4>
-                    </center>
+// --- Contenido HTML del PDF ---
+$html = '
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Factura</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #000;
+    }
+    .container {
+      text-align: center;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .logo {
+      margin-bottom: 10px;
+    }
+    h2 {
+      margin: 5px 0;
+      color: #333;
+    }
+    .section {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .line {
+      border-bottom: 1px solid #000;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">' . $logo_html . '</div>
+    <h2>' . $rowEmpresa['nombEmpresa'] . '</h2>
+    <p>' . $rowEmpresa['rz'] . '</p>
+    <p><strong>NIT:</strong> ' . $rowEmpresa['nit'] . '</p>
+    <p><strong>Tel:</strong> ' . $rowEmpresa['telsede'] . ' | ' . $rowEmpresa['telsede2'] . '</p>
+    <div class="line"></div>
 
-                    <div class="form-group">
-                      <div>
-                        <center><label for="cp">Con : ' . $td . ': ' . $doc . '</label></center>
-                      </div>
-                      <div>
-                        <center><label for="des"> Su telefono es ' . $telc . '</label>
-                          <center>
-                      </div>
-                      <div>
-                        <center><label for="des"> Su correo es: ' . $emailc . '</label></center>
-                      </div>
-                      <div>
-                        <center><label for="cp">Tu factura correspondiente al : ' . $fing . '</label></center>
-                      </div>
+    <h3>Factura</h3>
+    <p><strong>Cliente:</strong> ' . $nomc . '</p>
+    <p><strong>' . $td . ':</strong> ' . $doc . '</p>
+    <p><strong>Teléfono:</strong> ' . $telc . '</p>
+    <p><strong>Correo:</strong> ' . $emailc . '</p>
 
+    <div class="line"></div>
 
+    <p><strong>Fecha factura:</strong> ' . $fing . '</p>
+    <p><strong>Fecha límite de pago:</strong> ' . $ffact . '</p>
+    <p><strong>Fecha de suspensión:</strong> ' . $flim . '</p>
+    <p><strong>Plan:</strong> ' . $nplan . '</p>
+    <p><strong>Velocidad:</strong> ' . $vp . '</p>
+    <p><strong>Estado:</strong> ' . $estf . '</p>
 
-                      <div>
-                      <center><label for="cp">Tu fecha limite de pago es : ' . $ffact . '</label></center>
-                    </div>
-                    <div>
-                      <center><label for="cp">Tu fecha de suspeción de servicio : ' . $flim . '</label></center>
-                    </div>
-                    <div>
-                      <center><label for="cp">Con el plan : ' . $nplan . '</label></center>
-                    </div>
+    <div class="line"></div>
 
-                      
+    <p><strong>Subtotal:</strong> $' . number_format($sub, 0, ',', '.') . '</p>
+    <p><strong>IVA 19%:</strong> $' . number_format($impt, 0, ',', '.') . '</p>
+    <p><strong>Total a pagar:</strong> $' . number_format($st, 0, ',', '.') . '</p>
+  </div>
+</body>
+</html>';
 
-
-  
-                      <div>
-                        <center><label for="cp">Tu factura se encuentra actualmente: ' . $estf . ' </label></center>
-                      </div>
-                      <br>
-                      <br>
-                      <br>
-                      <br>
-                      <br>
-                      <br>
-                      <br>
-                      <br>
-                      <br>
-                      <div>
-                        <center><label for="cp">Sub total: ' . $sub . '</label></center>
-                      </div>
-                      <div>
-                        <center><label for="vel">IVA 19%: ' . $impt . '</label></center>
-                      </div>
-                      <div>
-                        <center><label>_______________________</label></center>
-                      </div>
-                      <div>
-                        <center><label for="plan">Valor total a pagar: ' . $st . '</label></center>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-          </div>
-        </div>
-      </div>
-    </div>';
-
-$html .= '</body></html>';
-
-// Cargar el contenido HTML en Dompdf
+// --- Generar PDF ---
 $dompdf->loadHtml($html);
-$dompdf->setPaper(array(0, 0, 400, 700), 'portrait');
-// Renderizar el PDF
+$dompdf->setPaper('A5', 'portrait');
 $dompdf->render();
 
-
-
-// Enviar el PDF al navegador para su descarga o visualización
+// --- Nombre del archivo con cédula, mes y año ---
 $meses = [
-  1 => 'enero',
-  2 => 'febrero',
-  3 => 'marzo',
-  4 => 'abril',
-  5 => 'mayo',
-  6 => 'junio',
-  7 => 'julio',
-  8 => 'agosto',
-  9 => 'septiembre',
-  10 => 'octubre',
-  11 => 'noviembre',
-  12 => 'diciembre'
+  1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo',
+  6 => 'junio', 7 => 'julio', 8 => 'agosto', 9 => 'septiembre',
+  10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
 ];
 
-// Obtener el número del mes actual
 $numero_mes = date('n', strtotime($fing));
-
-// Obtener el nombre del mes en español
 $nombre_mes = $meses[$numero_mes];
-
-// Obtener el año actual
 $anio_actual = date('Y');
 
-// Crear el nombre del archivo con el mes y el año en español
-$nombre_archivo = 'factura_' . $nombre_mes . '_' . $anio_actual . '.pdf';
+// 🔹 El nombre del archivo tendrá la cédula primero
+$nombre_archivo = $doc . '_factura_' . $nombre_mes . '_' . $anio_actual . '.pdf';
 
-// Enviar el PDF al navegador para su descarga o visualización
-$dompdf->stream($nombre_archivo);
+// --- Descargar PDF (pregunta dónde guardarlo) ---
+$dompdf->stream($nombre_archivo, ["Attachment" => true]);
+?>

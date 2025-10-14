@@ -1,13 +1,17 @@
 <?php
-
+session_start();
 require_once __DIR__ . '/../../config/db.php';
 
-$i=$_GET['i'];
-
-$sql="UPDATE pqr2 SET  estadoPQR='Inactivo'WHERE idPqr='$i'";  
-$query=mysqli_query($con,$sql);
-
-    if($query){
-        Header("Location: pqr.php");
+if (isset($_GET['i'])) {
+    $id = intval($_GET['i']);
+    $sql = "UPDATE pqr2 SET estadoPqr='Inactivo' WHERE idPqr=$id";
+    if ($con->query($sql)) {
+        header("Location: pqr.php?estado=Activo");
+        exit;
+    } else {
+        echo "Error al archivar: " . $con->error;
     }
-?>
+} else {
+    header("Location: pqr.php");
+    exit;
+}

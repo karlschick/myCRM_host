@@ -1,6 +1,5 @@
-    <!-- actualizado -->
-
-    <?php
+<!-- actualizado -->
+<?php
 // Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
@@ -9,7 +8,7 @@ error_reporting(0);
 $varsesion = $_SESSION['usuario'];
 if (empty($varsesion)) {
     header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
+    die();
 }
 
 // Incluye el encabezado de la página
@@ -20,114 +19,105 @@ include '../../includes/header.php';
     <?php include '../../includes/menu.php'; ?>
 
     <div class="main-panel">
-    <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
-      <div class="col-6 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">GESTION DE USUARIOS</h4>
-            <p class="card-description"> Ingrese los datos del usuarios</p>
-            <form class="forms-sample">
-              <!--tipo de documento-->
-              <div class="form-group">
-                <label for="td">Seleccione tipo de documento</label>
-                <select class="form-control" name="td" id="td">
-                  <option value="C.C">C.C</option>
-                  <option value="C.E">C.E</option>
-                  <option value="R.C">R.C</option>
-                  <option value="T.I">T.I</option>
-                </select>
-              </div>
-              <!--valor de documento-->
-              <div class="form-group">
-                <label for="id">Ingrese documento</label>
-                <input type="text" class="form-control" name="id" id="id" placeholder="Numero de documento">
-              </div>
+        <div class="content-wrapper">
+            <div class="col-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">GESTIÓN DE USUARIOS</h4>
+                        <p class="card-description">Ingrese los datos del usuario</p>
 
-              <!--valor de nombres y apellidos-->
-              <div class="form-group">
-                <label for="nombre">Ingrese nombres y apellidos</label>
-                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Ingrese nombre">
-              </div>
+                        <!-- IMPORTANTE: enctype para permitir carga de archivos -->
+                        <form class="forms-sample" enctype="multipart/form-data">
 
+                            <!-- Tipo de documento -->
+                            <div class="form-group">
+                                <label for="td">Seleccione tipo de documento</label>
+                                <select class="form-control" name="td" id="td">
+                                    <option value="C.C">C.C</option>
+                                    <option value="C.E">C.E</option>
+                                    <option value="R.C">R.C</option>
+                                    <option value="T.I">T.I</option>
+                                </select>
+                            </div>
 
-              <!--valor de numero de telefono-->
-              <div class="form-group">
-                <label for="tel">Ingrese numero de telefono</label>
-                <input type="text" class="form-control" name="tel" id="tel" placeholder="Numero de telefono">
-              </div>
+                            <!-- Documento -->
+                            <div class="form-group">
+                                <label for="id">Ingrese documento</label>
+                                <input type="text" class="form-control" name="id" id="id" placeholder="Número de documento">
+                            </div>
 
-              <!--valor de email-->
-              <div class="form-group">
-                <label for="email">Ingrese correo electronico</label>
-                <input type="email" class="form-control" name="email" id="email" placeholder="Correo electronico">
-              </div>
+                            <!-- Nombres -->
+                            <div class="form-group">
+                                <label for="nombre">Ingrese nombres y apellidos</label>
+                                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Ingrese nombre completo">
+                            </div>
 
-              <!--valor de pasword-->
-              <div class="form-group">
-                <label for="clave">Ingrese password</label>
-                <input type="password" class="form-control" name="clave" id="clave" placeholder="password">
-              </div>
+                            <!-- Teléfono -->
+                            <div class="form-group">
+                                <label for="tel">Ingrese número de teléfono</label>
+                                <input type="text" class="form-control" name="tel" id="tel" placeholder="Número de teléfono">
+                            </div>
 
-              <!--valor de estado del cliente-->
-              <div class="form-group">
-                <label for="estado">Seleccione el estado del usuario</label>
-                <select class="form-control" name="estado" id="estado">
-                  <option value="Activo">Activo </option>
-                  <option value="Archivado">Inactivo</option>
-                </select>
-              </div>
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="email">Ingrese correo electrónico</label>
+                                <input type="email" class="form-control" name="email" id="email" placeholder="Correo electrónico">
+                            </div>
 
+                            <!-- Password -->
+                            <div class="form-group">
+                                <label for="clave">Ingrese contraseña</label>
+                                <input type="password" class="form-control" name="clave" id="clave" placeholder="Password">
+                            </div>
 
-              <!--valor de fecha creacion-->
-              <div class="form-group">
-                <label for="creacion">Ingrese fecha de creacion</label>
-                <input type="date" class="form-control" name="creacion" id="creacion" placeholder="">
-              </div>
+                            <!-- Imagen de usuario -->
+                            <div class="form-group">
+                                <label for="foto">Seleccione una foto de perfil (opcional)</label>
+                                <input type="file" class="form-control" name="foto" id="foto" accept="image/*">
+                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB.</small>
+                            </div>
 
-              <!--valor de ultima actualizacion-->
-              <div class="form-group">
-                <label for="act">Ingrese fecha ultima actualizacion</label>
-                <input type="date" class="form-control" name="act" id="act" placeholder="">
-              </div>
-              <div class="form-group">
-                <label for="rol">Seleccione tipo de usuario</label>
-                <select class="form-control" name="rol" id="rol">
-                  <option value="Administrador">administrativo</option>
-                  <option value="Tecnico">tecnico</option>
+                            <!-- Estado -->
+                            <div class="form-group">
+                                <label for="estado">Seleccione el estado del usuario</label>
+                                <select class="form-control" name="estado" id="estado">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Archivado">Inactivo</option>
+                                </select>
+                            </div>
 
-                </select>
-              </div>
-              <div>
-                <br>
-                <button id="submit" type="submit" formmethod="post" formaction="insertarUser.php" class="btn btn-primary">Guardar</button>
-                <button id="submit" type="submit" formmethod="post" formaction="tablasUser.php" class="btn btn-primary"> Volver al inicio </button>
+                            <!-- Fecha de creación -->
+                            <div class="form-group">
+                                <label for="creacion">Fecha de creación</label>
+                                <input type="date" class="form-control" name="creacion" id="creacion">
+                            </div>
 
-              </div>
-            </form>
+                            <!-- Última actualización -->
+                            <div class="form-group">
+                                <label for="act">Fecha de última actualización</label>
+                                <input type="date" class="form-control" name="act" id="act">
+                            </div>
 
-          </div>
+                            <!-- Rol -->
+                            <div class="form-group">
+                                <label for="rol">Seleccione tipo de usuario</label>
+                                <select class="form-control" name="rol" id="rol">
+                                    <option value="Administrador">Administrativo</option>
+                                    <option value="Técnico">Técnico</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <br>
+                                <button id="submit" type="submit" formmethod="post" formaction="insertarUser.php" class="btn btn-primary">Guardar</button>
+                                <button type="submit" formmethod="post" formaction="tablasUser.php" class="btn btn-secondary">Volver al inicio</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-
-      </div>
-
-
-
-
     </div>
-    <!-- ESTO ES LO QUE PODEMOS MODIFICAR -->
-    <!-- partial:partials/_footer.html -->
-
-    <!-- partial -->
-  </div>
-
-  <!-- main-panel ends -->
-  </div>
-  <!-- page-body-wrapper ends -->
-
-
-  </div>
-
-
 </body>
-
 </html>

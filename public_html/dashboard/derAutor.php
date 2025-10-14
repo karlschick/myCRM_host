@@ -28,7 +28,7 @@ include '../../includes/header.php';
             <div class="col-12 grid-margin stretch-card">
                     <div class="card">
                         <div class="card-body">
-                            <h2 class="card-title text-center">Derechos de Autor de Atory System</h2>
+                            <h2 class="card-title text-center">Derechos de Autor de Skubox 2025</h2>
                             <p>Atory System es una marca registrada y está protegida bajo las leyes de propiedad intelectual y derechos de autor. 
                                 Todo el contenido, incluyendo logotipos, nombres comerciales, imágenes, código fuente y documentación, es propiedad exclusiva de Atory System.</p>
                             
@@ -51,7 +51,7 @@ include '../../includes/header.php';
                             </ul>
                             
                             <h3>Contacto Legal</h3>
-                            <p>Si tienes dudas sobre el uso de la marca o necesitas obtener una licencia, puedes ponerte en contacto con nuestro equipo legal en <a href="mailto:legal@atory.com">legal@atory.com</a>.</p>
+                            <p>Si tienes dudas sobre el uso de la marca o necesitas obtener una licencia, puedes ponerte en contacto con nuestro equipo legal en <a href="mailto:legal@atory.com">skubox.it@gmail.com</a>.</p>
                         </div>
                     </div>
                     
@@ -62,9 +62,9 @@ include '../../includes/header.php';
         </div> 
             <footer class="footer">
                 <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                    <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Derechos de autor © atory.com 2025</span>
+                    <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Derechos de autor © skubox 2025</span>
                     <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-                        <a href="derAutor.php" target="_blank">atory.com</a>
+                        <a href="derAutor.php" target="_blank">skubox.com</a>
                     </span>
                 </div>
             </footer>

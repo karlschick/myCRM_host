@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 $cp = $_POST['cp'];
 $tplan = $_POST['tplan'];
 $vel = $_POST['vel'];

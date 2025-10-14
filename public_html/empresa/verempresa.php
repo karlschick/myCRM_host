@@ -37,12 +37,19 @@ include '../../includes/header.php';
                 <div class="card">
                 <div class="card-body">
                         <!-- Imagen centrada y responsive -->
-                        <div class="text-center my-4">
-                        <img src="../assets/images/empresa/logoEmpresa.png" 
-                        alt="Logo de la Empresa" 
-                        class="img-fluid responsive-logo rounded shadow-lg"
-                        style="max-width: 150px; height: auto;">
-    </div>
+<div class="text-center my-4">
+    <img src="../assets/images/empresa/logoEmpresa.png"
+         alt="Logo de la Empresa"
+         class="img-fluid responsive-logo rounded shadow-lg mb-3"
+         style="max-width: 150px; height: auto;">
+
+    <!-- Formulario para subir nueva imagen -->
+    <form action="actualizar_logo.php" method="POST" enctype="multipart/form-data">
+        <input type="file" name="nuevo_logo" accept="image/*" class="form-control mb-2" style="max-width: 250px; margin: 0 auto;">
+        <button type="submit" class="btn btn-sm btn-success">Cambiar Logo</button>
+    </form>
+</div>
+
     <h4 class="card-title">VER INFORMACIÓN DE LA EMPRESA</h4>
     <form class="forms-sample">
         <?php

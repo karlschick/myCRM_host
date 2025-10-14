@@ -1,106 +1,191 @@
 <?php
-// Evitar el cacheo de la página para asegurar que siempre se cargue la versión más reciente
+// Evitar el cacheo de la página
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// Iniciar la sesión y deshabilitar reportes de errores
 session_start();
 error_reporting(0);
 
-// Verificar si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if ($varsesion == null || $varsesion == '') {
-    // Redirigir al login si no hay sesión activa
-    header("location: index.html");
-    exit(); // Asegura que no se ejecute más código
+// Verificar sesión
+$varsesion = $_SESSION['usuario'] ?? null;
+$rol = $_SESSION['rol'] ?? null;
+$fotoPerfilBD = $_SESSION['foto'] ?? null;
+
+if (empty($varsesion)) {
+    header("location: ../login/login.php");
+    exit();
 }
 
-// Incluir encabezado
-include '../../includes/header.php';
+// Texto usuario - rol
+$usuarioTexto = htmlspecialchars($varsesion) . " - " . htmlspecialchars($rol);
+
+// 📁 Rutas
+$rutaWebFotos = "../assets/images/faces-clipart/";
+$rutaServidorFotos = realpath(__DIR__ . "/../public_html/assets/images/faces-clipart/") . "/";
+
+// Buscar foto en BD si no está en sesión
+if (empty($fotoPerfilBD)) {
+    require_once __DIR__ . '/../../config/db.php';
+    if ($con) {
+        $stmt = $con->prepare("SELECT foto FROM usuario WHERE nombresUsuario = ?");
+        $stmt->bind_param("s", $varsesion);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $fotoPerfilBD = $row['foto'];
+            $_SESSION['foto'] = $fotoPerfilBD;
+        }
+        $stmt->close();
+        $con->close();
+    }
+}
+
+// Verificar foto existente
+if (!empty($fotoPerfilBD) && file_exists($rutaServidorFotos . $fotoPerfilBD)) {
+    $fotoPerfil = $rutaWebFotos . rawurlencode($fotoPerfilBD);
+} else {
+    $fotoPerfil = $rutaWebFotos . "pic-1.png";
+}
 ?>
 
-<body>
-    <div class="container-scroller">
-        <!-- Todo el slider -->
-        <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-                <!-- Logo de Atory -->
-                <a class="sidebar-brand brand-logo">
-                    <img src="../assets/images/atori.png" alt="logo">
+<!-- ================== MENÚ TÉCNICO ================== -->
+<div class="container-scroller">
+    <!-- Sidebar lateral -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
+            <a class="sidebar-brand brand-logo" href="../dashboard/principal.php">
+                <img src="../assets/images/atori.png" alt="logo">
+            </a>
+            <a class="sidebar-brand brand-logo-mini" href="../dashboard/principal.php">
+                <img src="../assets/images/logo-mini.png" alt="logo">
+            </a>
+        </div>
+
+        <ul class="nav">
+            <li class="nav-item profile">
+                <div class="profile-desc">
+                    <div class="profile-pic">
+                        <div class="count-indicator">
+                            <img class="img-xs rounded-circle" src="<?php echo $fotoPerfil; ?>" alt="Foto de perfil">
+                            <span class="count bg-success"></span>
+                        </div>
+                        <div class="profile-name">
+                            <h5 class="mb-0 font-weight-normal"><?php echo $usuarioTexto; ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item nav-category">
+                <span class="nav-link">PANEL TÉCNICO</span>
+            </li>
+
+            <li class="nav-item menu-items">
+                <a class="nav-link" href="../visitas/tablasVisitasT.php">
+                    <span class="menu-icon"><i class="mdi mdi-table-large"></i></span>
+                    <span class="menu-title">Gestión Visitas</span>
                 </a>
-                <!-- Volver a inicio -->
-                <a class="sidebar-brand brand-logo-mini">
+            </li>
+
+            <li class="nav-item menu-items">
+                <a class="nav-link" href="../inventario/tablasinventarioT.php">
+                    <span class="menu-icon"><i class="mdi mdi-package-variant-closed"></i></span>
+                    <span class="menu-title">Inventario Técnico</span>
+                </a>
+            </li>
+
+            <li class="nav-item menu-items">
+                <a class="nav-link" href="../planes/solicitudesT.php">
+                    <span class="menu-icon"><i class="mdi mdi-format-list-bulleted"></i></span>
+                    <span class="menu-title">Solicitudes de Servicio</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Navbar superior -->
+    <div class="container-fluid page-body-wrapper">
+        <nav class="navbar p-0 fixed-top d-flex flex-row">
+            <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
+                <a class="navbar-brand brand-logo-mini" href="../dashboard/principal.php">
                     <img src="../assets/images/logo-mini.png" alt="logo">
                 </a>
             </div>
-            <ul class="nav">
-                <li class="nav-item profile">
-                    <div class="profile-desc">
-                        <div class="profile-pic">
-                            <div class="count-indicator">
-                                <img class="img-xs rounded-circle" src="../assets/images/faces-clipart/pic-4.png" alt="">
-                                <span class="count bg-success"></span>
+
+            <div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
+                <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+                    <span class="mdi mdi-menu"></span>
+                </button>
+
+
+            <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+
+                <!-- 🔍 Buscador global -->
+                <form class="d-flex ms-auto me-4" style="position: relative; width: 400px;">
+                <input 
+                    type="text" 
+                    id="busqueda" 
+                    class="form-control form-control-lg shadow-sm" 
+                    placeholder="🔍 Buscar cliente por nombre, documento o plan..."
+                    style="
+                    width: 100%;
+                    border-radius: 50px;
+                    padding-left: 45px;
+                    border: 2px solid #ced4da;
+                    transition: all 0.3s ease;
+                    "
+                >
+                <i 
+                    class="bi bi-search" 
+                    style="
+                    position: absolute;
+                    top: 50%;
+                    left: 15px;
+                    transform: translateY(-50%);
+                    color: #6c757d;
+                    font-size: 1.2rem;
+                    "
+                ></i>
+                </form>
+
+                <!-- otros elementos del menú -->
+            </div>
+            </nav>
+
+            <!-- ✅ Aquí incluyes los estilos y el script del buscador -->
+            <?php include_once '../../includes/search.php'; ?>
+
+
+
+                <ul class="navbar-nav navbar-nav-right">
+                    <a href="../planes/solicitudes.php" class="btn btn-info" role="button">Nuevos Clientes</a>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link collapsed" id="profileDropdown" href="#" data-toggle="dropdown">
+                            <div class="navbar-profile">
+                                <p class="mb-0 d-none d-sm-block navbar-profile-name"><?php echo $usuarioTexto; ?></p>
+                                <i class="mdi mdi-menu-down d-none d-sm-block"></i>
+                                <img class="rounded-circle" src="<?php echo $fotoPerfil; ?>" alt="Foto de perfil" style="width:40px; height:40px; object-fit:cover;">
                             </div>
-                            <div class="profile-name">
-                                <h5 class="mb-0 font-weight-normal">TECNICO</h5>
-                                <span>Rol tecnico</span>
-                            </div>
-                        </div>
-                        <!-- Ajustes de perfil -->
-                    </div>
-                </li>
-                <li class="nav-item nav-category">
-                    <span class="nav-link">PANEL DE CONTROL</span>
-                </li>
+                        </a>
 
-                <li class="nav-item menu-items">
-                    <a class="nav-link" href="../visitas/inicioVisitasT.php">
-                        <span class="menu-icon">
-                            <i class="mdi mdi-table-large"></i>
-                        </span>
-                        <span class="menu-title">Visitas</span>
-                    </a>
-                </li>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list">
+                            <h6 class="p-3 mb-0">PERFIL</h6>
+                            <div class="dropdown-divider"></div>
 
-                <li class="nav-item menu-items">
-                    <a class="nav-link" href="../inventario/tablasinventarioT.php">
-                        <span class="menu-icon">
-                            <i class="mdi mdi-chart-bar"></i>
-                        </span>
-                        <span class="menu-title">Inventario</span>
-                    </a>
-                </li>
-
-            </ul>
-        </nav>
-        <!-- Página parcial -->
-        <div class="container-fluid page-body-wrapper">
-            <!-- Menú navbar.html -->
-            <nav class="navbar p-0 fixed-top d-flex flex-row">
-                <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-                    <a class="navbar-brand brand-logo-mini" href="index.html">
-                        <img src="../assets/images/logo-mini.png" alt="logo">
-                    </a>
-                </div>
-                <div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
-                    <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-                        <span class="mdi mdi-menu"></span>
-                    </button>
-                    <ul class="navbar-nav navbar-nav-right">
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link collapsed" id="profileDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
-                                <div class="navbar-profile">
-                                    <img class="img-xs rounded-circle" src="../assets/images/faces-clipart/pic-4.png" alt="">
-                                    <p class="mb-0 d-none d-sm-block navbar-profile-name">TECNICO</p>
-                                    <i class="mdi mdi-menu-down d-none d-sm-block"></i>
+                            <a class="dropdown-item preview-item" href="../empresa/verempresa.php">
+                                <div class="preview-thumbnail">
+                                    <div class="preview-icon bg-dark rounded-circle">
+                                        <i class="mdi mdi-office-building text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="preview-item-content">
+                                    <p class="preview-subject mb-1">Información de la Empresa</p>
                                 </div>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
-                                <h6 class="p-3 mb-0">PERFIL</h6>
-                                <div class="dropdown-divider"></div>
-                            <!-- Opción Cerrar sesión -->
+
                             <a class="dropdown-item preview-item" href="../login/cerrarSesion.php">
                                 <div class="preview-thumbnail">
                                     <div class="preview-icon bg-dark rounded-circle">
@@ -108,17 +193,19 @@ include '../../includes/header.php';
                                     </div>
                                 </div>
                                 <div class="preview-item-content">
-                                    <p class="preview-subject mb-1">Cerrar sesión</p>
+                                    <p class="preview-subject mb-1">Cerrar Sesión</p>
                                 </div>
                             </a>
-                            </div>
-                        </li>
-                    </ul>
-                    <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
-                        <span class="mdi mdi-format-line-spacing"></span>
-                    </button>
-                </div>
-            </nav>
+                        </div>
+                    </li>
+                </ul>
+
+                <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+                    <span class="mdi mdi-format-line-spacing"></span>
+                </button>
+            </div>
+        </nav>
+
     <!-- Carga de los plugins JavaScript principales -->
     <script src="../assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- Fin de la inyección de plugins -->

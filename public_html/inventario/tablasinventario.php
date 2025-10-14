@@ -1,6 +1,4 @@
-    <!-- actualizado -->
-
-    <?php
+<?php
 // Seguridad de sesiones (prueba 1)
 session_start();
 error_reporting(0);
@@ -22,13 +20,14 @@ include '../../includes/header.php';
 
     <!-- Contenedor principal -->
   <div class="main-panel">
-    <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
+    <div class="content-wrapper"> 
       <div class="page-header">
         <h1 style="font-size: 32px;">GESTIÓN INVENTARIO</h1>
       </div>
       <div class="card">
         <div class="card-body">
 
+                  <!-- 🔘 Botones principales -->
           <a href="inactivosinv.php" class="btn btn-danger btn-lg">Consutlar productos inactivos.</a>
           <a href="../excel/excelInventario.php" class="btn btn-success btn-lg">Exportar tabla a Excel</a>
           <a href="ingresarp.php" class="btn btn-info btn-lg">Ingresar nuevo producto</a>

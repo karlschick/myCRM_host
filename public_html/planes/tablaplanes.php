@@ -65,10 +65,10 @@ include '../../includes/header.php';
                   <td><?php echo "$pplan" ?></td>
                   <td><?php echo "$estadop" ?></td>
                   <th>
-                    <a href="planes/actualizar.php?cp=<?php echo $row['codigoPlan']; ?>" class="btn btn-info">Editar</a>
+                    <a href="actualizar.php?cp=<?php echo $row['codigoPlan']; ?>" class="btn btn-info">Editar</a>
                   </th>
                   <th>
-                    <a href="planes/eliminarplan.php?cp=<?php echo $row['codigoPlan']; ?>" class="borrar btn btn-danger">Archivar</a>
+                    <a href="eliminarplan.php?cp=<?php echo $row['codigoPlan']; ?>" class="borrar btn btn-danger">Archivar</a>
                   </th>
                   <td>
                   </td>

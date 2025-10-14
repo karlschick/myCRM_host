@@ -1,146 +1,110 @@
-    <!-- actualizado -->
-
-    <?php
-
+<?php
 // Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
 
 <body>
-  <?php
-  require_once __DIR__ . '/../../config/db.php';
+<?php
+require_once __DIR__ . '/../../config/db.php';
 
-  $id = $_GET['id'];
-  $sql = "SELECT * FROM cliente  
-  INNER JOIN plan
-  INNER JOIN factura
-  WHERE cliente.plan_idPlan=plan.idPlan
-  AND cliente.idCliente=factura.cliente_idCliente
-  AND idFactura= '$id';";
+$idFactura = $_GET['id'] ?? 0;
 
-  if ($rta = $con->query($sql)) {
-    while ($row = $rta->fetch_assoc()) {
-      $id = $row['idCliente'];
-      $td = $row['tipoDocumento'];
-      $doc = $row['documentoCliente'];
-      $nomc = $row['nombreCliente'];
-      $telc = $row['telefonoCliente'];
-      $emailc = $row['correoCliente'];
-      $dc = $row['direccion'];
-      $ec = $row['estadoCliente'];
-      $plancliente = $row['plan_idPlan'];
-      $creado = $row['creado'];
-      $uact = $row['ultimaActualizacion'];
-      $idplan = $row['idPlan'];
-      $codigoplan = $row['codigoPlan'];
-      $tipoplan = $row['tipoPlan'];
-      $vp = $row['velocidad'];
-      $nombreplan = $row['nombrePlan'];
-      $precioplan = $row['precioPlan'];
-      $descripcionplan = $row['desPlan'];
-      $estadoplan = $row['estadoPlan'];
-      $if = $row['idFactura'];
-      $fing = $row['fechaFactura'];
-      $impt = $row['impuestoTotal'];
-      $sub = $row['subTotal'];
-      $st = $row['valorTotalFactura'];
-      $cid = $row['cliente_idCliente'];
-      $estf = $row['estadoFactura'];
-      $ffact = $row['fechaVencimiento'];
-      $flim = $row['fechaSuspencion'];
-      $nplan = $row['nPlan'];
-    }
-  }
-  $sql2 = "SELECT * FROM empresa WHERE id='1';";
-  $query2 = mysqli_query($con, $sql2);
-  $row = mysqli_fetch_array($query2);
+// Consulta corregida con JOINs y selección explícita
+$sql = "SELECT 
+            c.idCliente, c.tipoDocumento, c.documentoCliente, c.nombreCliente, c.telefonoCliente, c.correoCliente, 
+            c.direccion, c.estadoCliente, c.plan_idPlan, c.creado, c.ultimaActualizacion,
+            f.idFactura, f.fechaFactura, f.impuestoTotal, f.subTotal, f.valorTotalFactura, f.cliente_idCliente, f.estadoFactura, f.fechaVencimiento, f.fechaSuspencion,
+            p.idPlan, p.codigoPlan, p.tipoPlan, p.velocidad, p.nombrePlan, p.precioPlan, p.desPlan, p.estadoPlan,
+            e.nombEmpresa, e.rz, e.nit, e.telsede, e.telsede2
+        FROM cliente c
+        INNER JOIN factura f ON c.idCliente = f.cliente_idCliente
+        LEFT JOIN plan p ON c.plan_idPlan = p.idPlan
+        LEFT JOIN empresa e ON e.id = 1
+        WHERE f.idFactura = ?";
 
-  ?>
-  <div class="main-panel">
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $idFactura);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    $idCliente = $row['idCliente'];
+    $tipoDoc = $row['tipoDocumento'];
+    $doc = $row['documentoCliente'];
+    $nomc = $row['nombreCliente'];
+    $telc = $row['telefonoCliente'];
+    $emailc = $row['correoCliente'];
+    $direccion = $row['direccion'];
+    $estadoCliente = $row['estadoCliente'];
+    $plancliente = $row['plan_idPlan'];
+    $creado = $row['creado'];
+    $ultimaActualizacion = $row['ultimaActualizacion'];
+    $idPlan = $row['idPlan'];
+    $codigoplan = $row['codigoPlan'];
+    $tipoplan = $row['tipoPlan'];
+    $vp = $row['velocidad'];
+    $nombreplan = $row['nombrePlan'] ?? 'Sin Plan';
+    $precioplan = $row['precioPlan'];
+    $descripcionplan = $row['desPlan'];
+    $estadoplan = $row['estadoPlan'];
+    $idFactura = $row['idFactura'];
+    $fechaFactura = $row['fechaFactura'];
+    $impuesto = $row['impuestoTotal'];
+    $subtotal = $row['subTotal'];
+    $total = $row['valorTotalFactura'];
+    $estadoFactura = $row['estadoFactura'];
+    $fechaVenc = $row['fechaVencimiento'];
+    $fechaSusp = $row['fechaSuspencion'];
+    $empresaNombre = $row['nombEmpresa'];
+    $empresaRZ = $row['rz'];
+    $empresaNit = $row['nit'];
+    $empresaTel1 = $row['telsede'];
+    $empresaTel2 = $row['telsede2'];
+} else {
+    echo "<div class='text-center mt-4'><h3>No se encontró la factura.</h3></div>";
+    exit;
+}
+?>
+
+<div class="main-panel">
     <div class="content-wrapper">
-      <div class="page-header">
-        <h2 class="page-title">FACTURA</h2>
-      </div>
-      <div class="row justify-content-center">
-        <div class="col-md-6 col-12 grid-margin stretch-card mx-auto">
-          <div class="card">
-            <div class="card-body">
-              <div style="text-align: center;">
-                <img class="logo" src="../assets/images/empresa/logoEmpresa.png" alt="logo" style="max-width: 20%; height: auto" class="img-responsive" />
-              </div>
-              <br>
-              <center>
-                <h2 class="card-title"><?php echo $row['nombEmpresa'] ?></h2>
-              </center>
-              <form class="forms-sample">
-                <div class="form-group">
-                  <div class="card-body">
-                    <form class="forms-sample">
-                      <center><class="card-title"><?php echo $row['rz'] ?></center>
-                      <center><class="card-title">nit : <?php echo $row['nit'] ?></center>
-                      <center><class="card-title">tel : <?php echo $row['telsede'] ?></center>
-                      <center><class="card-title">tel2 : <?php echo $row['telsede2'] ?></center>
-                      <br>
-                      <center>
-                        <h4 class="card-title">Hola <?php echo "$nomc" ?></h4>
-                      </center>
-                      <div class="form-group">
-                        <div>
-                          <center><label for="cp">Con : <?php echo "$td: $doc" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="des"> Su telefono es <?php echo "$telc" ?></label>
-                            <center>
-                        </div>
-                        <div>
-                          <center><label for="des"> Su correo es: <?php echo "$emailc" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="cp">Tu factura correspondiente al : <?php echo "$fing" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="cp">Tu fecha limite de pago es : <?php echo "$ffact" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="cp">Tu fecha de suspensión de servicio : <?php echo "$flim" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="cp">Con el plan : <?php echo "$nplan" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="cp">Velocidad: <?php echo "$vp" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="cp">Tu factura se encuentra actualmente: <?php echo "$estf" ?> </label></center>
-                        </div>
-                        <br>
-                        <div>
-                          <center><label for="cp">Sub total: <?php echo "$sub" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label for="vel">IVA 19%: <?php echo "$impt" ?></label></center>
-                        </div>
-                        <div>
-                          <center><label>_______________________</label></center>
-                        </div>
-                        <div>
-                          <center><label for="plan">Valor total a pagar: <?php echo " $st" ?></label></center>
-                        </div>
-                      </div>
-                      <center><a href="consultarfC.php" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Volver a facturas</a>
-                        <a href="facturaPDF.php?id=<?php echo $if; ?>" class="btn btn-light btn-lg active" role="button" aria-pressed="true">Imprimir PDF </a>
-                      </center>
-                    </form>
-                  </div>
+        <!-- Título centrado -->
+        <div class="page-header" style="width: 100%; display: flex; justify-content: center;">
+            <h2 class="page-title" style="margin: 0;">FACTURA</h2>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-12 grid-margin stretch-card mx-auto">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <img class="logo d-block mx-auto mb-3" src="../assets/images/empresa/logoEmpresa.png" alt="logo" style="max-width: 20%; height: auto;" />
+                        <h2 class="card-title"><?= htmlspecialchars($empresaNombre) ?></h2>
+                        <p><?= htmlspecialchars($empresaRZ) ?> | NIT: <?= htmlspecialchars($empresaNit) ?></p>
+                        <p>Tel: <?= htmlspecialchars($empresaTel1) ?> | Tel2: <?= htmlspecialchars($empresaTel2) ?></p>
+
+                        <h4>Hola <?= htmlspecialchars($nomc) ?></h4>
+                        <p>Documento: <?= htmlspecialchars("$tipoDoc: $doc") ?></p>
+                        <p>Teléfono: <?= htmlspecialchars($telc) ?></p>
+                        <p>Correo: <?= htmlspecialchars($emailc) ?></p>
+                        <p>Factura emitida el: <?= htmlspecialchars($fechaFactura) ?></p>
+                        <p>Fecha límite de pago: <?= htmlspecialchars($fechaVenc) ?></p>
+                        <p>Fecha suspensión: <?= htmlspecialchars($fechaSusp) ?></p>
+                        <p>Plan contratado: <?= htmlspecialchars($nombreplan) ?> | Velocidad: <?= htmlspecialchars($vp) ?></p>
+                        <p>Estado factura: <?= htmlspecialchars($estadoFactura) ?></p>
+                        <hr>
+                        <p>Sub total: <?= htmlspecialchars($subtotal) ?></p>
+                        <p>IVA 19%: <?= htmlspecialchars($impuesto) ?></p>
+                        <p><strong>Valor total a pagar: <?= htmlspecialchars($total) ?></strong></p>
+
+                        <a href="consultarfC.php" class="btn btn-light btn-lg">Volver a facturas</a>
+                        <a href="facturaPDF.php?id=<?= $idFactura ?>" class="btn btn-light btn-lg">Imprimir PDF</a>
+                    </div>
                 </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 
 
 </body>
-
 </html>

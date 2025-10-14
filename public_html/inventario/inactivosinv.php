@@ -1,89 +1,91 @@
-    <!-- actualizado -->
-
-    <?php
-// Seguridad de sesiones (prueba 1)
+<?php
+// Seguridad de sesiones
 session_start();
 error_reporting(0);
 
-// Verifica si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if (empty($varsesion)) {
+if (empty($_SESSION['usuario'])) {
     header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
+    die();
 }
 
-// Incluye el encabezado de la página
 include '../../includes/header.php';
 ?>
 
 <body>
+<?php include '../../includes/menu.php'; ?>
 
-    <!-- Incluye el menú de navegación -->
-    <?php include '../../includes/menu.php'; ?>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <h1 style="font-size: 32px;">GESTIÓN INVENTARIO - PRODUCTOS INACTIVOS</h1>
+    <div class="card-body">
 
-  <div class="main-panel">
-    <div class="content-wrapper"> <!-- ESTO ES LO QUE TENEMOS QUE MODIFICAR -->
-      <h1 style="font-size: 32px;">GESTIÓN INVENTARIO</h1>
-      <div class="card-body">
-        <a href="tablasinventario.php" class="btn btn-primary " role="button" aria-pressed="true">Volver a activos</a>
-        <a href="../excel/excelPQR.php" class="btn btn-success">Exportar tabla a Excel</a>
-        <?php
+      <a href="tablasinventario.php" class="btn btn-primary">Volver a activos</a>
+      <a href="../excel/excelPQR.php" class="btn btn-success">Exportar tabla a Excel</a>
 
-        require_once __DIR__ . '/../../config/db.php';
+      <?php
+      require_once __DIR__ . '/../../config/db.php';
 
-        $sql = "SELECT * FROM producto WHERE estadoProducto='Inactivo';";
+      // Consulta productos inactivos
+      $sql = "SELECT * FROM producto WHERE LOWER(estadoProducto) = 'inactivo' ORDER BY idProducto ASC;";
+      $rta = $con->query($sql);
 
-        echo '<div class="table-responsive">
-            <table class="table table-hover">
-            <thead>
-        <tr>
-        <th> Id Producto </th>
-        <th> Nombre Producto</th>
-        <th> Serial del producto</th>
-        <th> Descripcion del producto</th>
-        <th> Cantidad en bodega </th>
-        <th> Editar producto</th>
-        <th> Eliminar</th>
-    </tr>
-    </thead>
-    ';
+      if (!$rta || $rta->num_rows === 0) {
+          echo '<div class="alert alert-info mt-3">No hay productos inactivos.</div>';
+      } else {
+          echo '<div class="table-responsive mt-3">
+                  <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID Producto</th>
+                      <th>Nombre</th>
+                      <th>Serial</th>
+                      <th>Descripción</th>
+                      <th>Cantidad</th>
+                      <th>Reactivar</th>
+                      <th>Eliminar definitivamente</th>
+                    </tr>
+                  </thead>
+                  <tbody>';
 
-        if ($rta = $con->query($sql)) {
           while ($row = $rta->fetch_assoc()) {
-            $id = $row['idProducto'];
-            $nombrep = $row['nombreProducto'];
-            $serial = $row['serialProducto'];
-            $desp = $row['descripcionProducto'];
-            $cantidad = $row['cantidad'];
-            $estado = $row['estadoProducto'];
-        ?>
-            <tr>
-              <td> <?php echo "$id" ?></td>
-              <td> <?php echo "$nombrep" ?></td>
-              <td> <?php echo "$serial" ?></td>
-              <td> <?php echo "$desp" ?></td>
-              <td> <?php echo "$cantidad" ?></td>
-              </th>
-              <th>
-              <th><a href="activarp.php?id=<?php echo $row['idProducto'] ?>" class="btn btn-danger">Volver acttivar</a></th>
-              </th>
-            </tr>
-        <?php
+              $id = htmlspecialchars($row['idProducto']);
+              $nombrep = htmlspecialchars($row['nombreProducto']);
+              $serial = htmlspecialchars($row['serialProducto']);
+              $desp = htmlspecialchars($row['descripcionProducto']);
+              $cantidad = htmlspecialchars($row['cantidad']);
+
+              echo "<tr>
+                      <td>$id</td>
+                      <td>$nombrep</td>
+                      <td>$serial</td>
+                      <td>$desp</td>
+                      <td>$cantidad</td>
+                      <td>
+                        <a href='activarp.php?id=$id' class='btn btn-warning'
+                           onclick=\"return confirm('¿Desea volver a activar el producto: $nombrep?');\">
+                           Reactivar
+                        </a>
+                      </td>
+                      <td>
+                        <a href='eliminarp.php?id=$id' class='btn btn-danger'
+                           onclick=\"return confirm('⚠️ Esta acción eliminará el producto $nombrep de forma permanente. ¿Desea continuar?');\">
+                           Eliminar
+                        </a>
+                      </td>
+                    </tr>";
           }
-        }
 
-        ?>
-
-      </div>
-      <footer class="footer">
-        <div class="d-sm-flex justify-content-center justify-content-sm-between">
-
-        </div>
-      </footer>
-
+          echo '</tbody></table></div>';
+      }
+      ?>
     </div>
+
+    <footer class="footer mt-4">
+      <div class="d-sm-flex justify-content-center justify-content-sm-between">
+      </div>
+    </footer>
+
   </div>
-
+</div>
 </body>
-
 </html>

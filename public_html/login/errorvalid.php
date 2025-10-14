@@ -1,21 +1,19 @@
-    <!-- actualizado -->
-
-    <?php
-// Seguridad de sesiones (prueba 1)
+<?php
 session_start();
 error_reporting(0);
 
-// Verifica si el usuario tiene una sesión activa
-$varsesion = $_SESSION['usuario'];
-if (empty($varsesion)) {
-    header("Location: ../index.php");
-    die(); // No es necesario usar exit después de die()
+// Si el usuario ya tiene sesión activa, lo redirige al panel
+if (isset($_SESSION['usuario'])) {
+    header("Location: ../dashboard/principal.php");
+    exit;
 }
 
-// Incluye el encabezado de la página
+// Captura el mensaje de error enviado por la URL
+$error = isset($_GET['error']) ? htmlspecialchars($_GET['error']) : "Error de validación. Verifique sus credenciales.";
+
+// Incluye el encabezado (solo si tu estructura lo requiere)
 include '../../includes/header.php';
 ?>
-
 
 <body>
   <div class="container-scroller">
@@ -24,24 +22,25 @@ include '../../includes/header.php';
         <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
           <div class="card col-lg-4 mx-auto">
             <div class="card-body px-5 py-5">
-              <h3 class="card-title text-left mb-3">ERROR DE VALIDACION</h3>
-              <form action="login.php" method="POST">
+              <h3 class="card-title text-left mb-3">ERROR DE VALIDACIÓN</h3>
 
+              <div class="alert alert-danger text-center" role="alert">
+                <?= $error ?>
+              </div>
+
+              <form action="login.php" method="POST">
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary btn-block enter-btn">Volver a intentar</button>
+                  <button type="submit" class="btn btn-primary btn-block enter-btn">
+                    Volver a intentar
+                  </button>
                 </div>
               </form>
+
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
-
   </div>
-
-
 </body>
-
 </html>
