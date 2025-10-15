@@ -144,6 +144,25 @@ if (!empty($fotoPerfilBD) && $rutaServidorFotos && file_exists($rutaServidorFoto
                     <span class="menu-title">Solicitudes</span>
                 </a>
             </li>
+       
+        
+        <li class="nav-item menu-items">
+            <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
+              <span class="menu-icon">
+                <i class="mdi mdi-security"></i>
+              </span>
+              <span class="menu-title">actualizar</span>
+              <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="auth">
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item"> <a class="nav-link" href="../facturacion/actualizarFechas.php"> Fecha suspencion </a></li>
+                <li class="nav-item"> <a class="nav-link" href="../clientes/update.php"> Facturas nuevas </a></li>
+                <li class="nav-item"> <a class="nav-link" href="../facturacion/actualizar_estado.php"> Estados de facturas </a></li>
+              </ul>
+            </div>
+          </li>
+
         </ul>
     </nav>
 

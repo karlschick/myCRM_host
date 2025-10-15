@@ -232,9 +232,7 @@
         </div>
       </a>
     </div>
-
   </div>
-
   <div class="chart-box mt-4">
     <canvas id="clientesChart" height="100"></canvas>
   </div>

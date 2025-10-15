@@ -111,6 +111,15 @@ if (empty($fechaSuspencion) && !empty($cliente['fechaVencimiento'])) {
               </select>
             </div>
 
+            <!-- 🔹 Nuevo campo: Meses de gracia -->
+            <p class="card-description">Meses de gracia:</p>
+            <select class="form-control mb-3" name="gracia" id="gracia">
+              <option value="0" <?php if(($cliente['meses_gracia'] ?? 0) == 0) echo 'selected'; ?>>0</option>
+              <option value="1" <?php if(($cliente['meses_gracia'] ?? 0) == 1) echo 'selected'; ?>>1</option>
+              <option value="2" <?php if(($cliente['meses_gracia'] ?? 0) == 2) echo 'selected'; ?>>2</option>
+              <option value="3" <?php if(($cliente['meses_gracia'] ?? 0) == 3) echo 'selected'; ?>>3</option>
+            </select>
+
             <p class="card-description">Fecha de emisión (factura):</p>
             <input type="date" class="form-control mb-3" name="fechaFactura" value="<?php echo htmlspecialchars($cliente['fechaFactura'] ?? ''); ?>">
 

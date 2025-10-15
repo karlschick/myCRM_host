@@ -26,22 +26,23 @@ $query = mysqli_query($con, $sql);
           <h4 class="card-title">GESTIÓN DE CLIENTES</h4>
           <p class="card-description">Ingrese los datos del cliente</p>
 
-          <form class="forms-sample" method="post" action="insertar.php">
+          <form class="forms-sample" method="post" action="insertar.php" onsubmit="return validarFormulario();">
+            
             <!-- Tipo de documento -->
             <div class="form-group">
               <label for="td">Seleccione tipo de documento</label>
               <select class="form-control" name="td" id="td">
                 <option value="C.C">C.C</option>
                 <option value="C.E">C.E</option>
-                <option value="R.C">R.C</option>
-                <option value="T.I">T.I</option>
               </select>
             </div>
 
             <!-- Documento -->
             <div class="form-group">
               <label for="id">Ingrese documento</label>
-              <input type="text" class="form-control" name="id" id="id" required>
+              <input type="text" class="form-control" name="id" id="id" 
+                     required pattern="[0-9]+" minlength="6" maxlength="10"
+                     title="Solo se permiten números (6 a 10 dígitos)">
             </div>
 
             <!-- Nombre -->
@@ -112,12 +113,30 @@ $query = mysqli_query($con, $sql);
             <!-- Fechas -->
             <div class="form-group">
               <label for="creacion">Fecha de creación</label>
-              <input type="date" class="form-control" name="creacion" id="creacion" required>
+              <input type="date" class="form-control" name="creacion" id="creacion">
             </div>
 
             <div class="form-group">
               <label for="act">Fecha última actualización</label>
-              <input type="date" class="form-control" name="act" id="act" required>
+              <input type="date" class="form-control" name="act" id="act">
+            </div>
+
+            <!-- Fecha de suspensión automática -->
+            <div class="form-group">
+              <label for="fechaSuspencion">Fecha de suspensión</label>
+              <input type="date" class="form-control" name="fechaSuspencion" id="fechaSuspencion">
+            </div>
+
+            <!-- Estado de la factura -->
+            <div class="form-group">
+              <label for="estadoFactura">Estado de la factura</label>
+              <select class="form-control" name="estadoFactura" id="estadoFactura">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pagada">Pagada</option>
+                <option value="Vencida">Vencida</option>
+                <option value="Gratis">Gratis</option>
+                <option value="Anulada">Anulada</option>
+              </select>
             </div>
 
             <div>
@@ -131,5 +150,41 @@ $query = mysqli_query($con, $sql);
     </div>
   </div>
 </div>
+
+<script>
+// Validar formulario antes de enviar
+function validarFormulario() {
+  const id = document.getElementById('id').value.trim();
+  if (!/^[0-9]+$/.test(id) || id.length < 6 || id.length > 10) {
+    alert('La cédula debe contener solo números (6 a 10 dígitos).');
+    return false;
+  }
+
+  const creacion = document.getElementById('creacion');
+  const act = document.getElementById('act');
+
+  // Si las fechas están vacías, asignar valores automáticos
+  if (!creacion.value) {
+    const hoy = new Date().toISOString().split('T')[0];
+    creacion.value = hoy;
+  }
+  if (!act.value) {
+    act.value = creacion.value;
+  }
+
+  return true;
+}
+
+// Calcular fecha de suspensión = creación + 1 mes exacto
+document.getElementById('creacion').addEventListener('change', function() {
+  const fecha = new Date(this.value);
+  if (!isNaN(fecha)) {
+    fecha.setMonth(fecha.getMonth() + 1); // sumar 1 mes exacto
+    const fechaSusp = fecha.toISOString().split('T')[0];
+    document.getElementById('fechaSuspencion').value = fechaSusp;
+  }
+});
+</script>
+
 </body>
 </html>

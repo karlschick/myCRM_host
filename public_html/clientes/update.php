@@ -13,15 +13,22 @@ $estado     = $_POST['estado'];
 $plan       = $_POST['plan'];
 $creacion   = $_POST['creacion'];
 $act        = $_POST['act'];
+$mesesGracia = $_POST['gracia'] ?? 0; // Nuevo campo
 
 // Campos relacionados con la factura
-$fechaFactura      = $_POST['fechaFactura'] ?? null;
-$fechaVencimiento  = $_POST['fechaVencimiento'] ?? null;
-$fechaSuspencion   = $_POST['fechaSuspencion'] ?? null;
-$estadoFactura     = $_POST['estadoFactura'] ?? null;
+$fechaFactura      = $_POST['fechaFactura'] ?? '';
+$fechaVencimiento  = $_POST['fechaVencimiento'] ?? '';
+$fechaSuspencion   = $_POST['fechaSuspencion'] ?? '';
+$estadoFactura     = $_POST['estadoFactura'] ?? 'Pendiente';
 
-// --- Calcular automáticamente fecha de suspensión si no viene del formulario ---
-if (!$fechaSuspencion && $fechaVencimiento) {
+// --- Lógica automática de fechas ---
+// Si no hay fecha de vencimiento, se coloca un mes después de fechaFactura
+if (empty($fechaVencimiento) && !empty($fechaFactura)) {
+    $fechaVencimiento = date('Y-m-d', strtotime($fechaFactura . ' +1 month'));
+}
+
+// Si no hay fecha de suspensión, se coloca 5 días después de fechaVencimiento
+if (empty($fechaSuspencion) && !empty($fechaVencimiento)) {
     $fechaSuspencion = date('Y-m-d', strtotime($fechaVencimiento . ' +5 days'));
 }
 
@@ -37,11 +44,11 @@ $sqlCliente = "
         direccion = '$dir',
         estadoCliente = '$estado',
         plan_idPlan = '$plan',
+        meses_gracia = '$mesesGracia',
         creado = '$creacion',
         ultimaActualizacion = '$act'
     WHERE documentoCliente = '$id';
 ";
-
 $queryCliente = mysqli_query($con, $sqlCliente);
 
 // --- Si el cliente se actualizó correctamente ---
@@ -53,9 +60,7 @@ if ($queryCliente) {
     $row = mysqli_fetch_assoc($result);
     $idCliente = $row['idCliente'] ?? null;
 
-    // Si hay cliente válido y datos de factura
     if ($idCliente) {
-
         // Buscar la última factura del cliente
         $sqlUltimaFactura = "
             SELECT idFactura 
@@ -68,23 +73,23 @@ if ($queryCliente) {
         $factura = mysqli_fetch_assoc($resFactura);
 
         if ($factura) {
-            // ✅ Actualizar factura existente
+            // Actualizar factura existente
             $idFactura = $factura['idFactura'];
 
             $sqlUpdateFactura = "
                 UPDATE factura 
                 SET 
-                    fechaFactura = " . ($fechaFactura ? "'$fechaFactura'" : "fechaFactura") . ",
-                    fechaVencimiento = " . ($fechaVencimiento ? "'$fechaVencimiento'" : "fechaVencimiento") . ",
-                    fechaSuspencion = " . ($fechaSuspencion ? "'$fechaSuspencion'" : "fechaSuspencion") . ",
-                    estadoFactura = " . ($estadoFactura ? "'$estadoFactura'" : "estadoFactura") . "
+                    fechaFactura = '$fechaFactura',
+                    fechaVencimiento = '$fechaVencimiento',
+                    fechaSuspencion = '$fechaSuspencion',
+                    estadoFactura = '$estadoFactura'
                 WHERE idFactura = '$idFactura';
             ";
             mysqli_query($con, $sqlUpdateFactura);
 
         } else {
-            // ⚠️ Si no existe factura, la creamos
-            if ($fechaFactura && $fechaVencimiento && $estadoFactura) {
+            // Crear nueva factura si no existe
+            if (!empty($fechaFactura) && !empty($fechaVencimiento)) {
                 $sqlInsertFactura = "
                     INSERT INTO factura (cliente_idCliente, idPlan, fechaFactura, fechaVencimiento, fechaSuspencion, estadoFactura)
                     VALUES ('$idCliente', '$plan', '$fechaFactura', '$fechaVencimiento', '$fechaSuspencion', '$estadoFactura');
@@ -94,9 +99,22 @@ if ($queryCliente) {
         }
     }
 
-    // Redirigir con mensaje
+    // Obtener info actualizada del cliente y plan
+    $sqlInfo = "
+        SELECT c.nombreCliente, p.nombrePlan
+        FROM cliente c
+        LEFT JOIN plan p ON c.plan_idPlan = p.idPlan
+        WHERE c.documentoCliente = '$id'
+        LIMIT 1;
+    ";
+    $resInfo = mysqli_query($con, $sqlInfo);
+    $info = mysqli_fetch_assoc($resInfo);
+
+    $nombreClienteMostrar = $info['nombreCliente'] ?? 'Cliente desconocido';
+    $nombrePlanMostrar = $info['nombrePlan'] ?? 'Sin plan';
+
     echo "<script>
-        alert('Datos actualizados correctamente, incluyendo fecha de suspensión.');
+        alert('Datos actualizados correctamente.\\nCliente: $nombreClienteMostrar\\nPlan: $nombrePlanMostrar');
         window.location='tablas.php';
     </script>";
 

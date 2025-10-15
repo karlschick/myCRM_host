@@ -45,6 +45,7 @@ include '../../includes/header.php';
                         p.precioPlan,
                         c.creado,
                         c.ultimaActualizacion,
+                        c.meses_gracia,
                         f.estadoFactura,
                         f.fechaFactura,
                         f.fechaVencimiento,
@@ -78,6 +79,29 @@ include '../../includes/header.php';
                     $vencimiento = $fechaVencimiento ? strtotime($fechaVencimiento) : null;
                     $suspension = $fechaSuspencion ? strtotime($fechaSuspencion) : null;
 
+                    // === Calcular días restantes del período de gracia ===
+                    $diasRestantesGracia = 0;
+                    $colorGracia = "gray";
+                    $textoGracia = "Sin período de gracia";
+
+                    if (!empty($cliente['creado']) && $cliente['meses_gracia'] > 0) {
+                        $fechaCreacion = strtotime($cliente['creado']);
+                        $mesesGracia = (int)$cliente['meses_gracia'];
+                        $fechaFinGracia = strtotime("+$mesesGracia month", $fechaCreacion);
+
+                        $diff = $fechaFinGracia - $hoy;
+                        $diasRestantesGracia = floor($diff / (60 * 60 * 24));
+
+                        if ($diasRestantesGracia > 0) {
+                            $textoGracia = "Faltan $diasRestantesGracia días de gracia";
+                            $colorGracia = "green";
+                        } else {
+                            $textoGracia = "El período de gracia ha terminado";
+                            $colorGracia = "red";
+                            $diasRestantesGracia = 0;
+                        }
+                    }
+
                     // === Estado de PAGO ===
                     if ($estadoFactura === "Pagada") {
                         $estadoPago = "Pagado";
@@ -86,26 +110,20 @@ include '../../includes/header.php';
                         $estadoPago = "Gratis";
                         $colorPago = "blue";
                     } elseif ($estadoFactura === "Pendiente") {
-                        // Pendiente — analizar fechas
                         if ($vencimiento && $hoy <= $vencimiento) {
-                            // Antes del vencimiento
                             $estadoPago = "Pendiente (en plazo)";
                             $colorPago = "green";
                         } elseif ($vencimiento && $hoy > $vencimiento && $suspension && $hoy <= $suspension) {
-                            // Entre vencimiento y suspensión
                             $estadoPago = "Pendiente (por vencer)";
                             $colorPago = "orange";
                         } elseif ($suspension && $hoy > $suspension) {
-                            // Pasó la fecha de suspensión
                             $estadoPago = "En mora";
                             $colorPago = "red";
                         } else {
-                            // Caso sin fechas
                             $estadoPago = "Pendiente";
                             $colorPago = "gray";
                         }
                     } elseif ($estadoFactura === "Vencida" || $estadoFactura === "Mora") {
-                        // Solo se muestra en mora si se superó la fecha de suspensión
                         if ($suspension && $hoy > $suspension) {
                             $estadoPago = "En mora";
                             $colorPago = "red";
@@ -170,6 +188,12 @@ include '../../includes/header.php';
                           <tr><th>Fecha de Emisión de la Última Factura</th><td><?php echo $fechaFactura ? htmlspecialchars($fechaFactura) : 'Sin registro'; ?></td></tr>
                           <tr><th>Fecha Límite de Pago</th><td><?php echo $fechaVencimiento ? htmlspecialchars($fechaVencimiento) : 'Sin registro'; ?></td></tr>
                           <tr><th>Fecha de Suspensión</th><td><?php echo $fechaSuspencion ? htmlspecialchars($fechaSuspencion) : 'Sin registro'; ?></td></tr>
+
+                          <!-- Días restantes del período de gracia -->
+                          <tr>
+                            <th>Días restantes del período de gracia</th>
+                            <td><strong style="color:<?php echo $colorGracia; ?>"><?php echo $textoGracia; ?></strong></td>
+                          </tr>
 
                           <!-- Días después de suspensión -->
                           <tr>

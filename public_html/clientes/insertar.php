@@ -24,11 +24,11 @@ if ($resultado->num_rows > 0) {
     exit;
 }
 
-// Insertar cliente SIN estadoPago fijo
+// Insertar cliente con meses de gracia (nombre correcto del campo)
 $sql_insertar = "INSERT INTO cliente 
-(tipoDocumento, documentoCliente, nombreCliente, telefonoCliente, correoCliente, direccion, estadoCliente, plan_idPlan, creado, ultimaActualizacion) 
+(tipoDocumento, documentoCliente, nombreCliente, telefonoCliente, correoCliente, direccion, estadoCliente, plan_idPlan, creado, ultimaActualizacion, meses_gracia) 
 VALUES 
-('$td', '$doc', '$nombres', '$telefono', '$email', '$direccion', '$estado', '$plan', '$creacion', '$act')";
+('$td', '$doc', '$nombres', '$telefono', '$email', '$direccion', '$estado', '$plan', '$creacion', '$act', '$mesesGracia')";
 
 if ($con->query($sql_insertar) === TRUE) {
     $idCliente = $con->insert_id;
@@ -55,7 +55,9 @@ if ($con->query($sql_insertar) === TRUE) {
         if ($mesesGracia > 0) {
             $valor = 0;
             $estadoFactura = 'Gratis';
+            // Fecha de vencimiento se ajusta sumando los meses de gracia
             $fechaVencimiento = date('Y-m-d', strtotime("+$mesesGracia month"));
+            // Suspensión 5 días después del vencimiento
             $fechaSuspencion  = date('Y-m-d', strtotime($fechaVencimiento . " +5 days"));
         }
 
@@ -64,7 +66,7 @@ if ($con->query($sql_insertar) === TRUE) {
         $impuestoTotal = 0;
         $valorTotalFactura = $valor;
 
-        // Insertar factura
+        // Insertar factura inicial
         $sql_factura = "INSERT INTO factura 
         (fechaFactura, impuestoTotal, subTotal, valorTotalFactura, estadoFactura, cliente_idCliente, idPlan, fechaVencimiento, fechaSuspencion) 
         VALUES 

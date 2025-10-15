@@ -4,7 +4,7 @@ error_reporting(0);
 
 if (empty($_SESSION['usuario'])) {
     header("Location: ../index.php");
-    die(); 
+    die();
 }
 
 include '../../includes/header.php';
@@ -31,22 +31,22 @@ include '../../includes/header.php';
                     }
                 </script>
 
-
                 <?php include '../../includes/search.php'; ?>
-
 
                 <?php
                 require_once __DIR__ . '/../../config/db.php';
 
-                // Consulta: cliente + plan + última factura (incluye fechaSuspencion)
                 $sql = "
                     SELECT 
                         c.idCliente,
                         c.tipoDocumento,
                         c.documentoCliente,
                         c.nombreCliente,
+                        c.creado,
+                        c.meses_gracia,
                         p.nombrePlan,
                         f.estadoFactura,
+                        f.fechaFactura,
                         f.fechaVencimiento,
                         f.fechaSuspencion
                     FROM cliente c
@@ -66,9 +66,9 @@ include '../../includes/header.php';
                         <table class="table table-hover">
                           <thead class="table-light">
                             <tr>
-                              <th>Tipo identificación</th>
-                              <th>Número de documento</th>
-                              <th>Nombres</th>
+                              <th>Tipo</th>
+                              <th>Número</th>
+                              <th>Nombre y apellido</th>
                               <th>Plan</th>
                               <th>Estado de Pago</th>
                               <th>Detalles</th>
@@ -90,51 +90,40 @@ include '../../includes/header.php';
                             $doc = $row['documentoCliente'];
                             $nombres = $row['nombreCliente'];
                             $plan = $row['nombrePlan'];
-                            $estadoFactura = $row['estadoFactura'] ?? 'Pendiente';
                             $fechaVencimiento = $row['fechaVencimiento'];
                             $fechaSuspencion = $row['fechaSuspencion'];
+                            $fechaCreacion = $row['creado'];
+                            $mesesGracia = (int)($row['meses_gracia'] ?? 0);
 
                             $vencimiento = $fechaVencimiento ? strtotime($fechaVencimiento) : null;
                             $suspension = $fechaSuspencion ? strtotime($fechaSuspencion) : null;
 
-                            // === Lógica mejorada de estado de pago ===
-                            if ($estadoFactura === "Pagada") {
-                                $estadoPago = "Pagado";
-                                $colorPago = "green";
-                            } elseif ($estadoFactura === "Gratis") {
-                                $estadoPago = "Gratis";
-                                $colorPago = "blue";
-                            } elseif ($estadoFactura === "Pendiente") {
-                                if ($vencimiento && $hoy <= $vencimiento) {
-                                    // Antes del vencimiento
-                                    $estadoPago = "Pendiente";
-                                    $colorPago = "green";
-                                } elseif ($vencimiento && $hoy > $vencimiento && $suspension && $hoy <= $suspension) {
-                                    // Entre vencimiento y suspensión
-                                    $estadoPago = "Pendiente";
-                                    $colorPago = "orange";
-                                } elseif ($suspension && $hoy > $suspension) {
-                                    // Pasó la fecha de suspensión
-                                    $estadoPago = "En mora";
-                                    $colorPago = "red";
-                                } else {
-                                    $estadoPago = "Pendiente";
-                                    $colorPago = "gray";
+                            // === CÁLCULO DE PERIODO DE GRACIA ===
+                            $enPeriodoDeGracia = false;
+                            if ($mesesGracia > 0 && !empty($fechaCreacion)) {
+                                $fechaFinGraciaStr = date('Y-m-d', strtotime($fechaCreacion . " +{$mesesGracia} months"));
+                                $fechaFinGracia = strtotime($fechaFinGraciaStr);
+                                if ($hoy <= $fechaFinGracia) {
+                                    $enPeriodoDeGracia = true;
                                 }
-                            } elseif ($estadoFactura === "Vencida" || $estadoFactura === "Mora") {
-                                if ($suspension && $hoy > $suspension) {
-                                    $estadoPago = "En mora";
-                                    $colorPago = "red";
-                                } else {
-                                    $estadoPago = "Pendiente";
-                                    $colorPago = "orange";
-                                }
-                            } elseif ($estadoFactura === "Anulada") {
-                                $estadoPago = "Sin factura válida";
-                                $colorPago = "gray";
+                            }
+
+                            // === LÓGICA DE ESTADO (solo 4 palabras) ===
+                            if ($enPeriodoDeGracia) {
+                                $estadoPago = 'gratis';
+                                $colorPago = 'blue';
+                            } elseif ($vencimiento && $hoy < $vencimiento) {
+                                $estadoPago = 'pagada';
+                                $colorPago = 'green';
+                            } elseif ($vencimiento && $suspension && $hoy >= $vencimiento && $hoy <= $suspension) {
+                                $estadoPago = 'pendiente';
+                                $colorPago = 'orange';
+                            } elseif ($suspension && $hoy > $suspension) {
+                                $estadoPago = 'vencida';
+                                $colorPago = 'red';
                             } else {
-                                $estadoPago = "Sin registro";
-                                $colorPago = "gray";
+                                $estadoPago = 'pendiente';
+                                $colorPago = 'orange';
                             }
 
                             echo "<tr>
@@ -151,7 +140,7 @@ include '../../includes/header.php';
                                             border-radius:50%;
                                             margin-right:8px;
                                         '></span>
-                                        <strong style='color:$colorPago'>$estadoPago</strong>
+                                        <strong style='color:$colorPago; text-transform:capitalize;'>$estadoPago</strong>
                                     </td>
                                     <td><a href='vercliente.php?id=$idCliente' class='btn btn-secondary'>Ver</a></td>
                                     <td><a href='actualizar.php?id=$doc' class='btn btn-info'>Editar</a></td>
