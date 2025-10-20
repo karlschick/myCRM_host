@@ -1,0 +1,218 @@
+/public_html (proyecto CRM)
+│── .env
+│── .htaccess
+│── composer.json
+│── composer.lock
+│── index.php
+│
+│── assets/
+│   │── css
+│   │   │── style.css
+│   │   │── styles.css
+│   │── favicon.ico
+│   │── images
+│   │   │── atori.png
+│   │   │── auth
+│   │   │   │── Login_bg.jpg
+│   │   │── bg-masthead.jpg
+│   │   │── bg-signup1.jpg
+│   │   │── bg-signupss.jpg
+│   │   │── empresa
+│   │   │   │── logo-pse.png
+│   │   │   │── logoEmpresa.png
+│   │   │── faces-clipart
+│   │   │   │── pic-1.png
+│   │   │   │── pic-2.png
+│   │   │   │── pic-3.png
+│   │   │   │── pic-4.png
+│   │   │   │── pic-8.png
+│   │   │   │── user_68edc186dc10b.jpg
+│   │   │   │── user_68edc1aeaa3c7.jpg
+│   │   │   │── user_68edc1d8b5716.jpg
+│   │   │   │── user_68edc6dff2c93.jpg
+│   │   │── favicon.ico
+│   │   │── header.php
+│   │   │── index.php
+│   │   │── logo-mini.png
+│   │   │── logo.png
+│   │   │── planes
+│   │   │   │── 10MEGAS.gif
+│   │   │   │── 120MEGAS.gif
+│   │   │   │── 150MEGAS.gif
+│   │   │   │── 20MEGAS.gif
+│   │   │   │── 50MEGAS.gif
+│   │   │   │── 5MEGAS.gif
+│   │   │   │── 70MEGAS.gif
+│   │   │   │── fondoplanes.jpg
+│── clientes/
+│   │── actualizar.php
+│   │── archivados.php
+│   │── cambiarPago.php
+│   │── consuCliente.php
+│   │── consultar.php
+│   │── delete.php
+│   │── ingresar.php
+│   │── insertar.php
+│   │── reactivar.php
+│   │── tablas.php
+│   │── update.php
+│   │── vercliente.php
+│── consultas/
+│   │── consultapqrs.php
+│   │── consultavisitas.php
+│   │── consultavisitasCli.php
+│   │── eleccion.php
+│   │── pqrs.php
+│   │── pqrscliente.php
+│   │── visitas.php
+│   │── visitasCli.php
+│   │── visitascliente.php
+│── dashboard/
+│   │── api
+│   │   │── dashboard_data.php
+│   │── cards
+│   │   │── dashboard_cards.php
+│   │── derAutor.php
+│   │── functions
+│   │   │── dashboard_functions.php
+│   │── principal.php
+│── empresa/
+│   │── actualizarEmpresa.php
+│   │── actualizarEstadoBanco.php
+│   │── actualizar_logo.php
+│   │── eliminarBanco.php
+│   │── indatos.php
+│   │── ingresarBancos.php
+│   │── insertarBanco.php
+│   │── verempresa.php
+│── excel/
+│   │── excelCliente.php
+│   │── excelFactura.php
+│   │── excelInventario.php
+│   │── excelPQR.php
+│   │── excelPlanes.php
+│   │── excelUsuario.php
+│   │── excelVisitas.php
+│── facturacion/
+│   │── actfactura.php
+│   │── actualizarFechas.php
+│   │── actualizar_estado.php
+│   │── autoFacturar.php
+│   │── cartera_pagada.php
+│   │── cartera_por_cobrar.php
+│   │── cartera_vencida.php
+│   │── cfactura.php
+│   │── cfacturaC.php
+│   │── consultarf.php
+│   │── consultarfC.php
+│   │── crearfactura.php
+│   │── editfactura.php
+│   │── eliminarf.php
+│   │── factcliente.php
+│   │── facturaPDF.php
+│   │── facturas.php
+│   │── facturas_antiguasXcli.php
+│   │── fmora.php
+│   │── fpagas.php
+│   │── fpendientes.php
+│   │── getPlan.php
+│   │── guardar_factura.php
+│   │── ingresarfactura.php
+│   │── nueva_factura.php
+│   │── pago.php
+│   │── pend.php
+│   │── procesar_pago.php
+│   │── todasfacturas.php
+│   │── verfactura.php
+│   │── verfacturaAdmin.php
+│   │── verfacturaClie.php
+│── inventario/
+│   │── actinv.php
+│   │── actinvT.php
+│   │── activarp.php
+│   │── activarpT.php
+│   │── eliminarp.php
+│   │── elmproducto.php
+│   │── elmproductoT.php
+│   │── inactivosinv.php
+│   │── inactivosinvT.php
+│   │── ingresarp.php
+│   │── inp.php
+│   │── tablasinventario.php
+│   │── tablasinventarioT.php
+│   │── updateinventario.php
+│   │── updateinventarioT.php
+│── login/
+│   │── cerrarSesion.php
+│   │── errorvalid.php
+│   │── login.php
+│   │── validar.php
+│── planes/
+│   │── activarplan.php
+│   │── actplan.php
+│   │── actualizar.php
+│   │── allplans.php
+│   │── atentidas.php
+│   │── atentidasT.php
+│   │── consultarplanes.php
+│   │── eliminarplan.php
+│   │── elisoli.php
+│   │── empresariales.php
+│   │── enviarplan.php
+│   │── inplanes.php
+│   │── nuevoplan.php
+│   │── plan.php
+│   │── reactivarplan.php
+│   │── rurales.php
+│   │── solicitudes.php
+│   │── solicitudesT.php
+│   │── solplan.php
+│   │── tablaplanes.php
+│   │── tablaplanesinac.php
+│   │── urbanos.php
+│   │── verplanes.php
+│── pqr/
+│   │── actpqr.php
+│   │── comentario.php
+│   │── consultarpqr.php
+│   │── eliminarpqr.php
+│   │── enviarpqr.php
+│   │── ingresarpqr.php
+│   │── inpqr.php
+│   │── pqr.php
+│   │── pqrbotones.php
+│   │── updateComentario.php
+│── usuarios/
+│   │── actualizarUser.php
+│   │── consultarUser.php
+│   │── deleteUsuario.php
+│   │── ingresarUser.php
+│   │── insertarUser.php
+│   │── tablasUser.php
+│   │── updateUser.php
+│   │── usuarios.php
+│── visitas/
+│   │── actualizarVisita.php
+│   │── actualizarVisitaT.php
+│   │── consulta.php
+│   │── consultaT.php
+│   │── consultarVisitas.php
+│   │── crearvisita.php
+│   │── eliminarVisita.php
+│   │── eliminarVisitaDes.php
+│   │── eliminarVisitaDesT.php
+│   │── eliminarVisitaT.php
+│   │── ingresarVisita.php
+│   │── inicioVisitasT.php
+│   │── insertarVisita.php
+│   │── seleccionCliente.php
+│   │── tablaConsultada.php
+│   │── tablasAtendidasT.php
+│   │── tablasVisitas.php
+│   │── tablasVisitasArchivadas.php
+│   │── tablasVisitasT.php
+│   │── tablasVisitascompletadas.php
+│   │── updateVisita.php
+│   │── updateVisitaT.php
+│
+└── Fin del proyecto

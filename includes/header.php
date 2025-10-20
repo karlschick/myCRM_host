@@ -8,6 +8,12 @@
     <!-- Estilos de los plugins -->
     <link rel="stylesheet" href="../assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
+    <!-- Bootstrap base y estilos -->
+    <link rel="stylesheet" href="../assets/vendors/css/vendor.bundle.base.css">
+    <!-- Estilos del mapa vectorial -->
+    <link rel="stylesheet" href="assets/vendors/jvectormap/jquery-jvectormap.css">
+    <!-- Iconos de banderas -->
+    <link rel="stylesheet" href="assets/vendors/flag-icon-css/css/flag-icon.min.css">
     <!-- Fin de los estilos de los plugins -->
     <!-- Estilos del archivo actual -->
     <link rel="stylesheet" href="../assets/css/style.css">

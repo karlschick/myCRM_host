@@ -1,121 +1,162 @@
 <?php
-session_start(); // ← importante para actualizar la foto en sesión
+session_start();
 require_once __DIR__ . '/../../config/db.php';
 
-// Obtener datos del formulario
-$td = $_POST['td'];
-$id = $_POST['id'];
-$nombres = $_POST['nombre'];
-$docusuario = $_POST['docusuario'];
-$telefono = $_POST['tel'];
-$email = $_POST['email'];
-$clave = $_POST['clave']; // Nueva contraseña (opcional)
-$estado = $_POST['estado'];
-$creacion = $_POST['creacion'];
-$act = $_POST['act'];
-$rol = $_POST['rol'];
-
-// 🔹 Ruta base de las fotos (ajustada a tu estructura real)
-$carpetaDestino = __DIR__ . '/../../public_html/assets/images/faces-clipart/';
-
-// Si la carpeta no existe, la creamos
-if (!file_exists($carpetaDestino)) {
-    mkdir($carpetaDestino, 0755, true);
+// Sanitizar helper
+function clean($v) {
+    return isset($v) ? trim($v) : null;
 }
 
-// Primero obtenemos la foto actual del usuario
-$sql_foto_actual = "SELECT foto FROM usuario WHERE idUsuario = ?";
-$stmt = $con->prepare($sql_foto_actual);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$usuarioActual = $result->fetch_assoc();
-$fotoActual = $usuarioActual['foto'] ?: 'pic-1.png';
-$stmt->close();
+$id = clean($_POST['id'] ?? '');
+if (!$id) {
+    die("Error: ID de usuario no recibido.");
+}
 
-// Inicializamos el nombre final de la foto (por defecto, la actual)
+// ------------------ FOTO ------------------
+$carpetaDestino = __DIR__ . '/../../public_html/assets/images/faces-clipart/';
+if (!file_exists($carpetaDestino)) mkdir($carpetaDestino, 0755, true);
+
+// Obtener foto actual
+$sql_foto = $con->prepare("SELECT foto FROM usuario WHERE idUsuario=?");
+$sql_foto->bind_param("i", $id);
+$sql_foto->execute();
+$res = $sql_foto->get_result()->fetch_assoc();
+$fotoActual = $res['foto'] ?: 'pic-1.png';
+$sql_foto->close();
+
 $nombreArchivoFinal = $fotoActual;
 
-// Verificar si se subió una nueva imagen
 if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     $fotoTmp = $_FILES['foto']['tmp_name'];
     $fotoNombre = basename($_FILES['foto']['name']);
-    $fotoTipo = strtolower(pathinfo($fotoNombre, PATHINFO_EXTENSION));
-    $fotoTamaño = $_FILES['foto']['size'];
+    $ext = strtolower(pathinfo($fotoNombre, PATHINFO_EXTENSION));
+    $permitidas = ['jpg','jpeg','png','gif'];
 
-    // Tipos de archivo permitidos
-    $tiposPermitidos = ['jpg', 'jpeg', 'png', 'gif'];
-
-    if (in_array($fotoTipo, $tiposPermitidos)) {
-        if ($fotoTamaño <= 2 * 1024 * 1024) { // Máx. 2MB
-            // Renombrar archivo de forma única
-            $nombreArchivoFinal = uniqid('user_') . '.' . $fotoTipo;
+    if (in_array($ext, $permitidas)) {
+        if ($_FILES['foto']['size'] <= 2 * 1024 * 1024) {
+            $nombreArchivoFinal = uniqid('user_') . '.' . $ext;
             $rutaDestino = $carpetaDestino . $nombreArchivoFinal;
-
             if (move_uploaded_file($fotoTmp, $rutaDestino)) {
-                // Si tenía una foto anterior (y no era la por defecto), la eliminamos
                 if ($fotoActual !== 'pic-1.png' && file_exists($carpetaDestino . $fotoActual)) {
                     unlink($carpetaDestino . $fotoActual);
                 }
-
-                // 🔹 Actualizar variable de sesión si el usuario está logueado
-                if (isset($_SESSION['usuario'])) {
-                    $_SESSION['foto'] = $nombreArchivoFinal;
-                }
-
+                $_SESSION['foto'] = $nombreArchivoFinal;
             } else {
-                $nombreArchivoFinal = $fotoActual; // Fallback si falla la subida
+                $nombreArchivoFinal = $fotoActual;
             }
         } else {
-            echo '<script>alert("La imagen excede el tamaño máximo permitido de 2MB."); window.history.back();</script>';
-            exit;
+            die("Error: Imagen supera los 2MB.");
         }
     } else {
-        echo '<script>alert("Formato de imagen no permitido. Solo se aceptan JPG, PNG o GIF."); window.history.back();</script>';
-        exit;
+        die("Error: Formato de imagen no permitido.");
     }
 }
 
-// Si se envía una nueva clave, la encriptamos; si no, mantenemos la actual
-if (!empty($clave)) {
-    $hashed_clave = password_hash($clave, PASSWORD_DEFAULT);
-    $sql = "UPDATE usuario SET 
-                tipoDocumento=?, 
-                documentoUsuario=?, 
-                nombresUsuario=?, 
-                telefonoUsuario=?, 
-                correoUsuario=?, 
-                claveUsuario=?, 
-                estadoUsuario=?, 
-                creado=?, 
-                ultimaActualizacion=?, 
-                rol=?, 
-                foto=? 
-            WHERE idUsuario=?";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("sssssssssssi", $td, $docusuario, $nombres, $telefono, $email, $hashed_clave, $estado, $creacion, $act, $rol, $nombreArchivoFinal, $id);
-} else {
-    $sql = "UPDATE usuario SET 
-                tipoDocumento=?, 
-                documentoUsuario=?, 
-                nombresUsuario=?, 
-                telefonoUsuario=?, 
-                correoUsuario=?, 
-                estadoUsuario=?, 
-                creado=?, 
-                ultimaActualizacion=?, 
-                rol=?, 
-                foto=? 
-            WHERE idUsuario=?";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("ssssssssssi", $td, $docusuario, $nombres, $telefono, $email, $estado, $creacion, $act, $rol, $nombreArchivoFinal, $id);
+// ------------------ CAMPOS ------------------
+// Recoger campos del POST y sanitizar
+$campos = [
+    'tipoDocumento' => clean($_POST['tipoDocumento'] ?? ''),
+    'documentoUsuario' => clean($_POST['documentoUsuario'] ?? ''),
+    'nombresUsuario' => clean($_POST['nombresUsuario'] ?? ''),
+    'telefonoUsuario' => clean($_POST['telefonoUsuario'] ?? ''),
+    'telefonoUsuario_dos' => clean($_POST['telefonoUsuario_dos'] ?? ''),
+    'telefonoUsuario_tres' => clean($_POST['telefonoUsuario_tres'] ?? ''),
+    'correoUsuario' => clean($_POST['correoUsuario'] ?? ''),
+    'direccionUsuario' => clean($_POST['direccionUsuario'] ?? ''),
+    'ciudadUsuario' => clean($_POST['ciudadUsuario'] ?? ''),
+    'departamentoUsuario' => clean($_POST['departamentoUsuario'] ?? ''),
+    'paisUsuario' => clean($_POST['paisUsuario'] ?? ''),
+    'codigoPostalUsuario' => clean($_POST['codigoPostalUsuario'] ?? ''),
+    'contactoEmergenciaNombre' => clean($_POST['contactoEmergenciaNombre'] ?? ''),
+    'contactoEmergenciaTelefono' => clean($_POST['contactoEmergenciaTelefono'] ?? ''),
+    'contactoEmergenciaParentesco' => clean($_POST['contactoEmergenciaParentesco'] ?? ''),
+    'referenciaPersonalNombre' => clean($_POST['referenciaPersonalNombre'] ?? ''),
+    'referenciaPersonalTelefono' => clean($_POST['referenciaPersonalTelefono'] ?? ''),
+    'fechaNacimiento' => clean($_POST['fechaNacimiento'] ?? ''),
+    'estadoCivil' => clean($_POST['estadoCivil'] ?? ''),
+    'numeroHijos' => clean($_POST['numeroHijos'] ?? ''),
+    'cargo' => clean($_POST['cargo'] ?? ''),
+    'area' => clean($_POST['area'] ?? ''),
+    'fechaIngreso' => clean($_POST['fechaIngreso'] ?? ''),
+    'tipoContrato' => clean($_POST['tipoContrato'] ?? ''),
+    'salarioBase' => clean($_POST['salarioBase'] ?? ''),
+    'supervisorId' => clean($_POST['supervisorId'] ?? ''),
+    'idEmpresa' => clean($_POST['idEmpresa'] ?? ''),
+    'idSucursal' => clean($_POST['idSucursal'] ?? ''),
+    'estadoLaboral' => clean($_POST['estadoLaboral'] ?? ''),
+    'ultimoLogin' => clean($_POST['ultimoLogin'] ?? ''),
+    'intentosFallidos' => clean($_POST['intentosFallidos'] ?? ''),
+    'tokenRecuperacion' => clean($_POST['tokenRecuperacion'] ?? ''),
+    'tokenExpira' => clean($_POST['tokenExpira'] ?? ''),
+    'twoFactorEnabled' => isset($_POST['twoFactorEnabled']) ? 1 : 0,
+    'estadoUsuario' => clean($_POST['estadoUsuario'] ?? ''),
+    'rol' => clean($_POST['rol'] ?? ''),
+    'eliminado' => isset($_POST['eliminado']) ? 1 : 0,
+    'eps' => clean($_POST['eps'] ?? ''),
+    'arl' => clean($_POST['arl'] ?? ''),
+    'fondoPension' => clean($_POST['fondoPension'] ?? ''),
+    'banco' => clean($_POST['banco'] ?? ''),
+    'numeroCuentaBancaria' => clean($_POST['numeroCuentaBancaria'] ?? ''),
+    'foto' => $nombreArchivoFinal
+];
+
+// ------------------ CAMPOS OPCIONALES ------------------
+// Actualizar user_usuario solo si se envió y no está vacío
+if (isset($_POST['user_usuario']) && trim($_POST['user_usuario']) !== '') {
+    $campos['user_usuario'] = trim($_POST['user_usuario']);
 }
 
-// Ejecutar y verificar resultado
+// Actualizar claveUsuario solo si se envió y no está vacío
+if (!empty($_POST['claveUsuario'])) {
+    $campos['claveUsuario'] = password_hash(trim($_POST['claveUsuario']), PASSWORD_DEFAULT);
+}
+
+// ------------------ QUERY DINÁMICA ------------------
+$sets = [];
+$valores = [];
+$tipos = '';
+
+foreach ($campos as $col => $valor) {
+    $sets[] = "$col = ?";
+    $valores[] = $valor;
+    $tipos .= 's'; // todos string
+}
+
+$sql = "UPDATE usuario SET " . implode(", ", $sets) . " WHERE idUsuario = ?";
+$valores[] = $id;
+$tipos .= 'i';
+
+$stmt = $con->prepare($sql);
+if (!$stmt) {
+    die("Error en prepare: " . $con->error);
+}
+
+$stmt->bind_param($tipos, ...$valores);
+
 if ($stmt->execute()) {
+    // Actualizar sesión si se cambió el login del usuario activo
+    if (isset($campos['user_usuario']) && $_SESSION['usuario'] === $_POST['user_usuario']) {
+        $_SESSION['usuario'] = $campos['user_usuario'];
+    }
     echo '<script>alert("Usuario actualizado correctamente."); window.location.href="tablasUser.php";</script>';
 } else {
-    echo "Error al actualizar los datos: " . $con->error;
+    die("Error al actualizar: " . $stmt->error);
+}
+
+$stmt->close();
+$con->close();
+
+
+// ------------------ EJECUCIÓN ------------------
+if ($stmt->execute()) {
+    // Actualizar sesión si se cambió el login del usuario activo
+    if (isset($_POST['user_usuario']) && $_SESSION['usuario'] === $_POST['user_usuario']) {
+        $_SESSION['usuario'] = trim($_POST['user_usuario']);
+    }
+
+    echo '<script>alert("Usuario actualizado correctamente."); window.location.href="tablasUser.php";</script>';
+} else {
+    echo "Error al actualizar: " . $stmt->error;
 }
 
 $stmt->close();

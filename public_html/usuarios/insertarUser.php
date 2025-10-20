@@ -1,18 +1,26 @@
-<!-- actualizado -->
 <?php
 require_once __DIR__ . '/../../config/db.php';
 
 // Recibir los valores del formulario
-$td = $_POST['td'];
-$id = $_POST['id'];
-$nombres = $_POST['nombre'];
-$telefono = $_POST['tel'];
-$email = $_POST['email'];
-$clave = $_POST['clave'];
-$estado = $_POST['estado'];
-$creacion = $_POST['creacion'];
-$act = $_POST['act'];
-$rol = $_POST['rol'];
+$td = $_POST['td'] ?? '';
+$id = $_POST['id'] ?? '';
+$nombres = $_POST['nombre'] ?? '';
+$telefono = $_POST['tel'] ?? '';
+$email = $_POST['email'] ?? '';
+$clave = $_POST['clave'] ?? '';
+$estado = $_POST['estado'] ?? '';
+$creacion = $_POST['creacion'] ?? '';
+$act = $_POST['act'] ?? '';
+$rol = $_POST['rol'] ?? '';
+
+// ✅ Validación de campos obligatorios
+if (empty($td) || empty($id) || empty($user_usuario = $_POST['user_usuario'] ?? '') || empty($clave) || empty($rol)) {
+    echo '<script>
+            alert("Debe completar los campos obligatorios: Tipo de documento, Documento, Usuario, Contraseña y Rol.");
+            window.history.back();
+          </script>';
+    exit();
+}
 
 // Encriptar la contraseña
 $hashed_clave = password_hash($clave, PASSWORD_DEFAULT);
@@ -67,12 +75,27 @@ $resultado = $stmt->get_result();
 if ($resultado->num_rows > 0) {
     echo '<script>alert("El documento ya está en uso."); window.history.back();</script>';
 } else {
-    // ✅ Insertar el nuevo registro con foto (campo correcto: `foto`)
+    // ✅ Insertar el nuevo registro con foto
     $sql_insertar = "INSERT INTO usuario 
-        (tipoDocumento, documentoUsuario, nombresUsuario, telefonoUsuario, correoUsuario, claveUsuario, estadoUsuario, creado, ultimaActualizacion, rol, foto) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        (tipoDocumento, documentoUsuario, nombresUsuario, telefonoUsuario, correoUsuario, user_usuario, claveUsuario, estadoUsuario, creado, ultimaActualizacion, rol, foto) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
     $stmt = $con->prepare($sql_insertar);
-    $stmt->bind_param("sssssssssss", $td, $id, $nombres, $telefono, $email, $hashed_clave, $estado, $creacion, $act, $rol, $nombreArchivoFinal);
+    $stmt->bind_param(
+        "ssssssssssss",
+        $td,
+        $id,
+        $nombres,
+        $telefono,
+        $email,
+        $user_usuario,
+        $hashed_clave,
+        $estado,
+        $creacion,
+        $act,
+        $rol,
+        $nombreArchivoFinal
+    );
 
     if ($stmt->execute()) {
         echo '<script>alert("Usuario registrado correctamente."); window.location.href="tablasUser.php";</script>';

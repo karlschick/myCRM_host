@@ -53,17 +53,17 @@ include '../../includes/header.php';
 
                     echo '<div class="table-responsive">
                 <table class="table table-hover">
-                <thead>
-            <tr>
-            <th> Visita No.</th>
-            <th> Nombre Cliente</th>
-            <th> Telefono Cliente</th>
-            <th> Nombre técnico</th>
-            <th> Tipo de visita</th>
-            <th> Dia de la visita </th>
-        </tr>
-        </thead>
-        ';
+                  <thead class="table-light">
+                        <tr>
+                        <th> Visita No.</th>
+                        <th> Nombre Cliente</th>
+                        <th> Telefono Cliente</th>
+                        <th> Nombre técnico</th>
+                        <th> Tipo de visita</th>
+                        <th> Dia de la visita </th>
+                    </tr>
+                    </thead>
+                    ';
 
                     if ($rta = $con->query($sql)) {
                         while ($row = $rta->fetch_assoc()) {

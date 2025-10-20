@@ -25,39 +25,42 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `consultaVisita` (IN `id_cliente` INT)   BEGIN
+CREATE PROCEDURE `consultaVisita` (IN `id_cliente` INT)
+BEGIN
 	select * from usuario
-                      inner join user_visita
-                      inner join visitas
-                      Inner join cliente
-                      where usuario.`idUsuario`=user_visita.`user_idUser`
-                      and user_visita.`visita_idVisita`=visitas.`idVisita`
-                      and  cliente.`idCliente`=visitas.`visita_idCliente`
-                      and documentoCliente=id_cliente;
-    END$$
+    inner join user_visita
+    inner join visitas
+    inner join cliente
+    where usuario.`idUsuario`=user_visita.`user_idUser`
+    and user_visita.`visita_idVisita`=visitas.`idVisita`
+    and cliente.`idCliente`=visitas.`visita_idCliente`
+    and documentoCliente=id_cliente;
+END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GenerarDescuento` (IN `factura_id` INT)   BEGIN
+CREATE PROCEDURE `GenerarDescuento` (IN `factura_id` INT)
+BEGIN
     DECLARE descuento DECIMAL(10,2);
-    -- Calcular el 50% de descuento
     SET descuento = (SELECT valorTotalFactura * 0.5 FROM Factura WHERE idFactura = factura_id);
-    -- Aplicar el descuento
     UPDATE Factura
     SET valorTotalFactura = valorTotalFactura - descuento
     WHERE idFactura = factura_id;
-    -- Ver el descuento
-    SELECT valorTotalFactura , nPlan ,nombreCliente FROM factura 
-    inner join cliente
-    WHERE factura_id = idFactura and idCliente = cliente_idCliente;
+    SELECT valorTotalFactura , nPlan , nombreCliente
+    FROM factura
+    INNER JOIN cliente
+    WHERE factura_id = idFactura AND idCliente = cliente_idCliente;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `verfactura` (IN `idFactura` INT)   BEGIN
+CREATE PROCEDURE `verfactura` (IN `idFactura` INT)
+BEGIN
     SELECT fechaFactura FROM factura;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `x` ()   BEGIN
-    END$$
+CREATE PROCEDURE `x` ()
+BEGIN
+END$$
 
 DELIMITER ;
+
 
 -- --------------------------------------------------------
 

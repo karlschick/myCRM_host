@@ -56,7 +56,7 @@ include '../../includes/header.php';
 
                     // Mostrar tabla
                     echo '<div class="table-responsive"><table class="table table-hover">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
                                 <th>Documento Cliente</th>
                                 <th>Nombre Cliente</th>

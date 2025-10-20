@@ -50,7 +50,7 @@ if ($vista === 'Activo') {
                   echo '
                   <div class="table-responsive mt-3">
                     <table class="table table-hover">
-                      <thead>
+                      <thead class="table-light">
                         <tr>
                           <th>Id PQR</th>
                           <th>Tipo documento</th>

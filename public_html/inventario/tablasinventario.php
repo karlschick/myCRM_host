@@ -40,18 +40,18 @@ include '../../includes/header.php';
 
           echo '<div class="table-responsive">
             <table class="table table-hover">
-            <thead>
-        <tr>
-        <th> Id Producto </th>
-        <th> Nombre Producto</th>
-        <th> Serial del producto</th>
-        <th> Descripcion del producto</th>
-        <th> Cantidad en bodega </th>
-        <th> Editar producto</th>
-        <th> Eliminar</th>
-    </tr>
-    </thead>
-    ';
+            <thead class="table-light">
+                <tr>
+                <th> Id Producto </th>
+                <th> Nombre Producto</th>
+                <th> Serial del producto</th>
+                <th> Descripcion del producto</th>
+                <th> Cantidad en bodega </th>
+                <th> Editar producto</th>
+                <th> Eliminar</th>
+            </tr>
+            </thead>
+            ';
 
           if ($rta = $con->query($sql)) {
             while ($row = $rta->fetch_assoc()) {

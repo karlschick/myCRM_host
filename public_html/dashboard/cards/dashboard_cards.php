@@ -233,10 +233,13 @@
       </a>
     </div>
   </div>
+
   <div class="chart-box mt-4">
     <canvas id="clientesChart" height="100"></canvas>
   </div>
 </div>
+</div>
+
 
 <!-- ======== Script Chart.js Dark Mode ======== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -270,3 +273,14 @@ new Chart(ctx, {
   }
 });
 </script>
+
+
+<!-- Dependencias base (jQuery, Bootstrap, etc.) -->
+<script src="assets/vendors/js/vendor.bundle.base.js"></script>
+
+<!-- Librerías del mapa -->
+<script src="assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
+<script src="assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+
+<!-- Script del dashboard que inicializa el mapa -->
+<script src="assets/js/dashboard.js"></script>

@@ -36,7 +36,7 @@ include '../../includes/header.php';
                 $sql = "SELECT * FROM plan WHERE tipoPlan='urbano';";
                 echo '<div class="table-responsive">
                       <table class="table table-hover">
-                      <thead>
+                      <thead class="table-light">
                           <tr>
                               <th> Codigo Plan </th>
                               <th> Velocidad de Plan</th>

@@ -11,16 +11,16 @@ if (session_status() === PHP_SESSION_NONE) {
 error_reporting(0);
 
 // Verificar sesión
-$varsesion = $_SESSION['usuario'] ?? null;
+$nombreUsuarioSesion = $_SESSION['nombresUsuario'] ?? $_SESSION['usuario'] ?? null;
 $rol = $_SESSION['rol'] ?? null;
 $fotoPerfilBD = $_SESSION['foto'] ?? null;
 
-if (empty($varsesion)) {
+if (empty($nombreUsuarioSesion)) {
     header("location: ../login/login.php");
     exit();
 }
 
-$usuarioTexto = htmlspecialchars($varsesion) . " - " . htmlspecialchars($rol);
+$usuarioTexto = htmlspecialchars($nombreUsuarioSesion) . " - " . htmlspecialchars($rol);
 
 // 📁 Rutas (ajustadas a tu estructura)
 // Ruta que se usará en las etiquetas <img> (relativa a las páginas en public_html)
@@ -73,13 +73,8 @@ if (!empty($fotoPerfilBD) && $rutaServidorFotos && file_exists($rutaServidorFoto
             <li class="nav-item profile">
                 <div class="profile-desc">
                     <div class="profile-pic">
-                        <div class="count-indicator">
-                            <!-- Foto de usuario -->
-                            <img class="img-xs rounded-circle" src="<?php echo $fotoPerfil; ?>" alt="Foto de perfil">
-                            <span class="count bg-success"></span>
-                        </div>
                         <div class="profile-name">
-                            <h5 class="mb-0 font-weight-normal"><?php echo $usuarioTexto; ?></h5>
+                            <h5 class="mb-0 font-weight-normal"><?php echo htmlspecialchars($rol) ?></h5>
                         </div>
                     </div>
                 </div>

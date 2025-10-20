@@ -34,7 +34,7 @@ include '../../includes/header.php';
 
         echo '<div class="table-responsive">
                 <table class="table table-hover">
-                  <thead>
+                  <thead class="table-light">
                     <tr>
                       <th>Id Solicitud</th>
                       <th>Nombres del cliente</th>

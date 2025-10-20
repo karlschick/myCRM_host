@@ -8,17 +8,16 @@ session_start();
 error_reporting(0);
 
 // Verificar sesión
-$varsesion = $_SESSION['usuario'] ?? null;
+$nombreUsuarioSesion = $_SESSION['nombresUsuario'] ?? $_SESSION['usuario'] ?? null;
 $rol = $_SESSION['rol'] ?? null;
 $fotoPerfilBD = $_SESSION['foto'] ?? null;
 
-if (empty($varsesion)) {
+if (empty($nombreUsuarioSesion)) {
     header("location: ../login/login.php");
     exit();
 }
 
-// Texto usuario - rol
-$usuarioTexto = htmlspecialchars($varsesion) . " - " . htmlspecialchars($rol);
+$usuarioTexto = htmlspecialchars($nombreUsuarioSesion) . " - " . htmlspecialchars($rol);
 
 // 📁 Rutas
 $rutaWebFotos = "../assets/images/faces-clipart/";
@@ -71,7 +70,7 @@ if (!empty($fotoPerfilBD) && file_exists($rutaServidorFotos . $fotoPerfilBD)) {
                             <span class="count bg-success"></span>
                         </div>
                         <div class="profile-name">
-                            <h5 class="mb-0 font-weight-normal"><?php echo $usuarioTexto; ?></h5>
+                            <h5 class="mb-0 font-weight-normal"><?php echo htmlspecialchars($rol) ?></h5>
                         </div>
                     </div>
                 </div>

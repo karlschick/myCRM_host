@@ -34,7 +34,7 @@ require_once __DIR__ . '/../../config/db.php';
 
         echo '<div class="table-responsive">
                 <table class="table table-hover">
-                  <thead>
+                  <thead class="table-light">
                     <tr>
                       <th>Tipo identificación</th>
                       <th>Número de documento</th>
