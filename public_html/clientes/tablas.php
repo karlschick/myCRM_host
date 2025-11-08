@@ -20,11 +20,11 @@ include '../../includes/header.php';
 
         <div class="card">
             <div class="card-body">
-                <a href="ingresar.php" class="btn btn-primary btn-lg">Crear nuevo cliente</a>
-                <a href="consuCliente.php" class="btn btn-primary btn-lg">Consultar cliente</a>
-                <a href="../excel/excelCliente.php" class="btn btn-success btn-lg" onclick="return confirmarExportacion();">Exportar a Excel</a>
-                <a href="archivados.php" class="btn btn-warning btn-lg">Ver clientes archivados</a>
-
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="ingresar.php" class="btn btn-outline-primary btn-fw flex-fill">Crear nuevo cliente</a>
+                    <a href="../excel/excelCliente.php" class="btn btn-outline-success btn-fw flex-fill" onclick="return confirmarExportacion();">Exportar a Excel</a>
+                    <a href="archivados.php" class="btn btn-outline-warning btn-fw flex-fill">Ver clientes archivados</a>
+                </div>
                 <script>
                     function confirmarExportacion() {
                         return confirm("¿Está seguro de que desea exportar la lista a Excel?");
@@ -42,6 +42,7 @@ include '../../includes/header.php';
                         c.tipoDocumento,
                         c.documentoCliente,
                         c.nombreCliente,
+                        c.apellidoCliente,
                         c.creado,
                         c.meses_gracia,
                         p.nombrePlan,
@@ -59,37 +60,37 @@ include '../../includes/header.php';
                         LIMIT 1
                     )
                     WHERE c.estadoCliente = 'Activo'
-                    ORDER BY c.nombreCliente ASC;
+                    ORDER BY c.nombreCliente ASC, c.apellidoCliente ASC;
                 ";
 
                 echo '<div class="table-responsive mt-3">
                         <table class="table table-hover">
                           <thead class="table-light">
                             <tr>
-                              <th>Tipo</th>
+                              <th>Detalles</th>
+                              <th>Tipo Doc.</th>
                               <th>Número</th>
-                              <th>Nombre y apellido</th>
+                              <th>Nombre</th>
+                              <th>Apellido</th>
                               <th>Plan</th>
                               <th>Estado de Pago</th>
-                              <th>Detalles</th>
-                              <th>Actualizar</th>
-                              <th>Eliminar</th>
                             </tr>
                           </thead>
                           <tbody>';
 
                 if ($rta = $con->query($sql)) {
                     if ($rta->num_rows === 0) {
-                        echo "<tr><td colspan='8' class='text-center'>No hay clientes activos.</td></tr>";
+                        echo "<tr><td colspan='7' class='text-center'>No hay clientes activos.</td></tr>";
                     } else {
                         $hoy = strtotime(date('Y-m-d'));
 
                         while ($row = $rta->fetch_assoc()) {
                             $idCliente = $row['idCliente'];
-                            $td = $row['tipoDocumento'];
-                            $doc = $row['documentoCliente'];
-                            $nombres = $row['nombreCliente'];
-                            $plan = $row['nombrePlan'];
+                            $td = htmlspecialchars($row['tipoDocumento']);
+                            $doc = htmlspecialchars($row['documentoCliente']);
+                            $nombre = htmlspecialchars($row['nombreCliente']);
+                            $apellido = htmlspecialchars($row['apellidoCliente'] ?? '');
+                            $plan = htmlspecialchars($row['nombrePlan']);
                             $fechaVencimiento = $row['fechaVencimiento'];
                             $fechaSuspencion = $row['fechaSuspencion'];
                             $fechaCreacion = $row['creado'];
@@ -127,9 +128,11 @@ include '../../includes/header.php';
                             }
 
                             echo "<tr>
+                                    <td><a href='vercliente.php?id=$idCliente' class='btn btn-secondary'>Ver</a></td>
                                     <td>$td</td>
                                     <td>$doc</td>
-                                    <td>$nombres</td>
+                                    <td>$nombre</td>
+                                    <td>$apellido</td>
                                     <td>$plan</td>
                                     <td>
                                         <span style='
@@ -142,14 +145,11 @@ include '../../includes/header.php';
                                         '></span>
                                         <strong style='color:$colorPago; text-transform:capitalize;'>$estadoPago</strong>
                                     </td>
-                                    <td><a href='vercliente.php?id=$idCliente' class='btn btn-secondary'>Ver</a></td>
-                                    <td><a href='actualizar.php?id=$doc' class='btn btn-info'>Editar</a></td>
-                                    <td><a href='delete.php?id=$doc' class='borrar btn btn-danger'>Eliminar</a></td>
                                   </tr>";
                         }
                     }
                 } else {
-                    echo "<tr><td colspan='8' class='text-center text-danger'>Error al consultar los datos.</td></tr>";
+                    echo "<tr><td colspan='7' class='text-center text-danger'>Error al consultar los datos.</td></tr>";
                 }
 
                 echo "</tbody></table></div>";

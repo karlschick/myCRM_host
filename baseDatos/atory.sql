@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 15-10-2025 a las 08:37:01
+-- Tiempo de generación: 22-10-2025 a las 03:31:09
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.3.17
 
@@ -25,42 +25,39 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE PROCEDURE `consultaVisita` (IN `id_cliente` INT)
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `consultaVisita` (IN `id_cliente` INT)   BEGIN
 	select * from usuario
-    inner join user_visita
-    inner join visitas
-    inner join cliente
-    where usuario.`idUsuario`=user_visita.`user_idUser`
-    and user_visita.`visita_idVisita`=visitas.`idVisita`
-    and cliente.`idCliente`=visitas.`visita_idCliente`
-    and documentoCliente=id_cliente;
-END$$
+                      inner join user_visita
+                      inner join visitas
+                      Inner join cliente
+                      where usuario.`idUsuario`=user_visita.`user_idUser`
+                      and user_visita.`visita_idVisita`=visitas.`idVisita`
+                      and  cliente.`idCliente`=visitas.`visita_idCliente`
+                      and documentoCliente=id_cliente;
+    END$$
 
-CREATE PROCEDURE `GenerarDescuento` (IN `factura_id` INT)
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GenerarDescuento` (IN `factura_id` INT)   BEGIN
     DECLARE descuento DECIMAL(10,2);
+    -- Calcular el 50% de descuento
     SET descuento = (SELECT valorTotalFactura * 0.5 FROM Factura WHERE idFactura = factura_id);
+    -- Aplicar el descuento
     UPDATE Factura
     SET valorTotalFactura = valorTotalFactura - descuento
     WHERE idFactura = factura_id;
-    SELECT valorTotalFactura , nPlan , nombreCliente
-    FROM factura
-    INNER JOIN cliente
-    WHERE factura_id = idFactura AND idCliente = cliente_idCliente;
+    -- Ver el descuento
+    SELECT valorTotalFactura , nPlan ,nombreCliente FROM factura 
+    inner join cliente
+    WHERE factura_id = idFactura and idCliente = cliente_idCliente;
 END$$
 
-CREATE PROCEDURE `verfactura` (IN `idFactura` INT)
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `verfactura` (IN `idFactura` INT)   BEGIN
     SELECT fechaFactura FROM factura;
 END$$
 
-CREATE PROCEDURE `x` ()
-BEGIN
-END$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `x` ()   BEGIN
+    END$$
 
 DELIMITER ;
-
 
 -- --------------------------------------------------------
 
@@ -86,7 +83,7 @@ INSERT INTO `bancario` (`id_bancario`, `num_cuenta`, `nomb_banco`, `estadoCuenta
 (2, '3196443053', 'daviplata', 'Activo', NULL, 1),
 (8, '123456789', 'nu', 'Activo', NULL, 1),
 (9, '1001234567', 'Bancolombia', 'Activo', NULL, 1),
-(10, '1002234567', 'Banco de Bogotá', 'Activo', NULL, 1),
+(10, '1002234567', 'Banco de Bogotá', 'Archivado', NULL, 1),
 (11, '1003234567', 'Banco Popular', 'Activo', NULL, 1),
 (12, '1004234567', 'Banco AV Villas', 'Activo', NULL, 1),
 (13, '1005234567', 'Davivienda', 'Activo', NULL, 1),
@@ -103,13 +100,7 @@ INSERT INTO `bancario` (`id_bancario`, `num_cuenta`, `nomb_banco`, `estadoCuenta
 (24, '1016234567', 'Banco Agrario', 'Activo', NULL, 1),
 (25, '1017234567', 'Finandina', 'Activo', NULL, 1),
 (26, '1018234567', 'Tuya', 'Activo', NULL, 1),
-(27, '1019234567', 'Nequi', 'Activo', NULL, 1),
-(28, '1020234567', 'Daviplata', 'Activo', NULL, 1),
-(29, '1021234567', 'RappiPay', 'Activo', NULL, 1),
-(30, '1022234567', 'Lulo Bank', 'Activo', NULL, 1),
-(31, '1023234567', 'Banco Mundo Mujer', 'Activo', NULL, 1),
-(32, '1024234567', 'JP Morgan Colombia', 'Activo', NULL, 1),
-(33, '1025234567', 'Nu Colombia', 'Activo', NULL, 1);
+(27, '1019234567', 'Nequi', 'Activo', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -121,97 +112,372 @@ CREATE TABLE `cliente` (
   `idCliente` int(11) NOT NULL,
   `tipoDocumento` varchar(10) NOT NULL DEFAULT 'CC',
   `documentoCliente` varchar(20) NOT NULL,
+  `tipoCliente` enum('Residencial','Empresarial','Corporativo','Rural') DEFAULT 'Residencial',
   `nombreCliente` varchar(100) NOT NULL,
+  `apellidoCliente` varchar(100) DEFAULT NULL,
   `telefonoCliente` varchar(20) NOT NULL,
   `correoCliente` varchar(100) NOT NULL,
+  `correoFacturacion` varchar(100) DEFAULT NULL,
+  `pais` varchar(50) DEFAULT 'Colombia',
+  `ciudadCliente` varchar(50) DEFAULT NULL,
+  `departamentoCliente` varchar(50) DEFAULT NULL,
   `direccion` varchar(100) DEFAULT NULL,
+  `barrioCliente` varchar(100) DEFAULT NULL,
+  `estrato` int(11) DEFAULT NULL,
+  `codigoPostalCliente` varchar(10) DEFAULT NULL,
+  `coordenadasGPS` varchar(50) DEFAULT NULL COMMENT 'Formato: lat,lng',
+  `referenciaUbicacion` text DEFAULT NULL,
+  `zonaCobertura` varchar(50) DEFAULT NULL,
+  `sucursal` varchar(100) DEFAULT NULL,
+  `ciudadDian` varchar(50) DEFAULT NULL COMMENT 'Para facturación electrónica',
   `estadoCliente` varchar(10) NOT NULL DEFAULT 'Activo',
+  `motivoSuspension` varchar(100) DEFAULT NULL,
+  `vendedor_idUsuario` int(11) DEFAULT NULL COMMENT 'FK: Usuario vendedor',
+  `tecnicoAsignado_idUsuario` int(11) DEFAULT NULL COMMENT 'FK: Técnico de zona',
+  `referenciadoPor_idCliente` int(11) DEFAULT NULL COMMENT 'FK: Cliente que lo refirió',
+  `tieneReferidos` int(11) DEFAULT 0,
+  `origenCliente` enum('Referido','Web','Redes','Puerta a puerta','Otro') DEFAULT 'Otro',
+  `categoriaCliente` enum('VIP','Regular','Moroso') DEFAULT 'Regular',
+  `cantidadSoportesMes` int(11) DEFAULT 0,
+  `ultimoSoporte` date DEFAULT NULL,
+  `promedioVelocidad` decimal(6,2) DEFAULT NULL COMMENT 'Velocidad real medida',
+  `calidadServicio` int(11) DEFAULT 5 COMMENT 'Rating 1-5 estrellas',
+  `observaciones` text DEFAULT NULL,
+  `notas` text DEFAULT NULL,
+  `documentosAdjuntos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`documentosAdjuntos`)),
+  `eliminado` tinyint(1) DEFAULT 0,
+  `creadoPor` int(11) DEFAULT NULL,
+  `actualizadoPor` int(11) DEFAULT NULL,
   `plan_idPlan` int(11) NOT NULL,
   `creado` date DEFAULT NULL,
+  `fechaInstalacion` date DEFAULT NULL,
+  `fechaActivacion` date DEFAULT NULL,
   `ultimaActualizacion` date DEFAULT NULL,
-  `meses_gracia` int(11) DEFAULT 0
+  `fechaSuspension` date DEFAULT NULL,
+  `fechaCorte` date DEFAULT NULL,
+  `meses_gracia` int(11) DEFAULT 0,
+  `fechaContrato` date DEFAULT NULL,
+  `clausulaMeses` int(11) DEFAULT NULL COMMENT 'Meses de permanencia mínima',
+  `mesFin` date DEFAULT NULL COMMENT 'Fecha fin del contrato',
+  `mesesParaFinalizar` int(11) DEFAULT NULL COMMENT 'Calculado automáticamente',
+  `valorAPagar` decimal(10,2) DEFAULT NULL COMMENT 'Penalización por retiro anticipado',
+  `valorInstalacion` decimal(10,2) DEFAULT NULL,
+  `tipologiaRed` varchar(50) DEFAULT NULL COMMENT 'FTTH, FTTC, Radio, etc.',
+  `nodoConexion` varchar(50) DEFAULT NULL COMMENT 'Nodo/Switch',
+  `puertoSwitch` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `cliente`
 --
 
-INSERT INTO `cliente` (`idCliente`, `tipoDocumento`, `documentoCliente`, `nombreCliente`, `telefonoCliente`, `correoCliente`, `direccion`, `estadoCliente`, `plan_idPlan`, `creado`, `ultimaActualizacion`, `meses_gracia`) VALUES
-(1, 'C.C', '10101', 'Arnulfo Rodriguez', '3005554878', 'arnulfo@gmail.com', 'cll 148 # 98-41', 'Activo', 1, '2023-05-12', '2025-10-04', 0),
-(2, 'C.C', '10102', 'Blanca Cordero', '3008562013', 'blanca@gmail.com', 'cr 5 #148 -13', 'Archivado', 2, '2023-05-18', '2023-05-18', 0),
-(3, 'C.C', '10103', 'Carolina Crosby', '3122254858', 'caro@gmail.com', 'cll 89 sur # 45-48', 'Archivado', 2, '2023-05-17', '2023-05-17', 0),
-(4, 'C.C', '10104', 'Diana Borges', '3103404090', 'diana@gmail.com', 'cr 2 # 98-74', 'Activo', 3, '2023-05-17', '2025-10-04', 0),
-(5, 'C.C', '10105', 'Ernesto Gutierrez', '3203103525', 'ernie@gmail.com', 'cll 45 # 10-47', 'Activo', 2, '2023-06-01', '2025-10-04', 0),
-(6, 'C.C', '2121', 'Carlos Schick', '300300300', 'lkaro@gmail.com', 'cll 5#98-45', 'Activo', 1, '2023-01-02', '2023-05-16', 0),
-(7, 'C.C', '123', 'Mariana Borda', '3236587979', 'Mariana@hotmail.com', 'cr 23 # 125-66', 'Activo', 3, '2023-03-01', '2025-10-07', 0),
-(8, 'C.C', '2365', 'Ayane Hayabusa', '878965412', 'ayane@hotmail.com', 'cll 123# 78-41', 'Activo', 4, '2023-01-10', '2025-10-04', 0),
-(9, 'C.E', '9863', 'Isabella Montana', '9547893652', 'isabella@gmail.com', 'cll 127 # 98-85', 'Activo', 1, '2022-01-04', '2025-10-04', 0),
-(10, 'C.E', '58944444', 'Maria Reyes', '3231039856', 'maria.r@gmail.com', 'cll 145 # 108-63', 'Activo', 3, '2022-07-08', '2025-01-01', 3),
-(11, 'C.C', '698', 'Yolanda Tellez', '3216549898', 'y.165@aol.com', 'cll159#10-29', 'Archivado', 4, '2023-06-10', '2023-06-18', 0),
-(12, 'C.E', '56', 'Tina Lovecraft', '9548961245', 'tina@gmail.com', 'cll 36#69-89', 'Archivado', 3, '2023-04-05', '2023-06-06', 0),
-(13, 'C.C', '1012151563', 'Gabriela Castiblanco', '3103656989', 'gaby@hotmail.com', 'km 5 via cota chia', 'Activo', 3, '2023-04-11', '2025-10-04', 0),
-(14, 'C.C', '789', 'Ana Maria Rosales', '7893652123', 'maria@gmail.com', 'cll 13#140-75', 'Activo', 1, '2023-06-23', '2025-03-04', 0),
-(15, 'C.C', '2024', 'juanito alimaña', '300886644', 'alimana@gmail.com', 'cll 34 # 20 20', 'Activo', 7, '2024-01-24', '2025-10-04', 0),
-(16, 'C.C', '14543', 'Chun li', '1222323', 'chun@gmail.com', 'Cl. 123 #67-87', 'Activo', 1, '2024-02-08', '2025-10-04', 0),
-(17, 'C.C', '1222233', 'Jack li', '344455545', 'jack@gmail.com', 'calle#123  65-87', 'Activo', 5, '2024-02-09', '2025-10-04', 0),
-(18, 'C.C', '123123', 'Xiao Lin', '6325698958', 'lin@gmail.com', 'cll 148 # 78-98', 'Archivado', 3, '2024-02-05', '2024-02-09', 0),
-(19, 'C.C', '852852', 'Xiao Qiao', '123456789', 'Q@hotmail.com', 'CLL139A#23f-89', 'Archivado', 5, '2024-02-12', '2024-02-13', 0),
-(20, 'C.C', '10000001', 'Andrés López', '300500001', 'andrés@gmail.com', 'Calle 1 # 2-45', 'Archivado', 2, '2024-01-02', '2024-02-02', 0),
-(121, 'C.C', '10000002', 'Beatriz Sánchez', '300500002', 'beatriz@gmail.com', 'Calle 2 # 4-45', 'Activo', 3, '2024-01-03', '2025-10-04', 0),
-(122, 'C.C', '10000003', 'Carlos Ramírez', '300500003', 'carlos@gmail.com', 'Calle 3 # 6-45', 'Archivado', 4, '2024-01-04', '2024-02-04', 0),
-(123, 'C.C', '10000004', 'Diana Herrera', '300500004', 'diana@gmail.com', 'Calle 4 # 8-45', 'Activo', 5, '2024-01-05', '2025-10-04', 0),
-(124, 'C.C', '10000005', 'Elena Gómez', '300500005', 'elena@gmail.com', 'Calle 5 # 10-45', 'Activo', 1, '2024-01-06', '2025-10-04', 0),
-(125, 'C.C', '10000006', 'Fernando Castro', '300500006', 'fernando@gmail.com', 'Calle 6 # 12-45', 'Activo', 2, '2024-01-07', '2025-08-04', 0),
-(126, 'C.C', '10000007', 'Gabriela Mendoza', '300500007', 'gabriela@gmail.com', 'Calle 7 # 14-45', 'Activo', 3, '2024-01-08', '2025-10-04', 0),
-(127, 'C.C', '10000008', 'Hugo Ortega', '300500008', 'hugo@gmail.com', 'Calle 8 # 16-45', 'Activo', 4, '2024-01-09', '2025-10-04', 1),
-(128, 'C.C', '10000009', 'Isabel Ríos', '300500009', 'isabel@gmail.com', 'Calle 9 # 18-45', 'Activo', 5, '2024-01-10', '2025-10-04', 0),
-(129, 'C.C', '10000010', 'Javier Paredes', '300500010', 'javier@gmail.com', 'Calle 10 # 20-45', 'Activo', 1, '2024-01-11', '2025-10-04', 0),
-(130, 'C.C', '10000011', 'Karina Salazar', '300500011', 'karina@gmail.com', 'Calle 11 # 22-45', 'Activo', 4, '2024-01-12', '2025-10-04', 0),
-(131, 'C.C', '10000012', 'Luis Torres', '300500012', 'luis@gmail.com', 'Calle 12 # 24-45', 'Archivado', 3, '2024-01-13', '2024-02-13', 0),
-(132, 'C.C', '10000013', 'María Navarro', '300500013', 'maría@gmail.com', 'Calle 13 # 26-45', 'Archivado', 4, '2024-01-14', '2024-02-14', 0),
-(133, 'C.C', '10000014', 'Nicolás Vega', '300500014', 'nicolás@gmail.com', 'Calle 14 # 28-45', 'Archivado', 5, '2024-01-15', '2024-02-15', 0),
-(134, 'C.C', '10000015', 'Olga Carrillo', '300500015', 'olga@gmail.com', 'Calle 15 # 30-45', 'Archivado', 1, '2024-01-16', '2024-02-16', 0),
-(135, 'C.C', '10000016', 'Pablo Duarte', '300500016', 'pablo@gmail.com', 'Calle 16 # 32-45', 'Archivado', 2, '2024-01-17', '2024-02-17', 0),
-(136, 'C.C', '10000017', 'Quintín Lara', '300500017', 'quintín@gmail.com', 'Calle 17 # 34-45', 'Archivado', 3, '2024-01-18', '2024-02-18', 0),
-(137, 'C.C', '10000018', 'Rosa Fuentes', '300500018', 'rosa@gmail.com', 'Calle 18 # 36-45', 'Archivado', 4, '2024-01-19', '2024-02-19', 0),
-(138, 'C.C', '10000019', 'Sergio Álvarez', '300500019', 'sergio@gmail.com', 'Calle 19 # 38-45', 'Archivado', 5, '2024-01-20', '2024-02-20', 0),
-(139, 'C.C', '10000020', 'Teresa Jiménez', '300500020', 'teresa@gmail.com', 'Calle 20 # 40-45', 'Archivado', 1, '2024-01-21', '2024-02-21', 0),
-(140, 'C.C', '10000021', 'Ulises Peña', '300500021', 'ulises@gmail.com', 'Calle 21 # 42-45', 'Archivado', 2, '2024-01-22', '2024-02-22', 0),
-(141, 'C.C', '10000022', 'Valentina Solano', '300500022', 'valentina@gmail.com', 'Calle 22 # 44-45', 'Archivado', 3, '2024-01-23', '2024-02-23', 0),
-(142, 'C.C', '10000023', 'Walter Castillo', '300500023', 'walter@gmail.com', 'Calle 23 # 46-45', 'Archivado', 4, '2024-01-24', '2024-02-24', 0),
-(143, 'C.C', '10000024', 'Ximena Espinoza', '300500024', 'ximena@gmail.com', 'Calle 24 # 48-45', 'Archivado', 5, '2024-01-25', '2024-02-25', 0),
-(144, 'C.C', '10000025', 'Yahir Montes', '300500025', 'yahir@gmail.com', 'Calle 25 # 50-45', 'Archivado', 1, '2024-01-26', '2024-02-26', 0),
-(145, 'C.C', '10000026', 'Zulema Patiño', '300500026', 'zulema@gmail.com', 'Calle 26 # 52-45', 'Activo', 2, '2024-01-27', '2025-10-04', 0),
-(146, 'C.C', '10000027', 'Alfonso Martínez', '300500027', 'alfonso@gmail.com', 'Calle 27 # 54-45', 'Activo', 2, '2024-01-28', '2025-10-04', 0),
-(147, 'C.C', '10000028', 'Brenda Villanueva', '300500028', 'brenda@gmail.com', 'Calle 28 # 56-45', 'Activo', 4, '2024-01-01', '2025-10-04', 0),
-(148, 'C.C', '10000029', 'Cesar Tapia', '300500029', 'cesar@gmail.com', 'Calle 29 # 58-45', 'Activo', 5, '2024-01-02', '2025-10-04', 0),
-(149, 'C.C', '10000030', 'Dolores Silva', '300500030', 'dolores@gmail.com', 'Calle 30 # 60-45', 'Activo', 1, '2024-01-03', '2025-10-04', 0),
-(150, 'C.C', '10000031', 'Eduardo Nieto', '300500031', 'eduardo@gmail.com', 'Calle 31 # 62-45', 'Activo', 2, '2024-01-04', '2025-10-04', 0),
-(151, 'C.C', '10000032', 'Fabiola Suárez', '300500032', 'fabiola@gmail.com', 'Calle 32 # 64-45', 'Activo', 3, '2024-01-05', '2025-10-04', 0),
-(152, 'C.C', '10000033', 'Gerardo Domínguez', '300500033', 'gerardo@gmail.com', 'Calle 33 # 66-45', 'Activo', 4, '2024-01-06', '2025-10-04', 0),
-(153, 'C.C', '10000034', 'Hilda Guzmán', '300500034', 'hilda@gmail.com', 'Calle 34 # 68-45', 'Activo', 5, '2024-01-07', '2025-10-04', 0),
-(154, 'C.C', '10000035', 'Iván Estrada', '300500035', 'iván@gmail.com', 'Calle 35 # 70-45', 'Activo', 1, '2024-01-08', '2025-10-04', 0),
-(155, 'C.C', '10000036', 'Jessica Peralta', '300500036', 'jessica@gmail.com', 'Calle 36 # 72-45', 'Activo', 2, '2024-01-09', '2025-10-04', 0),
-(156, 'C.C', '10000037', 'Kevin Flores', '300500037', 'kevin@gmail.com', 'Calle 37 # 74-45', 'Activo', 3, '2024-01-10', '2025-10-04', 0),
-(157, 'C.C', '10000038', 'Laura Chávez', '300500038', 'laura@gmail.com', 'Calle 38 # 76-45', 'Archivado', 4, '2024-01-11', '2024-02-11', 0),
-(158, 'C.C', '10000039', 'Miguel Palacios', '300500039', 'miguel@gmail.com', 'Calle 39 # 78-45', 'Archivado', 5, '2024-01-12', '2024-02-12', 0),
-(159, 'C.C', '10000040', 'Natalia Ocampo', '300500040', 'natalia@gmail.com', 'Calle 40 # 80-45', 'Archivado', 1, '2024-01-13', '2024-02-13', 0),
-(160, 'C.C', '10000041', 'Omar Sandoval', '300500041', 'omar@gmail.com', 'Calle 41 # 82-45', 'Archivado', 2, '2024-01-14', '2024-02-14', 0),
-(161, 'C.C', '10000042', 'Patricia Reyes', '300500042', 'patricia@gmail.com', 'Calle 42 # 84-45', 'Archivado', 3, '2024-01-15', '2024-02-15', 0),
-(162, 'C.C', '10000043', 'Ricardo Medina', '300500043', 'ricardo@gmail.com', 'Calle 43 # 86-45', 'Archivado', 4, '2024-01-16', '2024-02-16', 0),
-(163, 'C.C', '10000044', 'Sofía Cordero', '300500044', 'sofía@gmail.com', 'Calle 44 # 88-45', 'Archivado', 5, '2024-01-17', '2024-02-17', 0),
-(164, 'C.C', '10000045', 'Tomás Arrieta', '300500045', 'tomás@gmail.com', 'Calle 45 # 90-45', 'Archivado', 1, '2024-01-18', '2024-02-18', 0),
-(165, 'C.C', '10000046', 'Ursula Villaseñor', '300500046', 'ursula@gmail.com', 'Calle 46 # 92-45', 'Archivado', 2, '2024-01-19', '2024-02-19', 0),
-(166, 'C.C', '10000047', 'Víctor León', '300500047', 'víctor@gmail.com', 'Calle 47 # 94-45', 'Archivado', 3, '2024-01-20', '2024-02-20', 0),
-(167, 'C.C', '10000048', 'Wilfredo Padilla', '300500048', 'wilfredo@gmail.com', 'Calle 48 # 96-45', 'Archivado', 4, '2024-01-21', '2024-02-21', 0),
-(168, 'C.C', '10000049', 'Xiomara Nájera', '300500049', 'xiomara@gmail.com', 'Calle 49 # 98-45', 'Archivado', 5, '2024-01-22', '2024-02-22', 0),
-(169, 'C.C', '10000050', 'Yolanda Barrera', '300500050', 'yolanda@gmail.com', 'Calle 50 # 100-45', 'Archivado', 1, '2024-01-23', '2024-02-23', 0),
-(170, 'C.C', '101010', 'joan schick', '3123828822', 'joan@gmail.com', 'cr 3b No. 23 - 49', 'Archivado', 5, '2025-09-12', '2025-10-06', 0),
-(174, 'C.C', '4040', 'joan3', '31964354', 'schickperez@gmail.com', 'Carrera 3b #23-49', 'Activo', 3, '2025-08-01', '2025-10-06', 3),
-(175, 'C.C', '5050', 'joan4', '3123828822', 'schickperez@gmail.com', 'cr 3b No. 23 - 49', 'Activo', 1, '2025-10-07', '2025-10-07', 3),
-(176, 'C.C', '6060', 'joan5', '3196443053', 'schickperez@gmail.com', 'Carrera 3b #23-49', 'Activo', 1, '2023-09-07', '2025-10-07', 0),
-(177, 'C.C', '10099020', 'pedro pascal', '', '', '', 'Activo', 4, '2025-10-15', '2025-10-15', 0),
-(178, 'C.C', '544854', 'polo polo', '23423423423', 'polopolo@gmail.com', 'Carrera 34 #34-3', 'Activo', 8, '2025-10-02', '2025-10-02', 2);
+INSERT INTO `cliente` (`idCliente`, `tipoDocumento`, `documentoCliente`, `tipoCliente`, `nombreCliente`, `apellidoCliente`, `telefonoCliente`, `correoCliente`, `correoFacturacion`, `pais`, `ciudadCliente`, `departamentoCliente`, `direccion`, `barrioCliente`, `estrato`, `codigoPostalCliente`, `coordenadasGPS`, `referenciaUbicacion`, `zonaCobertura`, `sucursal`, `ciudadDian`, `estadoCliente`, `motivoSuspension`, `vendedor_idUsuario`, `tecnicoAsignado_idUsuario`, `referenciadoPor_idCliente`, `tieneReferidos`, `origenCliente`, `categoriaCliente`, `cantidadSoportesMes`, `ultimoSoporte`, `promedioVelocidad`, `calidadServicio`, `observaciones`, `notas`, `documentosAdjuntos`, `eliminado`, `creadoPor`, `actualizadoPor`, `plan_idPlan`, `creado`, `fechaInstalacion`, `fechaActivacion`, `ultimaActualizacion`, `fechaSuspension`, `fechaCorte`, `meses_gracia`, `fechaContrato`, `clausulaMeses`, `mesFin`, `mesesParaFinalizar`, `valorAPagar`, `valorInstalacion`, `tipologiaRed`, `nodoConexion`, `puertoSwitch`) VALUES
+(1, 'C.C', '10101', 'Residencial', 'Arnulfo Rodriguez', NULL, '3005554878', 'arnulfo@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 148 # 98-41', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2023-05-12', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'C.C', '10102', 'Residencial', 'Blanca Cordero', NULL, '3008562013', 'blanca@gmail.com', NULL, 'Colombia', NULL, NULL, 'cr 5 #148 -13', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2023-05-18', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'C.C', '10103', 'Residencial', 'Carolina Crosby', NULL, '3122254858', 'caro@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 89 sur # 45-48', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2023-05-17', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 'C.C', '10104', 'Residencial', 'Diana Borges', NULL, '3103404090', 'diana@gmail.com', NULL, 'Colombia', NULL, NULL, 'cr 2 # 98-74', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2023-05-17', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, 'C.C', '10105', 'Residencial', 'Ernesto Gutierrez', NULL, '3203103525', 'ernie@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 45 # 10-47', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2023-06-01', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'C.C', '2121', 'Residencial', 'Carlos Schick', NULL, '300300300', 'lkaro@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 5#98-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2023-01-02', NULL, NULL, '2023-05-16', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 'C.C', '123', 'Residencial', 'Mariana Borda', NULL, '3236587979', 'Mariana@hotmail.com', NULL, 'Colombia', NULL, NULL, 'cr 23 # 125-66', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2023-03-01', NULL, NULL, '2025-10-07', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(8, 'C.C', '2365', 'Empresarial', 'Ayane Hayabusr', NULL, '878965412', 'ayane@hotmail.com', '', 'Colombia', 'BOGOTA, D.C.', 'BOGOTA, D.C.', 'cll 123# 78-41', '', 3, '110311', '', '', '', '', '', 'Activo', '', NULL, NULL, NULL, 0, 'Otro', 'VIP', 0, NULL, NULL, 5, '', '', NULL, 0, NULL, NULL, 8, '2023-01-10', NULL, NULL, '2025-10-21', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '', '', ''),
+(9, 'C.E', '9863', 'Residencial', 'Isabella Montana', NULL, '9547893652', 'isabella@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 127 # 98-85', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2022-01-04', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(10, 'C.E', '58944444', 'Residencial', 'Maria Reyes', NULL, '3231039856', 'maria.r@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 145 # 108-63', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2022-07-08', NULL, NULL, '2025-01-01', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(11, 'C.C', '698', 'Residencial', 'Yolanda Tellez', NULL, '3216549898', 'y.165@aol.com', NULL, 'Colombia', NULL, NULL, 'cll159#10-29', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2023-06-10', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(12, 'C.E', '56', 'Residencial', 'Tina Lovecraft', NULL, '9548961245', 'tina@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 36#69-89', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2023-04-05', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(13, 'C.C', '1012151563', 'Residencial', 'Gabriela Castiblanco', NULL, '3103656989', 'gaby@hotmail.com', NULL, 'Colombia', NULL, NULL, 'km 5 via cota chia', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2023-04-11', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(14, 'C.C', '789', 'Empresarial', 'Ana Maria', 'Rosales', '7893652123', 'maria@gmail.com', 'maria@gmail.com', 'Colombia', 'BOGOTA, D.C.', 'BOGOTA, D.C.', 'cll 13#140-75', 'bogota', 2, '110311', '', '', '', '', 'BOGOTA, D.C.', 'Activo', '', NULL, NULL, NULL, 0, 'Otro', 'VIP', 0, NULL, NULL, 5, '', '', NULL, 0, NULL, NULL, 7, '2023-06-23', NULL, NULL, '2025-10-22', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '', '', ''),
+(15, 'C.C', '2024', 'Residencial', 'juanito alimaña', NULL, '300886644', 'alimana@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 34 # 20 20', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 7, '2024-01-24', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(16, 'C.C', '14543', 'Residencial', 'Chun li', NULL, '1222323', 'chun@gmail.com', NULL, 'Colombia', NULL, NULL, 'Cl. 123 #67-87', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-02-08', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(17, 'C.C', '1222233', 'Residencial', 'Jack li', NULL, '344455545', 'jack@gmail.com', NULL, 'Colombia', NULL, NULL, 'calle#123  65-87', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-02-09', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(18, 'C.C', '123123', 'Residencial', 'Xiao Lin', NULL, '6325698958', 'lin@gmail.com', NULL, 'Colombia', NULL, NULL, 'cll 148 # 78-98', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Archivado', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-02-05', NULL, NULL, '2024-02-09', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(19, 'C.C', '852852', 'Residencial', 'Xiao Qiao', NULL, '123456789', 'Q@hotmail.com', NULL, 'Colombia', NULL, NULL, 'CLL139A#23f-89', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Archivado', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-02-12', NULL, NULL, '2024-02-13', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20, 'C.C', '10000001', 'Residencial', 'Andrés López', NULL, '300500001', 'andrés@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 1 # 2-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-02', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(121, 'C.C', '10000002', 'Residencial', 'Beatriz Sánchez', NULL, '300500002', 'beatriz@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 2 # 4-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-03', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(122, 'C.C', '10000003', 'Residencial', 'Carlos Ramírez', NULL, '300500003', 'carlos@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 3 # 6-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-04', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(123, 'C.C', '10000004', 'Residencial', 'Diana Herrera', NULL, '300500004', 'diana@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 4 # 8-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-05', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(124, 'C.C', '10000005', 'Residencial', 'Elena Gómez', NULL, '300500005', 'elena@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 5 # 10-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-06', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(125, 'C.C', '10000006', 'Residencial', 'Fernando Castro', NULL, '300500006', 'fernando@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 6 # 12-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-07', NULL, NULL, '2025-08-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(126, 'C.C', '10000007', 'Residencial', 'Gabriela Mendoza', NULL, '300500007', 'gabriela@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 7 # 14-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-08', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(127, 'C.C', '10000008', 'Residencial', 'Hugo Ortega', NULL, '300500008', 'hugo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 8 # 16-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-09', NULL, NULL, '2025-10-04', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(128, 'C.C', '10000009', 'Residencial', 'Isabel Ríos', NULL, '300500009', 'isabel@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 9 # 18-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-10', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(129, 'C.C', '10000010', 'Residencial', 'Javier Paredes', NULL, '300500010', 'javier@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 10 # 20-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-11', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(130, 'C.C', '10000011', 'Residencial', 'Karina Salazar', NULL, '300500011', 'karina@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 11 # 22-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-12', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(131, 'C.C', '10000012', 'Residencial', 'Luis Torres', NULL, '300500012', 'luis@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 12 # 24-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-13', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(132, 'C.C', '10000013', 'Residencial', 'María Navarro', NULL, '300500013', 'maría@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 13 # 26-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-14', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(133, 'C.C', '10000014', 'Residencial', 'Nicolás Vega', NULL, '300500014', 'nicolás@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 14 # 28-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-15', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(134, 'C.C', '10000015', 'Residencial', 'Olga Carrillo', NULL, '300500015', 'olga@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 15 # 30-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-16', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(135, 'C.C', '10000016', 'Residencial', 'Pablo Duarte', NULL, '300500016', 'pablo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 16 # 32-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-17', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(136, 'C.C', '10000017', 'Residencial', 'Quintín Lara', NULL, '300500017', 'quintín@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 17 # 34-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-18', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(137, 'C.C', '10000018', 'Residencial', 'Rosa Fuentes', NULL, '300500018', 'rosa@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 18 # 36-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-19', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(138, 'C.C', '10000019', 'Residencial', 'Sergio Álvarez', NULL, '300500019', 'sergio@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 19 # 38-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-20', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(139, 'C.C', '10000020', 'Residencial', 'Teresa Jiménez', NULL, '300500020', 'teresa@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 20 # 40-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-21', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(140, 'C.C', '10000021', 'Residencial', 'Ulises Peña', NULL, '300500021', 'ulises@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 21 # 42-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-22', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(141, 'C.C', '10000022', 'Residencial', 'Valentina Solano', NULL, '300500022', 'valentina@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 22 # 44-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-23', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(142, 'C.C', '10000023', 'Residencial', 'Walter Castillo', NULL, '300500023', 'walter@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 23 # 46-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-24', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(143, 'C.C', '10000024', 'Residencial', 'Ximena Espinoza', NULL, '300500024', 'ximena@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 24 # 48-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Archivado', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-25', NULL, NULL, '2024-02-25', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(144, 'C.C', '10000025', 'Residencial', 'Yahir Montes', NULL, '300500025', 'yahir@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 25 # 50-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Archivado', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-26', NULL, NULL, '2024-02-26', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(145, 'C.C', '10000026', 'Residencial', 'Zulema Patiño', NULL, '300500026', 'zulema@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 26 # 52-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-27', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(146, 'C.C', '10000027', 'Residencial', 'Alfonso Martínez', NULL, '300500027', 'alfonso@gmail.com', '', 'Colombia', '', '', 'Calle 27 # 54-45', '', 0, '', '', '', '', '', '', 'Activo', '', NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, '', '', NULL, 0, NULL, NULL, 3, '2024-01-28', NULL, NULL, '2025-10-22', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '', '', ''),
+(147, 'C.C', '10000028', 'Residencial', 'Brenda Villanueva', NULL, '300500028', 'brenda@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 28 # 56-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-01', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(148, 'C.C', '10000029', 'Residencial', 'Cesar Tapia', NULL, '300500029', 'cesar@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 29 # 58-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-02', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(149, 'C.C', '10000030', 'Residencial', 'Dolores Silva', NULL, '300500030', 'dolores@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 30 # 60-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-03', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(150, 'C.C', '10000031', 'Residencial', 'Eduardo Nieto', NULL, '300500031', 'eduardo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 31 # 62-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-04', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(151, 'C.C', '10000032', 'Residencial', 'Fabiola Suárez', NULL, '300500032', 'fabiola@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 32 # 64-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-05', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(152, 'C.C', '10000033', 'Residencial', 'Gerardo Domínguez', NULL, '300500033', 'gerardo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 33 # 66-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-06', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(153, 'C.C', '10000034', 'Residencial', 'Hilda Guzmán', NULL, '300500034', 'hilda@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 34 # 68-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-07', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(154, 'C.C', '10000035', 'Residencial', 'Iván Estrada', NULL, '300500035', 'iván@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 35 # 70-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-08', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(155, 'C.C', '10000036', 'Residencial', 'Jessica Peralta', NULL, '300500036', 'jessica@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 36 # 72-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-09', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(156, 'C.C', '10000037', 'Residencial', 'Kevin Flores', NULL, '300500037', 'kevin@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 37 # 74-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-10', NULL, NULL, '2025-10-04', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(157, 'C.C', '10000038', 'Residencial', 'Laura Chávez', NULL, '300500038', 'laura@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 38 # 76-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-11', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(158, 'C.C', '10000039', 'Residencial', 'Miguel Palacios', NULL, '300500039', 'miguel@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 39 # 78-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-12', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(159, 'C.C', '10000040', 'Residencial', 'Natalia Ocampo', NULL, '300500040', 'natalia@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 40 # 80-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-13', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(160, 'C.C', '10000041', 'Residencial', 'Omar Sandoval', NULL, '300500041', 'omar@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 41 # 82-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-14', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(161, 'C.C', '10000042', 'Residencial', 'Patricia Reyes', NULL, '300500042', 'patricia@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 42 # 84-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-15', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(162, 'C.C', '10000043', 'Residencial', 'Ricardo Medina', NULL, '300500043', 'ricardo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 43 # 86-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-16', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(163, 'C.C', '10000044', 'Residencial', 'Sofía Cordero', NULL, '300500044', 'sofía@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 44 # 88-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-17', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(164, 'C.C', '10000045', 'Residencial', 'Tomás Arrieta', NULL, '300500045', 'tomás@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 45 # 90-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-18', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(165, 'C.C', '10000046', 'Residencial', 'Ursula Villaseñor', NULL, '300500046', 'ursula@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 46 # 92-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 2, '2024-01-19', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(166, 'C.C', '10000047', 'Residencial', 'Víctor León', NULL, '300500047', 'víctor@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 47 # 94-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2024-01-20', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(167, 'C.C', '10000048', 'Residencial', 'Wilfredo Padilla', NULL, '300500048', 'wilfredo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 48 # 96-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2024-01-21', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(168, 'C.C', '10000049', 'Residencial', 'Xiomara Nájera', NULL, '300500049', 'xiomara@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 49 # 98-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Archivado', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2024-01-22', NULL, NULL, '2024-02-22', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(169, 'C.C', '10000050', 'Residencial', 'Yolanda Barrera', NULL, '300500050', 'yolanda@gmail.com', NULL, 'Colombia', NULL, NULL, 'Calle 50 # 100-45', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Archivado', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2024-01-23', NULL, NULL, '2024-02-23', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(170, 'C.C', '101010', 'Residencial', 'joan schick', NULL, '3123828822', 'joan@gmail.com', NULL, 'Colombia', NULL, NULL, 'cr 3b No. 23 - 49', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 5, '2025-09-12', NULL, NULL, '2025-10-19', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(174, 'C.C', '4040', 'Residencial', 'joan3', NULL, '31964354', 'schickperez@gmail.com', NULL, 'Colombia', NULL, NULL, 'Carrera 3b #23-49', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 3, '2025-08-01', NULL, NULL, '2025-10-06', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(175, 'C.C', '5050', 'Residencial', 'joan4', NULL, '3123828822', 'schickperez@gmail.com', NULL, 'Colombia', NULL, NULL, 'cr 3b No. 23 - 49', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2025-10-07', NULL, NULL, '2025-10-07', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(176, 'C.C', '6060', 'Residencial', 'joan5', NULL, '3196443053', 'schickperez@gmail.com', NULL, 'Colombia', NULL, NULL, 'Carrera 3b #23-49', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 1, '2023-09-07', NULL, NULL, '2025-10-07', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(177, 'C.C', '10099020', 'Residencial', 'pedro pascal', NULL, '', '', NULL, 'Colombia', NULL, NULL, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 4, '2025-10-15', NULL, NULL, '2025-10-15', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(178, 'C.C', '544854', 'Residencial', 'polo polo', NULL, '23423423423', 'polopolo@gmail.com', NULL, 'Colombia', NULL, NULL, 'Carrera 34 #34-3', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 8, '2025-10-02', NULL, NULL, '2025-10-02', NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(179, 'C.C', '888888', 'Residencial', 'pablo picapiedra', NULL, '31238266565', 'pabkrez@gmail.com', NULL, 'Colombia', NULL, NULL, 'cr 3b 66 - 76', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, NULL, NULL, NULL, 0, 'Otro', 'Regular', 0, NULL, NULL, 5, NULL, NULL, NULL, 0, NULL, NULL, 6, '2025-10-10', NULL, NULL, '2025-10-10', NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cliente_equipo`
+--
+
+CREATE TABLE `cliente_equipo` (
+  `idClienteEquipo` int(11) NOT NULL,
+  `cliente_idCliente` int(11) NOT NULL,
+  `clienteServicio_id` int(11) DEFAULT NULL COMMENT 'A qué servicio pertenece este equipo',
+  `tipoEquipo` enum('Router','ONT','Repetidor','Decodificador','Otro') NOT NULL,
+  `modeloEquipo` varchar(50) DEFAULT NULL,
+  `marcaEquipo` varchar(50) DEFAULT NULL,
+  `serialEquipo` varchar(50) DEFAULT NULL,
+  `macEquipo` varchar(17) DEFAULT NULL COMMENT 'MAC address',
+  `ipEquipo` varchar(15) DEFAULT NULL COMMENT 'IP local asignada',
+  `sufijoEquipo` varchar(15) DEFAULT NULL COMMENT 'Máscara de red',
+  `puertaEnlaceEquipo` varchar(15) DEFAULT NULL COMMENT 'Gateway',
+  `equipoPropiedad` enum('Cliente','Empresa') DEFAULT 'Empresa',
+  `estadoEquipo` enum('Operativo','Dañado','Retirado','Mantenimiento') DEFAULT 'Operativo',
+  `fechaInstalacion` date DEFAULT NULL,
+  `fechaRetiro` date DEFAULT NULL,
+  `observaciones` text DEFAULT NULL,
+  `creado` datetime DEFAULT current_timestamp(),
+  `ultimaActualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Equipos instalados en casa del cliente (routers, ONTs, repetidores, decodificadores)';
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cliente_servicio`
+--
+
+CREATE TABLE `cliente_servicio` (
+  `idClienteServicio` int(11) NOT NULL,
+  `cliente_idCliente` int(11) NOT NULL,
+  `servicio_idServicio` int(11) NOT NULL,
+  `codigoPlan` varchar(20) DEFAULT NULL COMMENT 'Código del plan específico',
+  `velocidadContratada` varchar(20) DEFAULT NULL COMMENT 'Ej: 100 Mbps',
+  `valorServicio` decimal(10,2) NOT NULL COMMENT 'Valor de este servicio',
+  `valorReconexion` decimal(10,2) DEFAULT 0.00,
+  `fechaContratacion` date NOT NULL,
+  `fechaBaja` date DEFAULT NULL COMMENT 'Fecha de cancelación del servicio',
+  `estadoServicio` enum('Activo','Suspendido','Cancelado') DEFAULT 'Activo',
+  `esPrincipal` tinyint(1) DEFAULT 0 COMMENT 'Servicio principal del cliente',
+  `observaciones` text DEFAULT NULL,
+  `creado` datetime DEFAULT current_timestamp(),
+  `ultimaActualizacion` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Servicios contratados por cada cliente (un cliente puede tener múltiples servicios)';
+
+--
+-- Volcado de datos para la tabla `cliente_servicio`
+--
+
+INSERT INTO `cliente_servicio` (`idClienteServicio`, `cliente_idCliente`, `servicio_idServicio`, `codigoPlan`, `velocidadContratada`, `valorServicio`, `valorReconexion`, `fechaContratacion`, `fechaBaja`, `estadoServicio`, `esPrincipal`, `observaciones`, `creado`, `ultimaActualizacion`) VALUES
+(1, 1, 1, '1', NULL, 10000.00, 0.00, '2023-05-12', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(2, 2, 1, '2', NULL, 20000.00, 0.00, '2023-05-18', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(3, 3, 1, '2', NULL, 20000.00, 0.00, '2023-05-17', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(4, 4, 1, '3', NULL, 30000.00, 0.00, '2023-05-17', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(5, 5, 1, '2', NULL, 20000.00, 0.00, '2023-06-01', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(6, 6, 1, '1', NULL, 10000.00, 0.00, '2023-01-02', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(7, 7, 1, '3', NULL, 30000.00, 0.00, '2023-03-01', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(8, 8, 1, '8', NULL, 80000.00, 0.00, '2023-01-10', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-20 23:00:02'),
+(9, 9, 1, '1', NULL, 10000.00, 0.00, '2022-01-04', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(10, 10, 1, '3', NULL, 30000.00, 0.00, '2022-07-08', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(11, 11, 1, '4', NULL, 40000.00, 0.00, '2023-06-10', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(12, 12, 1, '3', NULL, 30000.00, 0.00, '2023-04-05', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(13, 13, 1, '3', NULL, 30000.00, 0.00, '2023-04-11', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(14, 14, 1, '7', NULL, 70000.00, 0.00, '2023-06-23', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 19:52:25'),
+(15, 15, 1, '7', NULL, 70000.00, 0.00, '2024-01-24', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(16, 16, 1, '1', NULL, 10000.00, 0.00, '2024-02-08', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(17, 17, 1, '5', NULL, 50000.00, 0.00, '2024-02-09', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(18, 18, 1, '3', NULL, 30000.00, 0.00, '2024-02-05', NULL, 'Cancelado', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(19, 19, 1, '5', NULL, 50000.00, 0.00, '2024-02-12', NULL, 'Cancelado', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(20, 20, 1, '2', NULL, 20000.00, 0.00, '2024-01-02', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(21, 121, 1, '3', NULL, 30000.00, 0.00, '2024-01-03', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(22, 122, 1, '4', NULL, 40000.00, 0.00, '2024-01-04', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(23, 123, 1, '5', NULL, 50000.00, 0.00, '2024-01-05', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(24, 124, 1, '1', NULL, 10000.00, 0.00, '2024-01-06', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(25, 125, 1, '2', NULL, 20000.00, 0.00, '2024-01-07', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(26, 126, 1, '3', NULL, 30000.00, 0.00, '2024-01-08', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(27, 127, 1, '4', NULL, 40000.00, 0.00, '2024-01-09', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(28, 128, 1, '5', NULL, 50000.00, 0.00, '2024-01-10', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(29, 129, 1, '1', NULL, 10000.00, 0.00, '2024-01-11', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(30, 130, 1, '4', NULL, 40000.00, 0.00, '2024-01-12', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(31, 131, 1, '3', NULL, 30000.00, 0.00, '2024-01-13', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(32, 132, 1, '4', NULL, 40000.00, 0.00, '2024-01-14', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(33, 133, 1, '5', NULL, 50000.00, 0.00, '2024-01-15', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(34, 134, 1, '1', NULL, 10000.00, 0.00, '2024-01-16', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(35, 135, 1, '2', NULL, 20000.00, 0.00, '2024-01-17', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(36, 136, 1, '3', NULL, 30000.00, 0.00, '2024-01-18', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(37, 137, 1, '4', NULL, 40000.00, 0.00, '2024-01-19', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(38, 138, 1, '5', NULL, 50000.00, 0.00, '2024-01-20', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(39, 139, 1, '1', NULL, 10000.00, 0.00, '2024-01-21', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(40, 140, 1, '2', NULL, 20000.00, 0.00, '2024-01-22', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(41, 141, 1, '3', NULL, 30000.00, 0.00, '2024-01-23', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(42, 142, 1, '4', NULL, 40000.00, 0.00, '2024-01-24', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(43, 143, 1, '5', NULL, 50000.00, 0.00, '2024-01-25', NULL, 'Cancelado', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(44, 144, 1, '1', NULL, 10000.00, 0.00, '2024-01-26', NULL, 'Cancelado', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(45, 145, 1, '2', NULL, 20000.00, 0.00, '2024-01-27', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(46, 146, 1, '3', NULL, 30000.00, 0.00, '2024-01-28', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(47, 147, 1, '4', NULL, 40000.00, 0.00, '2024-01-01', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(48, 148, 1, '5', NULL, 50000.00, 0.00, '2024-01-02', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(49, 149, 1, '1', NULL, 10000.00, 0.00, '2024-01-03', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(50, 150, 1, '2', NULL, 20000.00, 0.00, '2024-01-04', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(51, 151, 1, '3', NULL, 30000.00, 0.00, '2024-01-05', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(52, 152, 1, '4', NULL, 40000.00, 0.00, '2024-01-06', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(53, 153, 1, '5', NULL, 50000.00, 0.00, '2024-01-07', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(54, 154, 1, '1', NULL, 10000.00, 0.00, '2024-01-08', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(55, 155, 1, '2', NULL, 20000.00, 0.00, '2024-01-09', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(56, 156, 1, '3', NULL, 30000.00, 0.00, '2024-01-10', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(57, 157, 1, '4', NULL, 40000.00, 0.00, '2024-01-11', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(58, 158, 1, '5', NULL, 50000.00, 0.00, '2024-01-12', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(59, 159, 1, '1', NULL, 10000.00, 0.00, '2024-01-13', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(60, 160, 1, '2', NULL, 20000.00, 0.00, '2024-01-14', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(61, 161, 1, '3', NULL, 30000.00, 0.00, '2024-01-15', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(62, 162, 1, '4', NULL, 40000.00, 0.00, '2024-01-16', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(63, 163, 1, '5', NULL, 50000.00, 0.00, '2024-01-17', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(64, 164, 1, '1', NULL, 10000.00, 0.00, '2024-01-18', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(65, 165, 1, '2', NULL, 20000.00, 0.00, '2024-01-19', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(66, 166, 1, '3', NULL, 30000.00, 0.00, '2024-01-20', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(67, 167, 1, '4', NULL, 40000.00, 0.00, '2024-01-21', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(68, 168, 1, '5', NULL, 50000.00, 0.00, '2024-01-22', NULL, 'Cancelado', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(69, 169, 1, '1', NULL, 10000.00, 0.00, '2024-01-23', NULL, 'Cancelado', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(70, 170, 1, '5', NULL, 50000.00, 0.00, '2025-09-12', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(71, 174, 1, '3', NULL, 30000.00, 0.00, '2025-08-01', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(72, 175, 1, '1', NULL, 10000.00, 0.00, '2025-10-07', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(73, 176, 1, '1', NULL, 10000.00, 0.00, '2023-09-07', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(74, 177, 1, '4', NULL, 40000.00, 0.00, '2025-10-15', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(75, 178, 1, '8', NULL, 80000.00, 0.00, '2025-10-02', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06'),
+(76, 179, 1, '6', NULL, 60000.00, 0.00, '2025-10-10', NULL, 'Activo', 1, NULL, '2025-10-21 03:23:06', '2025-10-21 03:23:06');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cliente_telefono`
+--
+
+CREATE TABLE `cliente_telefono` (
+  `idTelefono` int(11) NOT NULL,
+  `cliente_idCliente` int(11) NOT NULL,
+  `tipoTelefono` enum('Principal','Secundario','Terciario','Trabajo','Emergencia') NOT NULL DEFAULT 'Principal',
+  `numeroTelefono` varchar(20) NOT NULL,
+  `nombreContacto` varchar(100) DEFAULT NULL COMMENT 'Si el teléfono es de otra persona',
+  `esPrincipal` tinyint(1) DEFAULT 0,
+  `activo` tinyint(1) DEFAULT 1,
+  `creado` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Múltiples teléfonos por cliente';
+
+--
+-- Volcado de datos para la tabla `cliente_telefono`
+--
+
+INSERT INTO `cliente_telefono` (`idTelefono`, `cliente_idCliente`, `tipoTelefono`, `numeroTelefono`, `nombreContacto`, `esPrincipal`, `activo`, `creado`) VALUES
+(1, 1, 'Principal', '3005554878', NULL, 1, 1, '2025-10-21 03:23:06'),
+(2, 2, 'Principal', '3008562013', NULL, 1, 1, '2025-10-21 03:23:06'),
+(3, 3, 'Principal', '3122254858', NULL, 1, 1, '2025-10-21 03:23:06'),
+(4, 4, 'Principal', '3103404090', NULL, 1, 1, '2025-10-21 03:23:06'),
+(5, 5, 'Principal', '3203103525', NULL, 1, 1, '2025-10-21 03:23:06'),
+(6, 6, 'Principal', '300300300', NULL, 1, 1, '2025-10-21 03:23:06'),
+(7, 7, 'Principal', '3236587979', NULL, 1, 1, '2025-10-21 03:23:06'),
+(8, 8, 'Principal', '878965412', NULL, 1, 1, '2025-10-21 03:23:06'),
+(9, 9, 'Principal', '9547893652', NULL, 1, 1, '2025-10-21 03:23:06'),
+(10, 10, 'Principal', '3231039856', NULL, 1, 1, '2025-10-21 03:23:06'),
+(11, 11, 'Principal', '3216549898', NULL, 1, 1, '2025-10-21 03:23:06'),
+(12, 12, 'Principal', '9548961245', NULL, 1, 1, '2025-10-21 03:23:06'),
+(13, 13, 'Principal', '3103656989', NULL, 1, 1, '2025-10-21 03:23:06'),
+(14, 14, 'Principal', '7893652123', NULL, 1, 1, '2025-10-21 03:23:06'),
+(15, 15, 'Principal', '300886644', NULL, 1, 1, '2025-10-21 03:23:06'),
+(16, 16, 'Principal', '1222323', NULL, 1, 1, '2025-10-21 03:23:06'),
+(17, 17, 'Principal', '344455545', NULL, 1, 1, '2025-10-21 03:23:06'),
+(18, 18, 'Principal', '6325698958', NULL, 1, 1, '2025-10-21 03:23:06'),
+(19, 19, 'Principal', '123456789', NULL, 1, 1, '2025-10-21 03:23:06'),
+(20, 20, 'Principal', '300500001', NULL, 1, 1, '2025-10-21 03:23:06'),
+(21, 121, 'Principal', '300500002', NULL, 1, 1, '2025-10-21 03:23:06'),
+(22, 122, 'Principal', '300500003', NULL, 1, 1, '2025-10-21 03:23:06'),
+(23, 123, 'Principal', '300500004', NULL, 1, 1, '2025-10-21 03:23:06'),
+(24, 124, 'Principal', '300500005', NULL, 1, 1, '2025-10-21 03:23:06'),
+(25, 125, 'Principal', '300500006', NULL, 1, 1, '2025-10-21 03:23:06'),
+(26, 126, 'Principal', '300500007', NULL, 1, 1, '2025-10-21 03:23:06'),
+(27, 127, 'Principal', '300500008', NULL, 1, 1, '2025-10-21 03:23:06'),
+(28, 128, 'Principal', '300500009', NULL, 1, 1, '2025-10-21 03:23:06'),
+(29, 129, 'Principal', '300500010', NULL, 1, 1, '2025-10-21 03:23:06'),
+(30, 130, 'Principal', '300500011', NULL, 1, 1, '2025-10-21 03:23:06'),
+(31, 131, 'Principal', '300500012', NULL, 1, 1, '2025-10-21 03:23:06'),
+(32, 132, 'Principal', '300500013', NULL, 1, 1, '2025-10-21 03:23:06'),
+(33, 133, 'Principal', '300500014', NULL, 1, 1, '2025-10-21 03:23:06'),
+(34, 134, 'Principal', '300500015', NULL, 1, 1, '2025-10-21 03:23:06'),
+(35, 135, 'Principal', '300500016', NULL, 1, 1, '2025-10-21 03:23:06'),
+(36, 136, 'Principal', '300500017', NULL, 1, 1, '2025-10-21 03:23:06'),
+(37, 137, 'Principal', '300500018', NULL, 1, 1, '2025-10-21 03:23:06'),
+(38, 138, 'Principal', '300500019', NULL, 1, 1, '2025-10-21 03:23:06'),
+(39, 139, 'Principal', '300500020', NULL, 1, 1, '2025-10-21 03:23:06'),
+(40, 140, 'Principal', '300500021', NULL, 1, 1, '2025-10-21 03:23:06'),
+(41, 141, 'Principal', '300500022', NULL, 1, 1, '2025-10-21 03:23:06'),
+(42, 142, 'Principal', '300500023', NULL, 1, 1, '2025-10-21 03:23:06'),
+(43, 143, 'Principal', '300500024', NULL, 1, 1, '2025-10-21 03:23:06'),
+(44, 144, 'Principal', '300500025', NULL, 1, 1, '2025-10-21 03:23:06'),
+(45, 145, 'Principal', '300500026', NULL, 1, 1, '2025-10-21 03:23:06'),
+(46, 146, 'Principal', '300500027', NULL, 1, 1, '2025-10-21 03:23:06'),
+(47, 147, 'Principal', '300500028', NULL, 1, 1, '2025-10-21 03:23:06'),
+(48, 148, 'Principal', '300500029', NULL, 1, 1, '2025-10-21 03:23:06'),
+(49, 149, 'Principal', '300500030', NULL, 1, 1, '2025-10-21 03:23:06'),
+(50, 150, 'Principal', '300500031', NULL, 1, 1, '2025-10-21 03:23:06'),
+(51, 151, 'Principal', '300500032', NULL, 1, 1, '2025-10-21 03:23:06'),
+(52, 152, 'Principal', '300500033', NULL, 1, 1, '2025-10-21 03:23:06'),
+(53, 153, 'Principal', '300500034', NULL, 1, 1, '2025-10-21 03:23:06'),
+(54, 154, 'Principal', '300500035', NULL, 1, 1, '2025-10-21 03:23:06'),
+(55, 155, 'Principal', '300500036', NULL, 1, 1, '2025-10-21 03:23:06'),
+(56, 156, 'Principal', '300500037', NULL, 1, 1, '2025-10-21 03:23:06'),
+(57, 157, 'Principal', '300500038', NULL, 1, 1, '2025-10-21 03:23:06'),
+(58, 158, 'Principal', '300500039', NULL, 1, 1, '2025-10-21 03:23:06'),
+(59, 159, 'Principal', '300500040', NULL, 1, 1, '2025-10-21 03:23:06'),
+(60, 160, 'Principal', '300500041', NULL, 1, 1, '2025-10-21 03:23:06'),
+(61, 161, 'Principal', '300500042', NULL, 1, 1, '2025-10-21 03:23:06'),
+(62, 162, 'Principal', '300500043', NULL, 1, 1, '2025-10-21 03:23:06'),
+(63, 163, 'Principal', '300500044', NULL, 1, 1, '2025-10-21 03:23:06'),
+(64, 164, 'Principal', '300500045', NULL, 1, 1, '2025-10-21 03:23:06'),
+(65, 165, 'Principal', '300500046', NULL, 1, 1, '2025-10-21 03:23:06'),
+(66, 166, 'Principal', '300500047', NULL, 1, 1, '2025-10-21 03:23:06'),
+(67, 167, 'Principal', '300500048', NULL, 1, 1, '2025-10-21 03:23:06'),
+(68, 168, 'Principal', '300500049', NULL, 1, 1, '2025-10-21 03:23:06'),
+(69, 169, 'Principal', '300500050', NULL, 1, 1, '2025-10-21 03:23:06'),
+(70, 170, 'Principal', '3123828822', NULL, 1, 1, '2025-10-21 03:23:06'),
+(71, 174, 'Principal', '31964354', NULL, 1, 1, '2025-10-21 03:23:06'),
+(72, 175, 'Principal', '3123828822', NULL, 1, 1, '2025-10-21 03:23:06'),
+(73, 176, 'Principal', '3196443053', NULL, 1, 1, '2025-10-21 03:23:06'),
+(74, 178, 'Principal', '23423423423', NULL, 1, 1, '2025-10-21 03:23:06'),
+(75, 179, 'Principal', '31238266565', NULL, 1, 1, '2025-10-21 03:23:06');
 
 -- --------------------------------------------------------
 
@@ -366,7 +632,28 @@ INSERT INTO `factura` (`idFactura`, `fechaFactura`, `impuestoTotal`, `subTotal`,
 (158, '2026-01-15', 0, 0, 80000, 'Pendiente', 178, 8, '2026-01-20', '2026-01-25', 0),
 (159, '2025-12-02', 0, 0, 40000, 'Pendiente', 127, 4, '2025-12-07', '2025-12-12', 0),
 (160, '2025-12-20', 0, 0, 30000, 'Pendiente', 174, 3, '2025-12-25', '2025-12-30', 0),
-(161, '2025-11-01', 0, 0, 10000, 'Pendiente', 175, 1, '2025-11-06', '2025-11-11', 0);
+(161, '2025-11-01', 0, 0, 10000, 'Pendiente', 175, 1, '2025-11-06', '2025-11-11', 0),
+(162, '2025-10-18', 0, 0, 0, 'Gratis', 179, 6, '2025-12-18', '2025-12-23', 0),
+(163, '2026-01-18', 0, 0, 60000, 'Pendiente', 179, 6, '2026-01-23', '2026-01-28', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ip_publica`
+--
+
+CREATE TABLE `ip_publica` (
+  `idIpPublica` int(11) NOT NULL,
+  `cliente_idCliente` int(11) NOT NULL,
+  `clienteServicio_id` int(11) DEFAULT NULL COMMENT 'Para qué servicio es esta IP',
+  `ipPublicaInicial` varchar(15) NOT NULL COMMENT 'IP inicial o única',
+  `ipPublicaFinal` varchar(15) DEFAULT NULL COMMENT 'IP final si es rango',
+  `fechaAsignacion` date NOT NULL,
+  `fechaLiberacion` date DEFAULT NULL COMMENT 'Fecha de liberación',
+  `activo` tinyint(1) DEFAULT 1,
+  `observaciones` text DEFAULT NULL,
+  `creado` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Rangos de IPs públicas asignadas a clientes (especialmente empresariales)';
 
 -- --------------------------------------------------------
 
@@ -398,7 +685,7 @@ INSERT INTO `plan` (`idPlan`, `codigoPlan`, `tipoPlan`, `velocidad`, `nombrePlan
 (6, '6', 'rural', '30 mb', 'Plan elite empresa', 60000, 'Plan para empresas grande que requieran excelente velocidades de wifi, viene con fibra óptica', 'Activo'),
 (7, '7', 'rural', '35 mb', 'Plan dorado', 70000, 'Plan fibra optica rural, un plan con velocidades de internet más rapidas, para sitio rurales cerca a las cuidades más cercanas, toca validar disponibilidad', 'Activo'),
 (8, '8', 'rural', '40 mb', 'Plan elite de empresas', 80000, 'Plan elite para las empresas mas grandes que necesitan altas velocidades', 'Activo'),
-(9, '9', 'rural', '45mb', 'Plan mega', 90000, 'Plan diseñado para las grandes fincas de la region', 'Activo');
+(9, '9', 'rural', '45mb', 'Plan mega', 90000, 'Plan diseñado para las grandes fincas de la region', 'Archivado');
 
 -- --------------------------------------------------------
 
@@ -443,7 +730,7 @@ INSERT INTO `pqr2` (`idPqr`, `tipoDocumento`, `nDocumento`, `nombresCliente`, `t
 (17, 'C.C', '123456', 'Daniela FLor', '3333333', 'd@gmail.com', 'Peticion', 'dsdfsdf', NULL, NULL),
 (20, 'C.C', '789', 'Juan Torres', '3105874596', 'juan@gmail.com', 'Reclamo', 'La factura me llego por mayor valor', 'Inactivo', 'mas a validar su solicitud'),
 (21, '', '', '', '', '', '', '', 'Inactivo', NULL),
-(22, 'C.C', '999999', 'pedro manuel jimenez', '319644454', 'pedroz@gmail.com', 'Reclamo', 'servi malo', 'Activo', 'ok'),
+(22, 'C.C', '999999', 'pedro manuel jimenez', '319644454', 'pedroz@gmail.com', 'Reclamo', 'servi malo', 'Activo', 'ok bien no se hizo'),
 (23, 'C.C', '242424', 'don pruebas', '354443053', 'schickkkkperez@gmail.com', 'Reclamo', 'don pruebas no vino', 'Activo', NULL);
 
 -- --------------------------------------------------------
@@ -494,6 +781,54 @@ INSERT INTO `rol` (`idRol`, `nombreRol`, `descrpcionRol`) VALUES
 (1, 'Administrativo', 'Administrativo - puede modificar todo el sistema'),
 (2, 'Tecnico', 'Soporte tecnico'),
 (3, 'Auxiliar', 'Acceso limitado al sistema');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `servicio`
+--
+
+CREATE TABLE `servicio` (
+  `idServicio` int(11) NOT NULL,
+  `codigoServicio` varchar(20) NOT NULL,
+  `nombreServicio` varchar(100) NOT NULL,
+  `tipoServicio` enum('Internet','Television','Telefonia','Repetidor','Otro') NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `precioBase` decimal(10,2) DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT 1,
+  `requiereEquipo` tinyint(1) DEFAULT 1,
+  `creado` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catálogo de servicios disponibles (Internet, TV, Telefonía, etc.)';
+
+--
+-- Volcado de datos para la tabla `servicio`
+--
+
+INSERT INTO `servicio` (`idServicio`, `codigoServicio`, `nombreServicio`, `tipoServicio`, `descripcion`, `precioBase`, `activo`, `requiereEquipo`, `creado`) VALUES
+(1, 'INT-100', 'Internet 100 Mbps', 'Internet', 'Plan residencial 100 Mbps fibra óptica', 50000.00, 1, 1, '2025-10-21 03:23:06'),
+(2, 'INT-200', 'Internet 200 Mbps', 'Internet', 'Plan residencial 200 Mbps fibra óptica', 70000.00, 1, 1, '2025-10-21 03:23:06'),
+(3, 'TV-BASICO', 'TV Básico', 'Television', '80 canales básicos', 25000.00, 1, 1, '2025-10-21 03:23:06'),
+(4, 'TV-PREMIUM', 'TV Premium', 'Television', '150 canales + HBO', 45000.00, 1, 1, '2025-10-21 03:23:06'),
+(5, 'TEL-FIJO', 'Telefonía Fija', 'Telefonia', 'Línea fija ilimitada nacional', 15000.00, 1, 0, '2025-10-21 03:23:06'),
+(6, 'REP-WIFI', 'Repetidor WiFi', 'Repetidor', 'Extensor de señal WiFi mesh', 10000.00, 1, 1, '2025-10-21 03:23:06');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `servicio_valor_agregado`
+--
+
+CREATE TABLE `servicio_valor_agregado` (
+  `idServicioValorAgregado` int(11) NOT NULL,
+  `clienteServicio_id` int(11) NOT NULL,
+  `valorAgregado_id` int(11) NOT NULL,
+  `valorCobrado` decimal(10,2) NOT NULL COMMENT 'Valor cobrado (puede variar del catálogo)',
+  `fechaAgregado` date NOT NULL,
+  `fechaBaja` date DEFAULT NULL COMMENT 'Fecha de cancelación',
+  `activo` tinyint(1) DEFAULT 1,
+  `observaciones` text DEFAULT NULL,
+  `creado` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Valores agregados contratados para servicios específicos del cliente';
 
 -- --------------------------------------------------------
 
@@ -560,7 +895,8 @@ INSERT INTO `user_visita` (`iduser_visita`, `visita_idVisita`, `user_idUser`) VA
 (9, 9, 4),
 (10, 10, 4),
 (11, 12, 4),
-(12, 13, 4);
+(12, 13, 4),
+(13, 14, 4);
 
 -- --------------------------------------------------------
 
@@ -573,32 +909,103 @@ CREATE TABLE `usuario` (
   `tipoDocumento` varchar(20) NOT NULL DEFAULT 'CC',
   `documentoUsuario` varchar(20) NOT NULL,
   `nombresUsuario` varchar(100) NOT NULL,
+  `user_usuario` varchar(50) DEFAULT NULL,
   `telefonoUsuario` varchar(20) DEFAULT NULL,
+  `telefonoUsuario_dos` varchar(20) DEFAULT NULL,
+  `telefonoUsuario_tres` varchar(20) DEFAULT NULL,
   `correoUsuario` varchar(100) NOT NULL,
+  `direccionUsuario` varchar(255) DEFAULT NULL,
   `claveUsuario` varchar(150) NOT NULL,
   `estadoUsuario` enum('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
   `creado` date NOT NULL,
   `ultimaActualizacion` date NOT NULL,
   `rol` varchar(100) NOT NULL,
   `fotoUsuario` varchar(255) DEFAULT 'pic-1.png',
-  `foto` varchar(255) DEFAULT NULL
+  `foto` varchar(255) DEFAULT NULL,
+  `ciudadUsuario` varchar(100) DEFAULT NULL,
+  `departamentoUsuario` varchar(100) DEFAULT NULL,
+  `paisUsuario` varchar(100) DEFAULT NULL,
+  `codigoPostalUsuario` varchar(20) DEFAULT NULL,
+  `contactoEmergenciaNombre` varchar(100) DEFAULT NULL,
+  `contactoEmergenciaTelefono` varchar(20) DEFAULT NULL,
+  `contactoEmergenciaParentesco` varchar(50) DEFAULT NULL,
+  `referenciaPersonalNombre` varchar(100) DEFAULT NULL,
+  `referenciaPersonalTelefono` varchar(20) DEFAULT NULL,
+  `fechaNacimiento` date DEFAULT NULL,
+  `estadoCivil` varchar(30) DEFAULT NULL,
+  `numeroHijos` int(11) DEFAULT 0,
+  `cargo` varchar(100) DEFAULT NULL,
+  `area` varchar(100) DEFAULT NULL,
+  `fechaIngreso` date DEFAULT NULL,
+  `tipoContrato` varchar(50) DEFAULT NULL,
+  `salarioBase` decimal(12,2) DEFAULT 0.00,
+  `supervisorId` int(11) DEFAULT NULL,
+  `idEmpresa` int(11) DEFAULT NULL,
+  `idSucursal` int(11) DEFAULT NULL,
+  `estadoLaboral` enum('activo','vacaciones','licencia','retirado') DEFAULT 'activo',
+  `eps` varchar(100) DEFAULT NULL,
+  `arl` varchar(100) DEFAULT NULL,
+  `fondoPension` varchar(100) DEFAULT NULL,
+  `banco` varchar(100) DEFAULT NULL,
+  `numeroCuentaBancaria` varchar(50) DEFAULT NULL,
+  `ultimoLogin` datetime DEFAULT NULL,
+  `intentosFallidos` int(11) DEFAULT 0,
+  `tokenRecuperacion` varchar(255) DEFAULT NULL,
+  `tokenExpira` datetime DEFAULT NULL,
+  `twoFactorEnabled` tinyint(1) DEFAULT 0,
+  `ultimoCambioClave` datetime DEFAULT NULL,
+  `eliminado` tinyint(1) DEFAULT 0,
+  `creadoPor` int(11) DEFAULT NULL,
+  `actualizadoPor` int(11) DEFAULT NULL,
+  `ipRegistro` varchar(45) DEFAULT NULL,
+  `ipUltimoAcceso` varchar(45) DEFAULT NULL,
+  `navegadorUltimoAcceso` varchar(255) DEFAULT NULL,
+  `documentosAdjuntos` text DEFAULT NULL,
+  `notas` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`idUsuario`, `tipoDocumento`, `documentoUsuario`, `nombresUsuario`, `telefonoUsuario`, `correoUsuario`, `claveUsuario`, `estadoUsuario`, `creado`, `ultimaActualizacion`, `rol`, `fotoUsuario`, `foto`) VALUES
-(1, 'C.C', '80065421', 'Karl', '3196443053', 'schickperez@gmail.com', '$2y$10$GYWI1fTwkRejXRABD9WAIu5n5ZdNfQLn6eKaf3uMtroQ559ToOEaO', 'Activo', '2023-05-09', '2023-05-09', 'Administrador', 'pic-1.png', 'user_68edc1aeaa3c7.jpg'),
-(2, 'C.C', '1019107974', 'cris', '3017328804', 'cristian@hotmail.com', '$2y$10$H5.gQP65R6mDulyKWFBt/eW.lEjUaKl0QfOaEl/AhSHqh5f0jO7DW', 'Activo', '2023-05-10', '2023-05-10', 'Administrador', 'pic-1.png', 'user_68edc1d8b5716.jpg'),
-(3, 'C.C', '1030634046', 'nico', '3006646485', 'nico@gmail.com', '$2y$10$9ruPWqEKJqkmS4KoI1LOTOmfsSi6/lhoTCFL5d4qIVvR8KuD6dxBe', 'Inactivo', '2023-05-12', '2023-05-12', 'Administrador', 'pic-1.png', NULL),
-(4, 'C.C', '1019076993', 'Fabian', '3104552020', 'fabiancho@aol.com', '$2y$10$9Usf542i.A/yN7k8e4X.ze/bWor5SgAlrvLDA1PMbuHhIBz9pJK5.', 'Activo', '2023-05-12', '2024-02-10', 'Tecnico', 'pic-1.png', 'user_68edc6dff2c93.jpg'),
-(6, 'C.C', '1234', 'Danny1', '3198562333', 'danny@gmail.com', '$2y$10$6jFt.U/ukhOzHUfE1Esg6OB.SWDRbohkxX2SoFhobqXgpcDQ0tdj6', 'Activo', '2023-11-06', '2025-10-13', 'Administrador', 'pic-1.png', NULL),
-(7, 'C.C', '1222233', 'linlin', '344455545', 'linlin@gmail.com', '$2y$10$BWe9ZqyPNScYPikJr/APzuxidw.OnZ/R2jwZeT5vZ.sVkNpv1N332', 'Inactivo', '2024-02-09', '2024-02-10', 'Tecnico', 'pic-1.png', NULL),
-(8, 'C.C', '1234567', 'pruebausuario', '323232', 'usuario@gmail.com', '$2y$10$VJ8OYng.5L1/yahGz17/2.5yMauza9JM2S8zNJraXU19n6LLlArcS', 'Inactivo', '2024-02-29', '2024-03-01', 'Administrador', 'pic-1.png', NULL),
-(9, 'C.C', '258741369', 'pepe', '23456987', 'pepe@gmail.com', '$2y$10$1r8lg5gd6Gvr8AWxAhn9eum1Tq67OncXYSgsNq3H5WZpu.g8yJZmi', 'Inactivo', '2025-03-04', '2025-03-04', 'Tecnico', 'pic-1.png', NULL),
-(10, 'C.C', '1098606020', 'jhon m auris', '3161600007', 'maurice@gmail.com', '$2y$10$3HACpJkRqqI1idu9.r4qzOfrd5qMFqo8KFnBytyLXyU1QXzkwUgN6', 'Inactivo', '2025-03-05', '2025-03-06', 'Administrador', 'pic-1.png', NULL),
-(12, 'C.C', '100100', 'admon', '', '', '$2y$10$t1VWnXJ/er.iM2lSvOjNyukZm.H3oTAPMLt0iZgFWH.G4GkzKS.qu', 'Activo', '2025-10-04', '2025-10-04', 'Administrador', 'pic-1.png', 'user_68edc186dc10b.jpg');
+INSERT INTO `usuario` (`idUsuario`, `tipoDocumento`, `documentoUsuario`, `nombresUsuario`, `user_usuario`, `telefonoUsuario`, `telefonoUsuario_dos`, `telefonoUsuario_tres`, `correoUsuario`, `direccionUsuario`, `claveUsuario`, `estadoUsuario`, `creado`, `ultimaActualizacion`, `rol`, `fotoUsuario`, `foto`, `ciudadUsuario`, `departamentoUsuario`, `paisUsuario`, `codigoPostalUsuario`, `contactoEmergenciaNombre`, `contactoEmergenciaTelefono`, `contactoEmergenciaParentesco`, `referenciaPersonalNombre`, `referenciaPersonalTelefono`, `fechaNacimiento`, `estadoCivil`, `numeroHijos`, `cargo`, `area`, `fechaIngreso`, `tipoContrato`, `salarioBase`, `supervisorId`, `idEmpresa`, `idSucursal`, `estadoLaboral`, `eps`, `arl`, `fondoPension`, `banco`, `numeroCuentaBancaria`, `ultimoLogin`, `intentosFallidos`, `tokenRecuperacion`, `tokenExpira`, `twoFactorEnabled`, `ultimoCambioClave`, `eliminado`, `creadoPor`, `actualizadoPor`, `ipRegistro`, `ipUltimoAcceso`, `navegadorUltimoAcceso`, `documentosAdjuntos`, `notas`) VALUES
+(1, 'C.C', '100100', 'admon', 'admon', '', NULL, NULL, '', NULL, '$2y$10$KD.W6BS9jW0fpT4BZ7W1v.M/G6VXL4QsuYJG3lSZeKPDFyoQ2E/s.', 'Activo', '2025-10-04', '2025-10-04', 'SuperUsuario', 'pic-1.png', 'user_68f582032daa9.jpg', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0.00, NULL, NULL, NULL, 'activo', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'C.C', '80065421', 'Karl schick', 'karl_schick', '3196443053', '3115765959', '', 'schickperez@gmail.com', 'Carrera 45 #12-58', '$2y$10$GYWI1fTwkRejXRABD9WAIu5n5ZdNfQLn6eKaf3uMtroQ559ToOEaO', 'Activo', '0000-00-00', '0000-00-00', 'Administrador', 'pic-1.png', 'user_68edc1aeaa3c7.jpg', 'Bogotá', 'Bogotá', 'Colombia', '110111', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1979-08-05', 'Soltero', 2, 'Administrador', 'Administrador', '2023-01-19', 'termino indefinido', 0.00, 0, 0, 0, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '6683554915', '0000-00-00 00:00:00', 0, '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0, 0, 0, '', '', '', '', 'Datos administrativos completados automáticamente.'),
+(3, 'C.C', '1011258369', 'cristian muñoz', 'cristian_muñoz', '3002885522', '3005866321', '345689521', 'cristian@hotmail.com', 'Carrera 45 #12-58', '$2y$10$7CyzdTIMLiFIVigccQCTweXFHSW6BrqxRXTiGaHLzgAm4vSNOxbIy', 'Activo', '2023-05-10', '2023-05-10', 'Administrador', 'pic-1.png', 'user_68edc1d8b5716.jpg', 'Bogotá', 'Bogotá D.C', 'Colombia', '050001', 'María Muñoz', '3205551111', 'Hermana', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, 'Ingeniero de Datos', 'Sistemas', '2024-10-19', 'a término indefinido', 2200000.00, 0, 0, 0, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '5145762986', '0000-00-00 00:00:00', 0, '', '0000-00-00 00:00:00', 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Datos administrativos completados automáticamente.'),
+(4, 'C.C', '1019076993', 'Fabian ochoa', 'fabiancho', '3104552020', NULL, NULL, 'fabiancho@aol.com', 'Carrera 45 #12-58', '$2y$10$9Usf542i.A/yN7k8e4X.ze/bWor5SgAlrvLDA1PMbuHhIBz9pJK5.', 'Activo', '2023-05-12', '2024-02-10', 'Tecnico', 'pic-1.png', 'user_68edc6dff2c93.jpg', 'Medellín', 'Antioquia', 'Colombia', '050001', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, NULL, NULL, '2024-10-19', NULL, 0.00, NULL, NULL, NULL, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '2953463804', NULL, 0, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Datos administrativos completados automáticamente.'),
+(5, 'C.C', '1030634046', 'nicolas perez', 'nico', '3006646485', '315485546', '', 'nico@gmail.com', 'Carrera 45 #12-58', '$2y$10$9ruPWqEKJqkmS4KoI1LOTOmfsSi6/lhoTCFL5d4qIVvR8KuD6dxBe', 'Activo', '2023-05-12', '2023-05-12', 'Administrador', 'pic-1.png', 'pic-1.png', 'bogota', 'bogota', 'Colombia', '050001', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, '', '', '2024-10-19', '', 0.00, 0, 0, 0, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '5678150490', '0000-00-00 00:00:00', 0, '', '0000-00-00 00:00:00', 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Datos administrativos completados automáticamente.'),
+(6, 'C.C', '1001147852', 'Daniel montañez', 'danny2', '3198562333', '31157456546', '', 'danny@gmail.com', 'Carrera 45 #12-58', '$2y$10$FqJqy.3uUwll3Ucj89zbUuPkkzUkobGeDm61m3cKB8PeBpC1oG8Hq', 'Activo', '2023-11-06', '2025-10-13', 'Administrador', 'pic-1.png', 'pic-1.png', 'bogota', 'bogota', 'Colombia', '050001', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, '', '', '2024-10-19', '', 0.00, 0, 0, 0, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '7732867856', '0000-00-00 00:00:00', 0, '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0, 0, 0, '', '', '', '', 'Datos administrativos completados automáticamente.'),
+(7, 'C.C', '1222233', 'linda linero', 'linlin', '344455545', NULL, NULL, 'linlin@gmail.com', 'Carrera 45 #12-58', '$2y$10$BWe9ZqyPNScYPikJr/APzuxidw.OnZ/R2jwZeT5vZ.sVkNpv1N332', 'Inactivo', '2024-02-09', '2024-02-10', 'Tecnico', 'pic-1.png', NULL, 'Medellín', 'Antioquia', 'Colombia', '050001', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, NULL, NULL, '2024-10-19', NULL, 0.00, NULL, NULL, NULL, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '9803948177', NULL, 0, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Datos administrativos completados automáticamente.'),
+(9, 'C.C', '258741369', 'pedro linero', 'pepe', '23456987', NULL, NULL, 'pepe@gmail.com', 'Carrera 45 #12-58', '$2y$10$1r8lg5gd6Gvr8AWxAhn9eum1Tq67OncXYSgsNq3H5WZpu.g8yJZmi', 'Inactivo', '2025-03-04', '2025-03-04', 'Tecnico', 'pic-1.png', NULL, 'Medellín', 'Antioquia', 'Colombia', '050001', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, NULL, NULL, '2024-10-19', NULL, 0.00, NULL, NULL, NULL, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '9693843916', NULL, 0, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Datos administrativos completados automáticamente.'),
+(10, 'C.C', '1098606020', 'jhon m auris', 'mauris', '3161600007', NULL, NULL, 'maurice@gmail.com', 'Carrera 45 #12-58', '$2y$10$3HACpJkRqqI1idu9.r4qzOfrd5qMFqo8KFnBytyLXyU1QXzkwUgN6', 'Inactivo', '2025-03-05', '2025-03-06', 'Administrador', 'pic-1.png', NULL, 'Medellín', 'Antioquia', 'Colombia', '050001', 'María Gómez', '3205551111', 'Hermano', 'Juan Pérez', '3214442222', '1990-01-01', 'Soltero', 0, NULL, NULL, '2024-10-19', NULL, 0.00, NULL, NULL, NULL, 'activo', 'Sanitas EPS', 'Positiva ARL', 'Porvenir', 'Bancolombia', '1005807007', NULL, 0, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Datos administrativos completados automáticamente.');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `valor_agregado`
+--
+
+CREATE TABLE `valor_agregado` (
+  `idValorAgregado` int(11) NOT NULL,
+  `codigoValorAgregado` varchar(20) NOT NULL,
+  `nombreValorAgregado` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `precioAgregado` decimal(10,2) NOT NULL,
+  `tipoServicioAplica` enum('Internet','Television','Telefonia','Repetidor','Todos') DEFAULT 'Todos',
+  `activo` tinyint(1) DEFAULT 1,
+  `creado` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catálogo de valores agregados (IP estática, canales premium, etc.)';
+
+--
+-- Volcado de datos para la tabla `valor_agregado`
+--
+
+INSERT INTO `valor_agregado` (`idValorAgregado`, `codigoValorAgregado`, `nombreValorAgregado`, `descripcion`, `precioAgregado`, `tipoServicioAplica`, `activo`, `creado`) VALUES
+(1, 'IP-ESTATICA', 'IP Estática', 'Dirección IP fija dedicada', 15000.00, 'Internet', 1, '2025-10-21 03:23:06'),
+(2, 'HBO-MAX', 'HBO Max', 'Streaming HBO Max incluido', 20000.00, 'Television', 1, '2025-10-21 03:23:06'),
+(3, 'LARGA-DIST', 'Larga Distancia', 'Llamadas internacionales ilimitadas', 10000.00, 'Telefonia', 1, '2025-10-21 03:23:06'),
+(4, 'ROUTER-DUAL', 'Router Doble Banda', 'Router AC dual band', 5000.00, 'Internet', 1, '2025-10-21 03:23:06'),
+(5, 'DVR', 'DVR Digital', 'Grabador digital de video', 12000.00, 'Television', 1, '2025-10-21 03:23:06');
 
 -- --------------------------------------------------------
 
@@ -632,7 +1039,90 @@ INSERT INTO `visitas` (`idVisita`, `tipoVisita`, `motivoVisita`, `diaVisita`, `e
 (9, 'Desinstalacion', 'error', '0000-00-00', 'Archivado', 7, NULL),
 (10, 'Instalacion', 'nuevoplan que hay que modificar', '2024-03-01', 'Archivado', 6, NULL),
 (12, 'Instalacion', '', '2025-03-01', 'Archivado', 14, NULL),
-(13, 'Instalacion', 'arreglo', '2025-10-11', 'Activo', 176, NULL);
+(13, 'Instalacion', 'arreglo', '2025-10-11', 'Activo', 176, NULL),
+(14, 'Instalacion', 'nuevo plan instalacion', '2025-10-18', 'Activo', 179, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_cliente_equipos`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_cliente_equipos` (
+`idCliente` int(11)
+,`documentoCliente` varchar(20)
+,`nombreCliente` varchar(100)
+,`tipoEquipo` enum('Router','ONT','Repetidor','Decodificador','Otro')
+,`modeloEquipo` varchar(50)
+,`macEquipo` varchar(17)
+,`estadoEquipo` enum('Operativo','Dañado','Retirado','Mantenimiento')
+,`equipoPropiedad` enum('Cliente','Empresa')
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_cliente_servicios`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_cliente_servicios` (
+`idCliente` int(11)
+,`documentoCliente` varchar(20)
+,`nombreCliente` varchar(100)
+,`estadoCliente` varchar(10)
+,`nombreServicio` varchar(100)
+,`valorServicio` decimal(10,2)
+,`estadoServicio` enum('Activo','Suspendido','Cancelado')
+,`fechaContratacion` date
+,`esPrincipal` tinyint(1)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_resumen_cliente`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_resumen_cliente` (
+`idCliente` int(11)
+,`documentoCliente` varchar(20)
+,`nombreCliente` varchar(100)
+,`estadoCliente` varchar(10)
+,`ciudadCliente` varchar(50)
+,`barrioCliente` varchar(100)
+,`zonaCobertura` varchar(50)
+,`total_servicios` bigint(21)
+,`total_equipos` bigint(21)
+,`total_telefonos` bigint(21)
+,`valor_total_servicios` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_cliente_equipos`
+--
+DROP TABLE IF EXISTS `vista_cliente_equipos`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_cliente_equipos`  AS SELECT `c`.`idCliente` AS `idCliente`, `c`.`documentoCliente` AS `documentoCliente`, `c`.`nombreCliente` AS `nombreCliente`, `ce`.`tipoEquipo` AS `tipoEquipo`, `ce`.`modeloEquipo` AS `modeloEquipo`, `ce`.`macEquipo` AS `macEquipo`, `ce`.`estadoEquipo` AS `estadoEquipo`, `ce`.`equipoPropiedad` AS `equipoPropiedad` FROM (`cliente` `c` left join `cliente_equipo` `ce` on(`c`.`idCliente` = `ce`.`cliente_idCliente`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_cliente_servicios`
+--
+DROP TABLE IF EXISTS `vista_cliente_servicios`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_cliente_servicios`  AS SELECT `c`.`idCliente` AS `idCliente`, `c`.`documentoCliente` AS `documentoCliente`, `c`.`nombreCliente` AS `nombreCliente`, `c`.`estadoCliente` AS `estadoCliente`, `s`.`nombreServicio` AS `nombreServicio`, `cs`.`valorServicio` AS `valorServicio`, `cs`.`estadoServicio` AS `estadoServicio`, `cs`.`fechaContratacion` AS `fechaContratacion`, `cs`.`esPrincipal` AS `esPrincipal` FROM ((`cliente` `c` left join `cliente_servicio` `cs` on(`c`.`idCliente` = `cs`.`cliente_idCliente`)) left join `servicio` `s` on(`cs`.`servicio_idServicio` = `s`.`idServicio`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_resumen_cliente`
+--
+DROP TABLE IF EXISTS `vista_resumen_cliente`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_resumen_cliente`  AS SELECT `c`.`idCliente` AS `idCliente`, `c`.`documentoCliente` AS `documentoCliente`, `c`.`nombreCliente` AS `nombreCliente`, `c`.`estadoCliente` AS `estadoCliente`, `c`.`ciudadCliente` AS `ciudadCliente`, `c`.`barrioCliente` AS `barrioCliente`, `c`.`zonaCobertura` AS `zonaCobertura`, count(distinct `cs`.`idClienteServicio`) AS `total_servicios`, count(distinct `ce`.`idClienteEquipo`) AS `total_equipos`, count(distinct `ct`.`idTelefono`) AS `total_telefonos`, sum(`cs`.`valorServicio`) AS `valor_total_servicios` FROM (((`cliente` `c` left join `cliente_servicio` `cs` on(`c`.`idCliente` = `cs`.`cliente_idCliente` and `cs`.`estadoServicio` = 'Activo')) left join `cliente_equipo` `ce` on(`c`.`idCliente` = `ce`.`cliente_idCliente` and `ce`.`estadoEquipo` = 'Operativo')) left join `cliente_telefono` `ct` on(`c`.`idCliente` = `ct`.`cliente_idCliente` and `ct`.`activo` = 1)) GROUP BY `c`.`idCliente` ;
 
 --
 -- Índices para tablas volcadas
@@ -651,7 +1141,47 @@ ALTER TABLE `bancario`
 ALTER TABLE `cliente`
   ADD PRIMARY KEY (`idCliente`),
   ADD UNIQUE KEY `documentoCliente` (`documentoCliente`),
-  ADD KEY `fk_plan_cliente` (`plan_idPlan`);
+  ADD KEY `fk_plan_cliente` (`plan_idPlan`),
+  ADD KEY `fk_vendedor_cliente` (`vendedor_idUsuario`),
+  ADD KEY `fk_referido_cliente` (`referenciadoPor_idCliente`),
+  ADD KEY `fk_creador_cliente` (`creadoPor`),
+  ADD KEY `fk_actualizador_cliente` (`actualizadoPor`),
+  ADD KEY `idx_sucursal` (`sucursal`),
+  ADD KEY `idx_zona` (`zonaCobertura`),
+  ADD KEY `idx_tecnico` (`tecnicoAsignado_idUsuario`),
+  ADD KEY `idx_ciudad` (`ciudadCliente`),
+  ADD KEY `idx_tipo` (`tipoCliente`);
+
+--
+-- Indices de la tabla `cliente_equipo`
+--
+ALTER TABLE `cliente_equipo`
+  ADD PRIMARY KEY (`idClienteEquipo`),
+  ADD UNIQUE KEY `serialEquipo` (`serialEquipo`),
+  ADD KEY `clienteServicio_id` (`clienteServicio_id`),
+  ADD KEY `idx_cliente_equipo` (`cliente_idCliente`),
+  ADD KEY `idx_tipo_equipo` (`tipoEquipo`),
+  ADD KEY `idx_estado_equipo` (`estadoEquipo`),
+  ADD KEY `idx_serial_equipo` (`serialEquipo`),
+  ADD KEY `idx_mac_equipo` (`macEquipo`);
+
+--
+-- Indices de la tabla `cliente_servicio`
+--
+ALTER TABLE `cliente_servicio`
+  ADD PRIMARY KEY (`idClienteServicio`),
+  ADD KEY `idx_cliente_serv` (`cliente_idCliente`),
+  ADD KEY `idx_servicio` (`servicio_idServicio`),
+  ADD KEY `idx_estado_serv` (`estadoServicio`),
+  ADD KEY `idx_principal_serv` (`esPrincipal`);
+
+--
+-- Indices de la tabla `cliente_telefono`
+--
+ALTER TABLE `cliente_telefono`
+  ADD PRIMARY KEY (`idTelefono`),
+  ADD KEY `idx_cliente_tel` (`cliente_idCliente`),
+  ADD KEY `idx_principal` (`esPrincipal`);
 
 --
 -- Indices de la tabla `empresa`
@@ -666,6 +1196,16 @@ ALTER TABLE `factura`
   ADD PRIMARY KEY (`idFactura`),
   ADD KEY `fk_cliente_factura` (`cliente_idCliente`),
   ADD KEY `fk_factura_plan` (`idPlan`);
+
+--
+-- Indices de la tabla `ip_publica`
+--
+ALTER TABLE `ip_publica`
+  ADD PRIMARY KEY (`idIpPublica`),
+  ADD KEY `clienteServicio_id` (`clienteServicio_id`),
+  ADD KEY `idx_cliente_ip` (`cliente_idCliente`),
+  ADD KEY `idx_ip_inicial` (`ipPublicaInicial`),
+  ADD KEY `idx_activo_ip` (`activo`);
 
 --
 -- Indices de la tabla `plan`
@@ -694,6 +1234,25 @@ ALTER TABLE `rol`
   ADD PRIMARY KEY (`idRol`);
 
 --
+-- Indices de la tabla `servicio`
+--
+ALTER TABLE `servicio`
+  ADD PRIMARY KEY (`idServicio`),
+  ADD UNIQUE KEY `codigoServicio` (`codigoServicio`),
+  ADD KEY `idx_tipo_servicio` (`tipoServicio`),
+  ADD KEY `idx_codigo_servicio` (`codigoServicio`),
+  ADD KEY `idx_activo_servicio` (`activo`);
+
+--
+-- Indices de la tabla `servicio_valor_agregado`
+--
+ALTER TABLE `servicio_valor_agregado`
+  ADD PRIMARY KEY (`idServicioValorAgregado`),
+  ADD KEY `idx_cliente_serv_valor` (`clienteServicio_id`),
+  ADD KEY `idx_valor_agregado` (`valorAgregado_id`),
+  ADD KEY `idx_activo_serv_valor` (`activo`);
+
+--
 -- Indices de la tabla `solicitudes`
 --
 ALTER TABLE `solicitudes`
@@ -713,7 +1272,18 @@ ALTER TABLE `user_visita`
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`idUsuario`),
   ADD UNIQUE KEY `documentoUsuario` (`documentoUsuario`,`telefonoUsuario`,`correoUsuario`),
+  ADD UNIQUE KEY `user_usuario` (`user_usuario`),
   ADD KEY `rol_idRol` (`rol`);
+
+--
+-- Indices de la tabla `valor_agregado`
+--
+ALTER TABLE `valor_agregado`
+  ADD PRIMARY KEY (`idValorAgregado`),
+  ADD UNIQUE KEY `codigoValorAgregado` (`codigoValorAgregado`),
+  ADD KEY `idx_codigo_valor` (`codigoValorAgregado`),
+  ADD KEY `idx_tipo_aplica` (`tipoServicioAplica`),
+  ADD KEY `idx_activo_valor` (`activo`);
 
 --
 -- Indices de la tabla `visitas`
@@ -736,13 +1306,37 @@ ALTER TABLE `bancario`
 -- AUTO_INCREMENT de la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  MODIFY `idCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
+  MODIFY `idCliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=180;
+
+--
+-- AUTO_INCREMENT de la tabla `cliente_equipo`
+--
+ALTER TABLE `cliente_equipo`
+  MODIFY `idClienteEquipo` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `cliente_servicio`
+--
+ALTER TABLE `cliente_servicio`
+  MODIFY `idClienteServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+
+--
+-- AUTO_INCREMENT de la tabla `cliente_telefono`
+--
+ALTER TABLE `cliente_telefono`
+  MODIFY `idTelefono` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
 
 --
 -- AUTO_INCREMENT de la tabla `factura`
 --
 ALTER TABLE `factura`
-  MODIFY `idFactura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=162;
+  MODIFY `idFactura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
+
+--
+-- AUTO_INCREMENT de la tabla `ip_publica`
+--
+ALTER TABLE `ip_publica`
+  MODIFY `idIpPublica` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `plan`
@@ -769,6 +1363,18 @@ ALTER TABLE `rol`
   MODIFY `idRol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de la tabla `servicio`
+--
+ALTER TABLE `servicio`
+  MODIFY `idServicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de la tabla `servicio_valor_agregado`
+--
+ALTER TABLE `servicio_valor_agregado`
+  MODIFY `idServicioValorAgregado` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `solicitudes`
 --
 ALTER TABLE `solicitudes`
@@ -778,19 +1384,25 @@ ALTER TABLE `solicitudes`
 -- AUTO_INCREMENT de la tabla `user_visita`
 --
 ALTER TABLE `user_visita`
-  MODIFY `iduser_visita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `iduser_visita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de la tabla `valor_agregado`
+--
+ALTER TABLE `valor_agregado`
+  MODIFY `idValorAgregado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `visitas`
 --
 ALTER TABLE `visitas`
-  MODIFY `idVisita` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idVisita` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Restricciones para tablas volcadas
@@ -806,7 +1418,32 @@ ALTER TABLE `bancario`
 -- Filtros para la tabla `cliente`
 --
 ALTER TABLE `cliente`
-  ADD CONSTRAINT `fk_plan_cliente` FOREIGN KEY (`plan_idPlan`) REFERENCES `plan` (`idPlan`);
+  ADD CONSTRAINT `fk_actualizador_cliente` FOREIGN KEY (`actualizadoPor`) REFERENCES `usuario` (`idUsuario`),
+  ADD CONSTRAINT `fk_creador_cliente` FOREIGN KEY (`creadoPor`) REFERENCES `usuario` (`idUsuario`),
+  ADD CONSTRAINT `fk_plan_cliente` FOREIGN KEY (`plan_idPlan`) REFERENCES `plan` (`idPlan`),
+  ADD CONSTRAINT `fk_referido_cliente` FOREIGN KEY (`referenciadoPor_idCliente`) REFERENCES `cliente` (`idCliente`),
+  ADD CONSTRAINT `fk_tecnico_cliente` FOREIGN KEY (`tecnicoAsignado_idUsuario`) REFERENCES `usuario` (`idUsuario`),
+  ADD CONSTRAINT `fk_vendedor_cliente` FOREIGN KEY (`vendedor_idUsuario`) REFERENCES `usuario` (`idUsuario`);
+
+--
+-- Filtros para la tabla `cliente_equipo`
+--
+ALTER TABLE `cliente_equipo`
+  ADD CONSTRAINT `cliente_equipo_ibfk_1` FOREIGN KEY (`cliente_idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cliente_equipo_ibfk_2` FOREIGN KEY (`clienteServicio_id`) REFERENCES `cliente_servicio` (`idClienteServicio`) ON DELETE SET NULL;
+
+--
+-- Filtros para la tabla `cliente_servicio`
+--
+ALTER TABLE `cliente_servicio`
+  ADD CONSTRAINT `cliente_servicio_ibfk_1` FOREIGN KEY (`cliente_idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cliente_servicio_ibfk_2` FOREIGN KEY (`servicio_idServicio`) REFERENCES `servicio` (`idServicio`);
+
+--
+-- Filtros para la tabla `cliente_telefono`
+--
+ALTER TABLE `cliente_telefono`
+  ADD CONSTRAINT `cliente_telefono_ibfk_1` FOREIGN KEY (`cliente_idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `factura`
@@ -814,6 +1451,20 @@ ALTER TABLE `cliente`
 ALTER TABLE `factura`
   ADD CONSTRAINT `fk_cliente_factura` FOREIGN KEY (`cliente_idCliente`) REFERENCES `cliente` (`idCliente`),
   ADD CONSTRAINT `fk_factura_plan` FOREIGN KEY (`idPlan`) REFERENCES `plan` (`idPlan`);
+
+--
+-- Filtros para la tabla `ip_publica`
+--
+ALTER TABLE `ip_publica`
+  ADD CONSTRAINT `ip_publica_ibfk_1` FOREIGN KEY (`cliente_idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE CASCADE,
+  ADD CONSTRAINT `ip_publica_ibfk_2` FOREIGN KEY (`clienteServicio_id`) REFERENCES `cliente_servicio` (`idClienteServicio`) ON DELETE SET NULL;
+
+--
+-- Filtros para la tabla `servicio_valor_agregado`
+--
+ALTER TABLE `servicio_valor_agregado`
+  ADD CONSTRAINT `servicio_valor_agregado_ibfk_1` FOREIGN KEY (`clienteServicio_id`) REFERENCES `cliente_servicio` (`idClienteServicio`) ON DELETE CASCADE,
+  ADD CONSTRAINT `servicio_valor_agregado_ibfk_2` FOREIGN KEY (`valorAgregado_id`) REFERENCES `valor_agregado` (`idValorAgregado`);
 
 --
 -- Filtros para la tabla `user_visita`

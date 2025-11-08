@@ -182,7 +182,7 @@ if (!empty($fotoPerfilBD) && $rutaServidorFotos && file_exists($rutaServidorFoto
                 type="text" 
                 id="busqueda" 
                 class="form-control form-control-lg shadow-sm" 
-                placeholder="🔍 Buscar cliente por nombre, documento o plan..."
+                placeholder="Buscador"
                 style="
                     width: 100%;
                     border-radius: 50px;

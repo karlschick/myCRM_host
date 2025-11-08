@@ -1,5 +1,4 @@
 <?php
-// actualizado: formulario completo con TODOS los campos
 session_start();
 error_reporting(0);
 

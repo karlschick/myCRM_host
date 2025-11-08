@@ -13,7 +13,7 @@ $creacion = $_POST['creacion'] ?? '';
 $act = $_POST['act'] ?? '';
 $rol = $_POST['rol'] ?? '';
 
-// ✅ Validación de campos obligatorios
+// Validación de campos obligatorios
 if (empty($td) || empty($id) || empty($user_usuario = $_POST['user_usuario'] ?? '') || empty($clave) || empty($rol)) {
     echo '<script>
             alert("Debe completar los campos obligatorios: Tipo de documento, Documento, Usuario, Contraseña y Rol.");
